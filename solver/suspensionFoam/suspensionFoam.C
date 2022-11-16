@@ -24,13 +24,13 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    scalarTransportFoam
+    suspensionFoam
 
 Group
     grpBasicSolvers
 
 Description
-    Passive scalar transport equation solver.
+    Scalar transport and incompressible turbulent flow solver.
 
     \heading Solver details
     The equation is given by:
@@ -42,20 +42,34 @@ Description
 
     Where:
     \vartable
-        phi       | Passive scalar
+        C          | Volumic fraction
+        \vec{U}    | Velocity
+        \vec{R}    | Stress tensor
+        p          | Pressure
+        \vec{S}_U  | Momentum source
     \endvartable
 
     \heading Required fields
     \plaintable
         C       | Passive scalar
         U       | Velocity [m/s]
+        p       | Kinematic pressure, p/rho [m2/s2]
+        \<turbulence fields\> | As required by user selection
     \endplaintable
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "dynamicFvMesh.H"
+#include "singlePhaseTransportModel.H"
+#include "turbulentTransportModel.H"
+#include "pimpleControl.H"
+#include "CorrectPhi.H"
 #include "fvOptions.H"
-#include "simpleControl.H"
+#include "localEulerDdtScheme.H"
+#include "fvcSmooth.H"
+
+#include "settlingModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -63,31 +77,102 @@ int main(int argc, char *argv[])
 {
     argList::addNote
     (
-        "Passive scalar transport equation solver."
+        "Scalar transport and incompressible turbulent flow solver."
     );
+
+    #include "postProcess.H"
 
     #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
-    #include "createMesh.H"
-
-    simpleControl simple(mesh);
-
+    #include "createDynamicFvMesh.H"
+    #include "initContinuityErrs.H"
+    #include "createDyMControls.H"
     #include "createFields.H"
+    #include "createUfIfPresent.H"
+    #include "CourantNo.H"
+    #include "setInitialDeltaT.H"
+
+    turbulence->validate();
+    
+    if (!LTS)
+    {
+        #include "CourantNo.H"
+        #include "setInitialDeltaT.H"
+    }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nCalculating scalar transport\n" << endl;
+    Info<< "\nStarting time loop\n" << endl;
 
-    #include "CourantNo.H"
-
-    while (simple.loop())
+    while (runTime.run())
     {
+        #include "readDyMControls.H"
+
+        if (LTS)
+        {
+            #include "setRDeltaT.H"
+        }
+        else
+        {
+            #include "CourantNo.H"
+            #include "setDeltaT.H"
+        }
+
+        ++runTime;
+
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        #include "CEqn.H"
+        // --- Pressure-velocity PIMPLE corrector loop
+        while (pimple.loop())
+        {
+            if (pimple.firstIter() || moveMeshOuterCorrectors)
+            {
+                // Do any mesh changes
+                mesh.controlledUpdate();
+
+                if (mesh.changing())
+                {
+                    MRF.update();
+
+                    if (correctPhi)
+                    {
+                        // Calculate absolute flux
+                        // from the mapped surface velocity
+                        phi = mesh.Sf() & Uf();
+
+                        #include "correctPhi.H"
+
+                        // Make the flux relative to the mesh motion
+                        fvc::makeRelative(phi, U);
+                    }
+
+                    if (checkMeshCourantNo)
+                    {
+                        #include "meshCourantNo.H"
+                    }
+                }
+            }
+            
+            #include "UEqn.H"
+            #include "CEqn.H"
+            
+            // --- Pressure corrector loop
+            while (pimple.correct())
+            {
+                #include "pEqn.H"
+            }
+
+            if (pimple.turbCorr())
+            {
+                laminarTransport.correct();
+                turbulence->correct();
+            }
+        }
 
         runTime.write();
+
+        runTime.printExecutionTime(Info);
     }
 
     Info<< "End\n" << endl;

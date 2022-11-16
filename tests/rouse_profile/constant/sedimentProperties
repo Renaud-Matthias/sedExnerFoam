@@ -9,39 +9,12 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    object      U;
+    class       dictionary;
+    object      sedimentProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
-
-internalField   uniform (0.8 0 0);
-
-boundaryField
-{
-    inlet
-    {
-        type            fixedValue;
-        value           $internalField;
-    }
-    outlet
-    {
-        type            zeroGradient;
-    }
-    upperBoundary
-    {
-        type            zeroGradient;
-    }
-    bottomBoundary
-    {
-        type            zeroGradient;
-    }
-    lateralBoundary
-    {
-        type            empty;
-    }
-}
-
+rhoS    [1 -3 0 0 0 0 0] 1600; // sediment density
+dS      [0 1 0 0 0 0 0] 0.001; // sediment diameter
 
 // ************************************************************************* //

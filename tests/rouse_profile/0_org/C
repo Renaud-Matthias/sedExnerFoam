@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2206                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  2.1.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -10,11 +10,12 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
+    location    "0";
     object      C;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions      [0 2 -2 0 0 0 0];
 
 internalField   uniform 0;
 
@@ -22,24 +23,23 @@ boundaryField
 {
     inlet
     {
-        type            fixedValue;
-        value           uniform 0.3;
+        type            cyclic;
     }
-
     outlet
     {
-        type            zeroGradient;
+        type            cyclic;
     }
-    upperBoundary
+    top
     {
         type            fixedValue;
-	value           uniform 0;
+        value           uniform 0;
     }
-    bottomBoundary
+    walls
     {
-        type            zeroGradient;
+        type            fixedValue;
+	value           uniform 0.7;
     }
-    lateralBoundary
+    frontAndBackPlanes
     {
         type            empty;
     }
