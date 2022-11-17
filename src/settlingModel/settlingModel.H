@@ -43,12 +43,11 @@ public:
     virtual ~settlingModel();
 
     // Selectors
-    /*
+    
         static autoPtr<settlingModel> New
         (
             const dictionary& UfallDict
         );
-        */
 };
 
 } // End namespace foam
