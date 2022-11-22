@@ -1,20 +1,17 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "settlingModel.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
+#include "SettlingModel.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(settlingModel, 0);
-    defineRunTimeSelectionTable(settlingModel, dictionary);
+    defineTypeNameAndDebug(SettlingModel, 0);
+    defineRunTimeSelectionTable(SettlingModel, dictionary);
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::settlingModel::settlingModel
+Foam::SettlingModel::SettlingModel
 (
     const dictionary& sedimentDict
 )
@@ -27,22 +24,22 @@ Foam::settlingModel::settlingModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::settlingModel::~settlingModel()
+Foam::SettlingModel::~SettlingModel()
 {}
 
 // * * * * * * * * * * * * * * * *  Selector   * * * * * * * * * * * * * * * //
-/*
-Foam::autoPtr<Foam::settlingModel> Foam::settlingModel::New
+
+Foam::autoPtr<Foam::SettlingModel> Foam::SettlingModel::New
 (
-    const dictionary& UfallDict
+    const dictionary& sedimentDict
 )
 {
     word settlingModelType
     (
-        UfallDict.get<word>("settlingModel")
+        sedimentDict.get<word>("settlingModel")
     );
 
-    info << "Selecting settlingModel"
+    Info << "Selecting settlingModel"
         << settlingModelType << endl;
 
     auto cstrIter =
@@ -51,7 +48,7 @@ Foam::autoPtr<Foam::settlingModel> Foam::settlingModel::New
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalError
-            << "settlingModel::New : " << endl
+            << "SettlingModel::New : " << endl
                 << "    unknown settlingModelType type "
                 << settlingModelType
                 << ", constructor not in hash table" << endl << endl
@@ -60,6 +57,5 @@ Foam::autoPtr<Foam::settlingModel> Foam::settlingModel::New
              << abort(FatalError);
     }
 
-    return cstrIter()(ppDict);
+    return cstrIter()(sedimentDict);
 }
-    */

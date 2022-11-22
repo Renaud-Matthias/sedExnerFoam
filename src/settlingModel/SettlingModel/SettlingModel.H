@@ -1,15 +1,16 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifndef settlingModel_H
-#define settlingModel_H
+#ifndef SettlingModel_H
+#define SettlingModel_H
 
 #include "dictionary.H"
 #include "runTimeSelectionTables.H"
+//#include "HindranceModel.H"
 
 namespace Foam
 {
 
-class settlingModel
+class SettlingModel
 {
 protected:
 
@@ -18,35 +19,37 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("settlingModel");
+    TypeName("SettlingModel");
 
 
     // Declare runtime construction
 
     declareRunTimeSelectionTable
+    (
+        autoPtr,
+        SettlingModel,
+        dictionary,
         (
-            autoPtr,
-	    settlingModel,
-            dictionary,
-            (const dictionary& sedimentDict),
-            (sedimentDict)
-        );
+            const dictionary& sedimentDict
+        ),
+        (sedimentDict)
+    );
 
     //- Constructor
-    settlingModel
+    SettlingModel
     (
         const dictionary& sedimentDict
     );
 
 
     //- Destructor
-    virtual ~settlingModel();
+    virtual ~SettlingModel();
 
     // Selectors
     
-        static autoPtr<settlingModel> New
+        static autoPtr<SettlingModel> New
         (
-            const dictionary& UfallDict
+            const dictionary& sedimentDict
         );
 };
 
