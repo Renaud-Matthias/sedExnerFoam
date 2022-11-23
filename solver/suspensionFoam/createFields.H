@@ -60,12 +60,8 @@ IOdictionary sedimentProperties
 dimensionedScalar rhoS("rhoS", dimDensity, sedimentProperties);
 dimensionedScalar dS("dS", dimLength, sedimentProperties);
 
-settlingModel UfallModel(sedimentProperties);
-/*settlingModel Ufallmodel(sedimentProperties);
-autoPtr<settlingModel> pp = settlingModel::New
-(
-    sedimentProperties
-);*/
+// Initialize Settling Model
+SettlingModel settlingModel(sedimentProperties);
 
 Info<< "Compute sediment settling velocity Ufall\n" << endl;
 
