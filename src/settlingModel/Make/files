@@ -1,3 +1,4 @@
 SettlingModel/SettlingModel.C
+HindranceModel/HindranceModel.C
 
 LIB = $(FOAM_USER_LIBBIN)/libsettlingModel
