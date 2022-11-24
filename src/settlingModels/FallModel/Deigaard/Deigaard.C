@@ -19,51 +19,29 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef FallModel_H
-#define FallModel_H
+#include "Deigaard.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-class FallModel
+namespace settlingModels
 {
-protected:
-    const dictionary& dict_;
-    
-    public:
-    
-    //- Runtime type information
-    TypeName("fallModel");
-    
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        FallModel,
-        dictionary,
-        (
-            const dictionary& dict
-        ),
-        (dict)
-    );
-    
-    // Constructor
-    FallModel(const dictionary& dict);
+    defineTypeNameAndDebug(Deigaard, 0);
+    addToRunTimeSelectionTable(FallModel, Deigaard, dictionary);
+}
+}
 
-    // Selectors
-    static autoPtr<FallModel> New
-    (
-        const dictionary& dict
-    );
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-    //- Destructor
-    virtual ~FallModel();
-};
-} // End namespace Foam
+Foam::settlingModels::Deigaard::Deigaard(const dictionary& dict)
+:
+    FallModel(dict)
+{}
 
-#endif
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::settlingModels::Deigaard::~Deigaard()
+{}

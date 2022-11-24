@@ -9,6 +9,7 @@ ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
 endif
 
 EXE_INC = \
+    -DOFVERSION=$(OF_VERSION) \
     -I../buoyantBoussinesqSimpleFoam \
     -I../../incompressible/pimpleFoam \
     -I$(LIB_SRC)/sampling/lnInclude \
@@ -21,11 +22,11 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
-    -I../../src/settlingModel/lnInclude
+    -I../../src/settlingModels/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
-    -lsettlingModel \
+    -lsettlingModels \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
@@ -35,3 +36,4 @@ EXE_LIBS = \
     -lturbulenceModels \
     -lincompressibleTurbulenceModels \
     -lincompressibleTransportModels
+    

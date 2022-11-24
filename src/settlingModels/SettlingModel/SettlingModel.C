@@ -19,26 +19,26 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Deigaard.H"
-#include "addToRunTimeSelectionTable.H"
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-    defineTypeNameAndDebug(Deigaard, 0);
-    addToRunTimeSelectionTable(FallModel, Deigaard, dictionary);
-}
+#include "SettlingModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::Deigaard::Deigaard(const dictionary& dict)
+Foam::SettlingModel::SettlingModel
+(
+    const dictionary& sedimentDict
+)
 :
-    FallModel(dict)
-{}
+    sedimentDict_(sedimentDict)
+{
+        Info << "Initialization of SettlingModel" << endl;
+        Info << "Initialization of FallModel" << endl;
+        FallModel_ = settlingModels::FallModel::New (sedimentDict_);
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::Deigaard::~Deigaard()
+Foam::SettlingModel::~SettlingModel()
 {}

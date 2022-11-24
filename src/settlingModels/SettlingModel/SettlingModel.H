@@ -21,24 +21,45 @@ License
 \*---------------------------------------------------------------------------*/
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "SettlingModel.H"
+#ifndef SettlingModel_H
+#define SettlingModel_H
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+#include "dictionary.H"
+#include "runTimeSelectionTables.H"
+#include "HindranceModel.H"
+#include "FallModel.H"
 
-Foam::SettlingModel::SettlingModel
-(
-    const dictionary& sedimentDict
-)
-:
-    sedimentDict_(sedimentDict)
+namespace Foam
 {
-        Info << "Initialization of SettlingModel" << endl;
-        Info << "Initialization of FallModel" << endl;
-        FallModel_ = FallModel::New (sedimentDict_);
-}
+
+class SettlingModel
+{
+protected:
+
+    const dictionary& sedimentDict_;
+
+    autoPtr<settlingModels::FallModel> FallModel_;
+
+    //autoPtr<HindranceModel> HindranceModel_;
+    
+public:
+
+    //- Constructor
+    SettlingModel
+    (
+        const dictionary& sedimentDict
+    );
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+    //- Destructor
+    virtual ~SettlingModel();
 
-Foam::SettlingModel::~SettlingModel()
-{}
+};
+
+} // End namespace foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

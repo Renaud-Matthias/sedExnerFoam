@@ -24,13 +24,16 @@ License
 
 namespace Foam
 {
+namespace settlingModels
+{
     defineTypeNameAndDebug(FallModel, 0);
     defineRunTimeSelectionTable(FallModel, dictionary);
+}
 }
 
 // Constructor
 
-Foam::FallModel::FallModel
+Foam::settlingModels::FallModel::FallModel
 (
     const dictionary& dict
 )
@@ -41,12 +44,13 @@ Foam::FallModel::FallModel
 
 // Destructor
 
-Foam::FallModel::~FallModel()
+Foam::settlingModels::FallModel::~FallModel()
 {}
 
 // Selector
 
-Foam::autoPtr<Foam::FallModel> Foam::FallModel::New
+Foam::autoPtr<Foam::settlingModels::FallModel>
+Foam::settlingModels::FallModel::New
 (
     const dictionary& dict
 )

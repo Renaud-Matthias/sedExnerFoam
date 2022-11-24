@@ -19,36 +19,54 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef Deigaard_H
-#define Deigaard_H
+#ifndef FallModel_H
+#define FallModel_H
 
-#include "FallModel.H"
+#include "dictionary.H"
+#include "volFields.H"
+#include "dimensionedTypes.H"
+#include "runTimeSelectionTables.H"
 
 namespace Foam
 {
-
-class Deigaard
-:
-    public FallModel
+namespace settlingModels
 {
 
-public:
-
+class FallModel
+{
+protected:
+    const dictionary& dict_;
+    
+    public:
+    
     //- Runtime type information
-    TypeName("Deigaard");
+    TypeName("fallModel");
+    
+    // Declare runtime constructor selection table
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        FallModel,
+        dictionary,
+        (
+            const dictionary& dict
+        ),
+        (dict)
+    );
+    
+    // Constructor
+    FallModel(const dictionary& dict);
 
-
-    // Constructors
-
-        //- Construct from components
-    Deigaard(const dictionary& dict);
-
+    // Selectors
+    static autoPtr<FallModel> New
+    (
+        const dictionary& dict
+    );
 
     //- Destructor
-    virtual ~Deigaard();
-
+    virtual ~FallModel();
 };
-
-}
+} // End namespace SettlingModels
+} // End namespace Foam
 
 #endif
