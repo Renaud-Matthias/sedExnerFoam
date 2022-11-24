@@ -5,3 +5,4 @@ polyMesh
 *[0_9].*
 *.o
 *~
+postProcessing
