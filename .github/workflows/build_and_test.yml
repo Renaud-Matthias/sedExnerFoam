@@ -20,7 +20,6 @@ jobs:
       #    shopt -s expand_aliases && source /openfoam/bash.rc && 
       #    cd tuto/blabla && suspensionFoam
   checkstyle:
-  build:
     runs-on: ubuntu-latest
     defaults:
       run:
