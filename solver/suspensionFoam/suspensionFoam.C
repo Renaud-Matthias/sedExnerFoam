@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
     turbulence->validate();
     
-    if (!LTS)
+    if (not LTS)
     {
         #include "CourantNo.H"
         #include "setInitialDeltaT.H"
