@@ -19,3 +19,21 @@ jobs:
       #  run: |
       #    shopt -s expand_aliases && source /openfoam/bash.rc && 
       #    cd tuto/blabla && suspensionFoam
+  checkstyle:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: install vera++
+        run: |
+          sudo apt-get install vera++
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: pull submodule
+        run: |
+          git submodule init && git submodule update --remote
+      - name: Check style
+        run: |
+          shopt -s expand_aliases && ./foamStyleCheck/checkStyle 
