@@ -86,7 +86,15 @@ SettlingModel settlingModel(sedimentProperties);
 
 Info<< "Compute sediment settling velocity Ufall\n" << endl;
 
-dimensionedVector Ufall("Ufall", dimVelocity, vector (0, -0.05, 0));
+//dimensionedVector Ufall("Ufall", dimVelocity, vector (0, -0.05, 0));
+dimensionedVector Ufall
+(
+    "Ufall",
+    dimVelocity,
+    vector (0, -settlingModel.Ufall(dS,rhoS,C),0)
+);
+
+Info << "Fall velocity is : " << Ufall.value() << endl;
 
 Info<< "Reading transportProperties\n" << endl;
 
