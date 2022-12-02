@@ -1,6 +1,7 @@
 SettlingModel/SettlingModel.C
 HindranceModel/HindranceModel.C
 FallModel/FallModel.C
+FallModel/Fixed/Fixed.C
 FallModel/Deigaard/Deigaard.C
 
 LIB = $(FOAM_USER_LIBBIN)/libsettlingModels
