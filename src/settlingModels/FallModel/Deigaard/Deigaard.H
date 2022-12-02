@@ -49,6 +49,13 @@ public:
     //- Destructor
     virtual ~Deigaard();
 
+
+    // Member functions
+    scalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS
+    ) const;
 };
 
 } // End namespace settlingModels

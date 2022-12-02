@@ -40,8 +40,21 @@ Foam::settlingModels::Deigaard::Deigaard(const dictionary& dict)
     FallModel(dict)
 {}
 
-
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::settlingModels::Deigaard::~Deigaard()
 {}
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+Foam::scalar Foam::settlingModels::Deigaard::Ufall0
+(
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS
+) const
+{
+    scalar sout = 3;
+    label iter = 0;
+    iter += 1;
+    return sout;
+}
