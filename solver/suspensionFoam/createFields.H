@@ -91,7 +91,7 @@ dimensionedVector Ufall
 (
     "Ufall",
     dimVelocity,
-    vector (0, -settlingModel.Ufall(dS,rhoS,C),0)
+    vector (0, -settlingModel.Ufall(dS, rhoS, C), 0)
 );
 
 Info << "Fall velocity is : " << Ufall.value() << endl;

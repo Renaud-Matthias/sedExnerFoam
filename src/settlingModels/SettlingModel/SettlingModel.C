@@ -55,6 +55,6 @@ Foam::scalar Foam::SettlingModel::Ufall
 )
 {
     Info << "Check 1" << endl;
-    scalar Ws = FallModel_->Ufall0(dS,rhoS);
+    scalar Ws = FallModel_->Ufall0(dS, rhoS);
     return Ws;
 }
