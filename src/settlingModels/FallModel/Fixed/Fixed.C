@@ -19,42 +19,48 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include "Fixed.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "SettlingModel.H"
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace settlingModels
+{
+    defineTypeNameAndDebug(Fixed, 0);
+    addToRunTimeSelectionTable(FallModel, Fixed, dictionary);
+}
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::SettlingModel::SettlingModel
-(
-    const dictionary& sedimentDict
-)
+Foam::settlingModels::Fixed::Fixed(const dictionary& dict)
 :
-    dict_(sedimentDict)
+    FallModel(dict)
 {
-        Info << "Initialization of SettlingModel" << endl;
-        fallDict_ = dict_.subDict("fallModel");
-        Info << "Initialization of FallModel" << endl;
-        FallModel_ = settlingModels::FallModel::New (fallDict_);
 }
-
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::SettlingModel::~SettlingModel()
+Foam::settlingModels::Fixed::~Fixed()
 {}
-
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::SettlingModel::Ufall
+Foam::scalar Foam::settlingModels::Fixed::Ufall0
 (
     const dimensionedScalar& dS,
-    const dimensionedScalar& rhoS,
-    const volScalarField& C
-)
+    const dimensionedScalar& rhoS
+) const
 {
-    Info << "Check 1" << endl;
-    scalar Ws = FallModel_->Ufall0(dS,rhoS);
-    return Ws;
+    Info << dict_ << endl;
+    Info << "check 2" << endl;
+    //scalar UfallValue(dict_.get<scalar>("value"));
+    Info << dict_ << endl;
+    word UfallType(dict_.get<word>("type"));
+    scalar UfallValue(0.3);
+    Info << UfallType << endl;
+    Info << "check 3" << endl;
+    return UfallValue;
 }

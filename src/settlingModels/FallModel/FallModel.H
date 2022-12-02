@@ -65,6 +65,14 @@ protected:
 
     //- Destructor
     virtual ~FallModel();
+
+
+    // Member functions
+    virtual scalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS
+    ) const = 0;
 };
 } // End namespace SettlingModels
 } // End namespace Foam

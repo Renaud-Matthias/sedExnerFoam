@@ -39,7 +39,9 @@ Foam::settlingModels::FallModel::FallModel
 )
 :
     dict_(dict)
-{}
+{
+    Info << "dictionnary used : " << dict_ << endl;
+}
 
 
 // Destructor
@@ -55,7 +57,7 @@ Foam::settlingModels::FallModel::New
     const dictionary& dict
 )
 {
-    word fallModelType(dict.get<word>("fallModel"));
+    word fallModelType(dict.get<word>("type"));
 
     Info<< "Selecting fallModel "
         << fallModelType << endl;

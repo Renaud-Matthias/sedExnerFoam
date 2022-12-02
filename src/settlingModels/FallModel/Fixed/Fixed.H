@@ -19,56 +19,46 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#ifndef Deigaard_H
+#define Deigaard_H
 
-#ifndef SettlingModel_H
-#define SettlingModel_H
-
-#include "dictionary.H"
-#include "runTimeSelectionTables.H"
-#include "HindranceModel.H"
 #include "FallModel.H"
 
 namespace Foam
 {
-
-class SettlingModel
+namespace settlingModels
 {
-protected:
 
-    const dictionary& dict_;
+class Fixed
+:
+    public FallModel
+{
 
-    dictionary fallDict_;
-
-    autoPtr<settlingModels::FallModel> FallModel_;
-
-    //autoPtr<HindranceModel> HindranceModel_;
-    
 public:
 
-    //- Constructor
-    SettlingModel
-    (
-        const dictionary& sedimentDict
-    );
+    //- Runtime type information
+    TypeName("Fixed");
+
+
+    // Constructors
+
+        //- Construct from components
+    Fixed(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~SettlingModel();
+    virtual ~Fixed();
 
-    //- Member functions
-    scalar Ufall
+
+    // Member functions
+    scalar Ufall0
     (
         const dimensionedScalar& dS,
-        const dimensionedScalar& rhoS,
-        const volScalarField& C
-    );
+        const dimensionedScalar& rhoS
+    ) const;
 };
 
-} // End namespace foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+} // End namespace settlingModels
+} // End namespace Foam
 
 #endif
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
