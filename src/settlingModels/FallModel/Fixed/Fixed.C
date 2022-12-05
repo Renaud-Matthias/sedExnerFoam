@@ -54,13 +54,6 @@ Foam::scalar Foam::settlingModels::Fixed::Ufall0
     const dimensionedScalar& rhoS
 ) const
 {
-    Info << dict_ << endl;
-    Info << "check 2" << endl;
-    //scalar UfallValue(dict_.get<scalar>("value"));
-    Info << dict_ << endl;
-    word UfallType(dict_.get<word>("type"));
-    scalar UfallValue(0.3);
-    Info << UfallType << endl;
-    Info << "check 3" << endl;
+    scalar UfallValue(dict_.get<scalar>("value"));
     return UfallValue;
 }
