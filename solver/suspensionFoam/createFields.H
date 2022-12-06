@@ -82,19 +82,27 @@ dimensionedScalar rhoS("rhoS", dimDensity, sedimentProperties);
 dimensionedScalar dS("dS", dimLength, sedimentProperties);
 
 // Initialize Settling Model
+Info << "Initialize settling Model\n" << endl;
 SettlingModel settlingModel(sedimentProperties);
 
-Info<< "Compute sediment settling velocity Ufall\n" << endl;
-
-//dimensionedVector Ufall("Ufall", dimVelocity, vector (0, -0.05, 0));
-dimensionedVector Ufall
+Info<< "Reading field settling velocity Ws\n" << endl;
+volVectorField Ws
 (
-    "Ufall",
-    dimVelocity,
-    vector (0, -settlingModel.Ufall(dS, rhoS, C), 0)
+    IOobject
+    (
+        "Ws",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
 );
 
-Info << "Fall velocity is : " << Ufall.value() << endl;
+Info<< "Initialize sediment settling velocity\n" << endl;
+
+Ws = settlingModel.Ufall(dS, rhoS, C);
+Ws.correctBoundaryConditions();
 
 Info<< "Reading transportProperties\n" << endl;
 
@@ -105,7 +113,7 @@ IOdictionary transportProperties
         "transportProperties",
         runTime.constant(),
         mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_READ,
         IOobject::NO_WRITE
     )
 );
@@ -125,7 +133,7 @@ surfaceScalarField phip
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
-    fvc::flux(U+Ufall)
+    fvc::flux(U+Ws)
 );
 
 label pRefCell = 0;

@@ -126,6 +126,8 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            #include "CEqn.H"
+            
             if (pimple.firstIter() || moveMeshOuterCorrectors)
             {
                 // Do any mesh changes
@@ -155,7 +157,6 @@ int main(int argc, char *argv[])
             }
             
             #include "UEqn.H"
-            #include "CEqn.H"
             
             // --- Pressure corrector loop
             while (pimple.correct())
