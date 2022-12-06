@@ -1,5 +1,7 @@
 SettlingModel/SettlingModel.C
 HindranceModel/HindranceModel.C
+HindranceModel/Zacky/Zacky.C
+HindranceModel/None/None.C
 FallModel/FallModel.C
 FallModel/Fixed/Fixed.C
 FallModel/Deigaard/Deigaard.C

@@ -24,13 +24,16 @@ License
 
 namespace Foam
 {
+namespace settlingModels
+{
     defineTypeNameAndDebug(HindranceModel, 0);
     defineRunTimeSelectionTable(HindranceModel, dictionary);
+}
 }
 
 // Constructor
 
-Foam::HindranceModel::HindranceModel
+Foam::settlingModels::HindranceModel::HindranceModel
 (
     const dictionary& dict
 )
@@ -41,17 +44,18 @@ Foam::HindranceModel::HindranceModel
 
 // Destructor
 
-Foam::HindranceModel::~HindranceModel()
+Foam::settlingModels::HindranceModel::~HindranceModel()
 {}
 
 // Selector
 
-Foam::autoPtr<Foam::HindranceModel> Foam::HindranceModel::New
+Foam::autoPtr<Foam::settlingModels::HindranceModel>
+Foam::settlingModels::HindranceModel::New
 (
     const dictionary& dict
 )
 {
-    word hindranceModelType(dict.get<word>("hindranceModel"));
+    word hindranceModelType(dict.get<word>("type"));
 
     Info<< "Selecting hindranceModel "
         << hindranceModelType << endl;

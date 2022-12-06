@@ -29,6 +29,8 @@ License
 
 namespace Foam
 {
+namespace settlingModels
+{
 
 class HindranceModel
 {
@@ -63,7 +65,14 @@ protected:
 
     //- Destructor
     virtual ~HindranceModel();
+
+    // Member functions
+    virtual tmp<volScalarField> hindrance
+    (
+        const volScalarField& C
+    ) const = 0;
 };
 } // End namespace Foam
+} // End namespace settlingModels
 
 #endif
