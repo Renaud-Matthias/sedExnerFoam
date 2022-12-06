@@ -83,6 +83,9 @@ U = HbyA - rAtU*fvc::grad(p);
 U.correctBoundaryConditions();
 fvOptions.correct(U);
 
+// Update flux
+phip = fvc::flux(U+Ws);
+
 // Correct Uf if the mesh is moving
 fvc::correctUf(Uf, U, phi);
 

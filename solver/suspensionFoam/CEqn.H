@@ -25,7 +25,7 @@ License
     fvScalarMatrix CEqn
     (
           fvm::ddt(C)
-        + fvm::div(phi, C)
+        + fvm::div(phip, C)
         - fvm::laplacian(epsEff, C)
         ==
           fvOptions(C)
@@ -36,6 +36,12 @@ License
     fvOptions.constrain(CEqn);
     
     CEqn.solve();
+
+    C.correctBoundaryConditions();
     
     fvOptions.correct(C);
+
+    Ws = settlingModel.Ufall(dS, rhoS, C);
+
+    Ws.correctBoundaryConditions();
 }
