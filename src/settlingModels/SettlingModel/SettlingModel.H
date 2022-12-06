@@ -40,16 +40,18 @@ protected:
 
     dictionary fallDict_;
 
+    dictionary hindranceDict_;
+
     autoPtr<settlingModels::FallModel> FallModel_;
 
-    //autoPtr<HindranceModel> HindranceModel_;
+    autoPtr<settlingModels::HindranceModel> HindranceModel_;
     
 public:
 
     //- Constructor
     SettlingModel
     (
-        const dictionary& sedimentDict
+        const dictionary& dict
     );
 
 
@@ -57,12 +59,12 @@ public:
     virtual ~SettlingModel();
 
     //- Member functions
-    scalar Ufall
+    tmp<Foam::volVectorField> Ufall
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
         const volScalarField& C
-    );
+    ) const;
 };
 
 } // End namespace foam

@@ -66,7 +66,6 @@ protected:
     //- Destructor
     virtual ~FallModel();
 
-
     // Member functions
     virtual scalar Ufall0
     (

@@ -27,15 +27,18 @@ License
 
 Foam::SettlingModel::SettlingModel
 (
-    const dictionary& sedimentDict
+    const dictionary& dict
 )
 :
-    dict_(sedimentDict)
+    dict_(dict)
 {
         Info << "Initialization of SettlingModel" << endl;
         fallDict_ = dict_.subDict("fallModel");
         Info << "Initialization of FallModel" << endl;
         FallModel_ = settlingModels::FallModel::New (fallDict_);
+        hindranceDict_ = dict_.subDict("hindranceModel");
+        Info << "Initialization of HindranceModel" << endl;
+        HindranceModel_ = settlingModels::HindranceModel::New (hindranceDict_);
 }
 
 
@@ -44,16 +47,15 @@ Foam::SettlingModel::SettlingModel
 Foam::SettlingModel::~SettlingModel()
 {}
 
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::SettlingModel::Ufall
+Foam::tmp<Foam::volVectorField> Foam::SettlingModel::Ufall
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
     const volScalarField& C
-)
+) const
 {
-    scalar Ws = FallModel_->Ufall0(dS, rhoS);
-    return Ws;
+    dimensionedScalar ufall0(dimVelocity,FallModel_->Ufall0(dS, rhoS));
+    return vector(0, -1, 0)*ufall0*HindranceModel_->hindrance(C);
 }

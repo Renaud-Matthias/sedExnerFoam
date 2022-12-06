@@ -39,9 +39,7 @@ Foam::settlingModels::FallModel::FallModel
 )
 :
     dict_(dict)
-{
-    Info << "dictionnary used : " << dict_ << endl;
-}
+{}
 
 
 // Destructor
