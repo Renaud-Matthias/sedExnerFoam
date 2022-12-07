@@ -19,40 +19,45 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Zacky.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef Zaki_H
+#define Zaki_H
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+#include "HindranceModel.H"
 
 namespace Foam
 {
 namespace settlingModels
 {
-    defineTypeNameAndDebug(Zacky, 0);
-    addToRunTimeSelectionTable(HindranceModel, Zacky, dictionary);
-}
-}
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::settlingModels::Zacky::Zacky(const dictionary& dict)
+class Zaki
 :
-    HindranceModel(dict)
+    public HindranceModel
 {
-}
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+public:
 
-Foam::settlingModels::Zacky::~Zacky()
-{}
+    //- Runtime type information
+    TypeName("Zaki");
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::settlingModels::Zacky::hindrance
-(
-    const volScalarField& C
-) const
-{
-    scalar nExponent(dict_.get<scalar>("n"));
-    return pow((1-C),nExponent);
-}
+    // Constructors
+
+        //- Construct from components
+    Zaki(const dictionary& dict);
+
+
+    //- Destructor
+    virtual ~Zaki();
+
+
+    // Member functions
+    tmp<volScalarField> hindrance
+    (
+        const volScalarField& C
+    ) const;
+};
+
+} // End namespace settlingModels
+} // End namespace Foam
+
+#endif
