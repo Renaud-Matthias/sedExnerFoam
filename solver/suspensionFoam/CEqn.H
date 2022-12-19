@@ -41,7 +41,7 @@ License
     
     fvOptions.correct(C);
 
-    Ws = settlingModel.Ufall(dS, rhoS, C);
+    Ws = settlingModel.Ufall(dS, rhoS, C)*g/mag(g);
 
     Ws.correctBoundaryConditions();
 }

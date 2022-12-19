@@ -64,6 +64,8 @@ volVectorField U
     mesh
 );
 
+#include "readGravitationalAcceleration.H"
+
 Info<< "Reading sedimentProperties\n" << endl;
 
 IOdictionary sedimentProperties
@@ -101,7 +103,7 @@ volVectorField Ws
 
 Info<< "Initialize sediment settling velocity\n" << endl;
 
-Ws = settlingModel.Ufall(dS, rhoS, C);
+Ws = settlingModel.Ufall(dS, rhoS, C)*g/mag(g);
 Ws.correctBoundaryConditions();
 
 Info<< "Reading transportProperties\n" << endl;
