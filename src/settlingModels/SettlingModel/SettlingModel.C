@@ -49,7 +49,7 @@ Foam::SettlingModel::~SettlingModel()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volVectorField> Foam::SettlingModel::Ufall
+Foam::tmp<Foam::volScalarField> Foam::SettlingModel::Ufall
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
@@ -57,5 +57,5 @@ Foam::tmp<Foam::volVectorField> Foam::SettlingModel::Ufall
 ) const
 {
     dimensionedScalar ufall0(dimVelocity, FallModel_->Ufall0(dS, rhoS));
-    return vector(0, -1, 0)*ufall0*HindranceModel_->hindrance(C);
+    return ufall0*HindranceModel_->hindrance(C);
 }

@@ -59,7 +59,7 @@ public:
     virtual ~SettlingModel();
 
     //- Member functions
-    tmp<Foam::volVectorField> Ufall
+    tmp<Foam::volScalarField> Ufall
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
