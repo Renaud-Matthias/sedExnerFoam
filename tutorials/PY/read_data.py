@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def read_exp(path_file) :
+    time_list = []
+    z_dict = {}
+    c_dict = {}
+    with open(path_file,'r') as f :
+        for line in f :
+            if '#' in line :
+                continue
+            t,z,c = line.split(';')
+            t = float(t)
+            z = np.array([float(ch) for ch in z.split(' ')])
+            c = np.array([float(ch) for ch in c.split(' ')])
+            time_list.append(t)
+            z_dict.update({t : z})
+            c_dict.update({t : c})
+    return (time_list, z_dict, c_dict)
+
+time_list, z_dict, c_dict = read_exp('./concentration.txt')
+print(time_list)
+
+t_int, z_int1, z_int2 = np.loadtxt('./interfaces.txt',unpack=True)
+
+fig = plt.figure(figsize=(9,6))
+gs = fig.add_gridspec(1,2)
+
+ax0 = fig.add_subplot(gs[0,0])
+ax0.plot(c_dict[120],z_dict[120],ls='--')
+
+ax1 = fig.add_subplot(gs[0,1])
+ax1.plot(t_int,z_int1,marker='o',ls='None')
+ax1.plot(t_int,z_int2,marker='o',ls='None')
+
+plt.show()
