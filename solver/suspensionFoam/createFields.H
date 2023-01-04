@@ -66,6 +66,22 @@ volVectorField U
 
 #include "readGravitationalAcceleration.H"
 
+Info<< "Reading transportProperties\n" << endl;
+
+IOdictionary transportProperties
+(
+    IOobject
+    (
+        "transportProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+    )
+);
+
+dimensionedScalar nuF("nu", transportProperties);
+
 Info<< "Reading sedimentProperties\n" << endl;
 
 IOdictionary sedimentProperties
@@ -82,6 +98,7 @@ IOdictionary sedimentProperties
 
 dimensionedScalar rhoS("rhoS", dimDensity, sedimentProperties);
 dimensionedScalar dS("dS", dimLength, sedimentProperties);
+dimensionedScalar rhoF(dimDensity, 1000);
 
 // Initialize Settling Model
 Info << "Initialize settling Model\n" << endl;
@@ -103,27 +120,14 @@ volVectorField Ws
 
 Info<< "Initialize sediment settling velocity\n" << endl;
 
-Ws = settlingModel.Ufall(dS, rhoS, C)*g/mag(g);
+Ws = settlingModel.Ufall(C, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 Ws.correctBoundaryConditions();
 
-Info<< "Reading transportProperties\n" << endl;
-
-IOdictionary transportProperties
-(
-    IOobject
-    (
-        "transportProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    )
-);
-
-
-Info<< "Reading/calculating face flux field phi and phip\n" << endl;
+Info<< "Reading/calculating face flux field phi\n" << endl;
 
 #include "createPhi.H"
+
+Info<< "Reading/calculating face flux field phi\n" << endl;
 
 surfaceScalarField phip
 (
@@ -138,18 +142,17 @@ surfaceScalarField phip
     fvc::flux(U+Ws)
 );
 
-label pRefCell = 0;
-scalar pRefValue = 0.0;
-setRefCell(p, pimple.dict(), pRefCell, pRefValue);
-mesh.setFluxRequired(p.name());
-
-
 singlePhaseTransportModel laminarTransport(U, phi);
 
 autoPtr<incompressible::turbulenceModel> turbulence
 (
     incompressible::turbulenceModel::New(U, phi, laminarTransport)
 );
+
+label pRefCell = 0;
+scalar pRefValue = 0.0;
+setRefCell(p, pimple.dict(), pRefCell, pRefValue);
+mesh.setFluxRequired(p.name());
 
 #include "createMRF.H"
 #include "createFvOptions.H"
