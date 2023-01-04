@@ -51,7 +51,10 @@ Foam::settlingModels::Fixed::~Fixed()
 Foam::scalar Foam::settlingModels::Fixed::Ufall0
 (
     const dimensionedScalar& dS,
-    const dimensionedScalar& rhoS
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
 ) const
 {
     scalar UfallValue(dict_.get<scalar>("value"));

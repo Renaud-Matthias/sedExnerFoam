@@ -50,7 +50,10 @@ Foam::settlingModels::Deigaard::~Deigaard()
 Foam::scalar Foam::settlingModels::Deigaard::Ufall0
 (
     const dimensionedScalar& dS,
-    const dimensionedScalar& rhoS
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
 ) const
 {
     scalar sout = 3;

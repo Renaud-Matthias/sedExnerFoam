@@ -54,7 +54,10 @@ public:
     scalar Ufall0
     (
         const dimensionedScalar& dS,
-        const dimensionedScalar& rhoS
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
     ) const;
 };
 

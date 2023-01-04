@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------* \
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
 
@@ -61,9 +61,12 @@ public:
     //- Member functions
     tmp<Foam::volScalarField> Ufall
     (
+        const volScalarField& C,
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
-        const volScalarField& C
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
     ) const;
 };
 
