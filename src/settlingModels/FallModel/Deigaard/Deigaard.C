@@ -47,7 +47,7 @@ Foam::settlingModels::Deigaard::~Deigaard()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::settlingModels::Deigaard::Ufall0
+Foam::dimensionedScalar Foam::settlingModels::Deigaard::Ufall0
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
@@ -56,8 +56,57 @@ Foam::scalar Foam::settlingModels::Deigaard::Ufall0
     const dimensionedScalar& g
 ) const
 {
-    scalar sout = 3;
-    label iter = 0;
-    iter += 1;
-    return sout;
+    dimensionedScalar s(rhoS/rhoF);
+    dimensionedScalar Ws
+    (
+        solveUfall0(dS, s, nuF, g)
+    );
+    return Ws;
+}
+
+Foam::dimensionedScalar Foam::settlingModels::Deigaard::nextValue
+(
+    const dimensionedScalar& WsOld,
+    const dimensionedScalar& dS,
+    const dimensionedScalar& s,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
+) const
+{
+    dimensionedScalar dragCoef(1.4+(36*nuF)/(WsOld*dS));
+    dimensionedScalar WsNew(sqrt((4*(s-1)*g*dS)/(3*dragCoef)));
+    return WsNew;
+}
+
+Foam::dimensionedScalar Foam::settlingModels::Deigaard::solveUfall0
+(
+    const dimensionedScalar& dS,
+    const dimensionedScalar& s,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
+) const
+{
+    dimensionedScalar Ws("Ws", dimVelocity, 0.1);
+    dimensionedScalar eps("eps", dimVelocity, 1e-5);
+    dimensionedScalar Wsnext(nextValue(Ws, dS, s, nuF, g));
+    label i(0);
+    label imax(10);
+    while (i<imax and mag(Ws-Wsnext)>eps)
+        {
+            i += 1;
+            Ws = Wsnext;
+            Wsnext = nextValue(Ws, dS, s, nuF, g);
+        }
+    Info << "solve settling velocity, ";
+    if (i>=imax)
+    {
+        Info << "convergence not reached : ";
+        Info << i << " iterations" << endl;
+    }
+    else
+    {
+        Info << "convergence reached : ";
+        Info << i << " iterations" << endl;
+    }
+    return Wsnext;
 }

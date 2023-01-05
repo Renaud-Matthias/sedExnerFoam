@@ -51,7 +51,7 @@ public:
 
 
     // Member functions
-    scalar Ufall0
+    dimensionedScalar Ufall0
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,

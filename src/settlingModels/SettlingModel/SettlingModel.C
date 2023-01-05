@@ -59,10 +59,7 @@ Foam::tmp<Foam::volScalarField> Foam::SettlingModel::Ufall
     const dimensionedScalar& g
 ) const
 {
-    dimensionedScalar ufall0
-    (
-        dimVelocity,
-        FallModel_->Ufall0(dS, rhoS, rhoF, nuF, g)
-    );
+    dimensionedScalar ufall0(FallModel_->Ufall0(dS, rhoS, rhoF, nuF, g));
+    Info << "Settling velocity : " << ufall0 << endl;
     return ufall0*HindranceModel_->hindrance(C);
 }

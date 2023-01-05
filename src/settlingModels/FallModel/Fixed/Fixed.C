@@ -48,7 +48,7 @@ Foam::settlingModels::Fixed::~Fixed()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::scalar Foam::settlingModels::Fixed::Ufall0
+Foam::dimensionedScalar Foam::settlingModels::Fixed::Ufall0
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
@@ -57,6 +57,6 @@ Foam::scalar Foam::settlingModels::Fixed::Ufall0
     const dimensionedScalar& g
 ) const
 {
-    scalar UfallValue(dict_.get<scalar>("value"));
+    dimensionedScalar UfallValue(dimVelocity, dict_.get<scalar>("value"));
     return UfallValue;
 }

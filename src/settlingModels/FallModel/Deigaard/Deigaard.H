@@ -51,7 +51,7 @@ public:
 
 
     // Member functions
-    scalar Ufall0
+    dimensionedScalar Ufall0
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
@@ -59,6 +59,26 @@ public:
         const dimensionedScalar& nuF,
         const dimensionedScalar& g
     ) const;
+
+private:
+
+    dimensionedScalar solveUfall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& s,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
+
+    dimensionedScalar nextValue
+    (
+        const dimensionedScalar& WsOld,
+        const dimensionedScalar& dS,
+        const dimensionedScalar& s,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
+    
 };
 
 } // End namespace settlingModels

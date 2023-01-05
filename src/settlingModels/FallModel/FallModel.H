@@ -67,7 +67,7 @@ protected:
     virtual ~FallModel();
 
     // Member functions
-    virtual scalar Ufall0
+    virtual dimensionedScalar Ufall0
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
