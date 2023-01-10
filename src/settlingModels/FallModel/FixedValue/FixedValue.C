@@ -19,7 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Fixed.H"
+#include "FixedValue.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -28,14 +28,14 @@ namespace Foam
 {
 namespace settlingModels
 {
-    defineTypeNameAndDebug(Fixed, 0);
-    addToRunTimeSelectionTable(FallModel, Fixed, dictionary);
+    defineTypeNameAndDebug(FixedValue, 0);
+    addToRunTimeSelectionTable(FallModel, FixedValue, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Fixed::Fixed(const dictionary& dict)
+Foam::settlingModels::FixedValue::FixedValue(const dictionary& dict)
 :
     FallModel(dict)
 {
@@ -43,12 +43,12 @@ Foam::settlingModels::Fixed::Fixed(const dictionary& dict)
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Fixed::~Fixed()
+Foam::settlingModels::FixedValue::~FixedValue()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar Foam::settlingModels::Fixed::Ufall0
+Foam::dimensionedScalar Foam::settlingModels::FixedValue::Ufall0
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,

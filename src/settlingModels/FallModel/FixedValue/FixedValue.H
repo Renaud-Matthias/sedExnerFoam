@@ -19,8 +19,8 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef Deigaard_H
-#define Deigaard_H
+#ifndef FixedValue_H
+#define FixedValue_H
 
 #include "FallModel.H"
 
@@ -29,7 +29,7 @@ namespace Foam
 namespace settlingModels
 {
 
-class Fixed
+class FixedValue
 :
     public FallModel
 {
@@ -37,17 +37,17 @@ class Fixed
 public:
 
     //- Runtime type information
-    TypeName("Fixed");
+    TypeName("FixedValue");
 
 
     // Constructors
 
         //- Construct from components
-    Fixed(const dictionary& dict);
+    FixedValue(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~Fixed();
+    virtual ~FixedValue();
 
 
     // Member functions
