@@ -12,22 +12,18 @@ FoamFile
     class       dictionary;
     object      sedimentProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-rhoS    [1 -3 0 0 0 0 0] 1600; // sediment density
-
-dS      [0 1 0 0 0 0 0] 0.001; // sediment diameter
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
 
 fallModel
 {
-	type   Fixed;
-        value  0.003;
+	type   Stokes;
+//        value  0.00157;
 }
 
 hindranceModel
 {
 	type   Zaki;
-	n      5;
+	n      1.2;
 }
 
 // ************************************************************************* //

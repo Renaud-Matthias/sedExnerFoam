@@ -17,7 +17,7 @@ FoamFile
 
 ddtSchemes
 {
-    default         Euler;
+    default         Euler implicit;
 }
 
 gradSchemes
@@ -39,25 +39,32 @@ divSchemes
 
 laplacianSchemes
 {
-    default         none;
-// UEqn
-    laplacian(nuEff,U) Gauss linear corrected;
+    default         Gauss linear orthogonal;
+    /*// UEqn
+    laplacian(nuEff,U) Gauss linear;
 // CEqn
-    laplacian(epsEff,C) Gauss linear corrected;
+    laplacian(epsEff,C) Gauss linear;
 // pEqn
-    laplacian((1|A(U)),p) Gauss linear corrected;
+    laplacian((1|A(U)),p) Gauss linear;
 // k and EpsilonEqn 
-    laplacian(DkEff,k) Gauss linear corrected;
-    laplacian(DkEff,beta) Gauss linear corrected;
-    laplacian(DepsilonEff,epsilon) Gauss linear corrected;
-    laplacian(DepsilonEff,beta) Gauss linear corrected;
-    laplacian(DomegaEff,omega) Gauss linear corrected;
+    laplacian(DkEff,k) Gauss linear;
+    laplacian(DkEff,beta) Gauss linear;
+    laplacian(DepsilonEff,epsilon) Gauss linear;
+    laplacian(DepsilonEff,beta) Gauss linear;
+        laplacian(DomegaEff,omega) Gauss linear;*/
 }
 
 
 interpolationSchemes
 {
     default  linear;
+    interpolate((U+Ws)) downwind phip;
+    //flux(U) linear;
+    //flux((U+Ws)) upwind phi;
+    //flux(HbyA) linear;
+    //default localMax;
+    //dotInterpolate(S,U_0) linear;
+    //interpolate((1|A(U))) linear;
 }
 
 snGradSchemes
@@ -68,7 +75,7 @@ snGradSchemes
 fluxRequired
 {
     default         no;
-    p_rbgh               ;
+    p                 ;
 }
 
 
