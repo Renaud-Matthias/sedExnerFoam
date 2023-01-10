@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------* \
+/*---------------------------------------------------------------------------*\
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
 
@@ -19,50 +19,40 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#ifndef Stokes_H
+#define Stokes_H
 
-#ifndef SettlingModel_H
-#define SettlingModel_H
-
-#include "dictionary.H"
-#include "runTimeSelectionTables.H"
-#include "HindranceModel.H"
 #include "FallModel.H"
 
 namespace Foam
 {
-
-class SettlingModel
+namespace settlingModels
 {
-protected:
 
-    const dictionary& dict_;
+class Stokes
+:
+    public FallModel
+{
 
-    dictionary fallDict_;
-
-    dictionary hindranceDict_;
-
-    autoPtr<settlingModels::FallModel> FallModel_;
-
-    autoPtr<settlingModels::HindranceModel> HindranceModel_;
-    
 public:
 
-    //- Constructor
-    SettlingModel
-    (
-        const dictionary& dict
-    );
+    //- Runtime type information
+    TypeName("Stokes");
+
+
+    // Constructors
+
+        //- Construct from components
+    Stokes(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~SettlingModel();
+    virtual ~Stokes();
 
-    //- Member functions
-    tmp<Foam::volScalarField> Ufall
+
+    // Member functions
+    dimensionedScalar Ufall0
     (
-        const volScalarField& C,
-        const dimensionedScalar& Cmax,
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
         const dimensionedScalar& rhoF,
@@ -71,10 +61,7 @@ public:
     ) const;
 };
 
-} // End namespace foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+} // End namespace settlingModels
+} // End namespace Foam
 
 #endif
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

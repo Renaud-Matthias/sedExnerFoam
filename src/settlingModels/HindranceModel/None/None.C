@@ -50,7 +50,8 @@ Foam::settlingModels::None::~None()
 
 Foam::tmp<Foam::volScalarField> Foam::settlingModels::None::hindrance
 (
-    const volScalarField& C
+    const volScalarField& C,
+    const dimensionedScalar& Cmax
 ) const
 {
     return (0.*C+1);

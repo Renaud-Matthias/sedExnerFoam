@@ -69,7 +69,8 @@ protected:
     // Member functions
     virtual tmp<volScalarField> hindrance
     (
-        const volScalarField& C
+        const volScalarField& C,
+        const dimensionedScalar& Cmax
     ) const = 0;
 };
 } // End namespace Foam

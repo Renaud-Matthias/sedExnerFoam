@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 {
-    volScalarField epsEff("epsEff", turbulence->nu());
+    volScalarField epsEff("epsEff", turbulence->nut() + turbulence->nu());
     
     fvScalarMatrix CEqn
     (
@@ -41,7 +41,7 @@ License
     
     fvOptions.correct(C);
 
-    Ws = settlingModel.Ufall(C, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+    Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 
     Ws.correctBoundaryConditions();
 }

@@ -50,9 +50,10 @@ Foam::settlingModels::Zaki::~Zaki()
 
 Foam::tmp<Foam::volScalarField> Foam::settlingModels::Zaki::hindrance
 (
-    const volScalarField& C
+    const volScalarField& C,
+    const dimensionedScalar& Cmax
 ) const
 {
     scalar nExponent(dict_.get<scalar>("n"));
-    return pow((1-C), nExponent);
+    return pow((1-C/Cmax), nExponent);
 }

@@ -52,7 +52,8 @@ public:
     // Member functions
     tmp<volScalarField> hindrance
     (
-        const volScalarField& C
+        const volScalarField& C,
+        const dimensionedScalar& Cmax
     ) const;
 };
 

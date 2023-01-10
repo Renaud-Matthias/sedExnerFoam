@@ -52,6 +52,7 @@ Foam::SettlingModel::~SettlingModel()
 Foam::tmp<Foam::volScalarField> Foam::SettlingModel::Ufall
 (
     const volScalarField& C,
+    const dimensionedScalar& Cmax,
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
     const dimensionedScalar& rhoF,
@@ -61,5 +62,5 @@ Foam::tmp<Foam::volScalarField> Foam::SettlingModel::Ufall
 {
     dimensionedScalar ufall0(FallModel_->Ufall0(dS, rhoS, rhoF, nuF, g));
     Info << "Settling velocity : " << ufall0 << endl;
-    return ufall0*HindranceModel_->hindrance(C);
+    return ufall0*HindranceModel_->hindrance(C, Cmax);
 }

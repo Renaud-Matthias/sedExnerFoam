@@ -19,46 +19,45 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef Zaki_H
-#define Zaki_H
+#include "Stokes.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "HindranceModel.H"
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace settlingModels
 {
+    defineTypeNameAndDebug(Stokes, 0);
+    addToRunTimeSelectionTable(FallModel, Stokes, dictionary);
+}
+}
 
-class Zaki
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::settlingModels::Stokes::Stokes(const dictionary& dict)
 :
-    public HindranceModel
+    FallModel(dict)
 {
+}
 
-public:
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-    //- Runtime type information
-    TypeName("Zaki");
+Foam::settlingModels::Stokes::~Stokes()
+{}
 
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-    // Constructors
-
-        //- Construct from components
-    Zaki(const dictionary& dict);
-
-
-    //- Destructor
-    virtual ~Zaki();
-
-
-    // Member functions
-    tmp<volScalarField> hindrance
-    (
-        const volScalarField& C,
-        const dimensionedScalar& Cmax
-    ) const;
-};
-
-} // End namespace settlingModels
-} // End namespace Foam
-
-#endif
+Foam::dimensionedScalar Foam::settlingModels::Stokes::Ufall0
+(
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
+) const
+{
+    dimensionedScalar s(rhoS/rhoF);
+    dimensionedScalar Ws((g*pow(dS, 2)*(s-1))/(18*nuF));
+    return Ws;
+}

@@ -81,14 +81,17 @@ IOdictionary transportProperties
 );
 
 dimensionedScalar nuF("nu", transportProperties);
+dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
+dimensionedScalar dS("dS", dimLength, transportProperties);
+dimensionedScalar Cmax("Cmax", dimless, transportProperties);
 
-Info<< "Reading sedimentProperties\n" << endl;
+Info<< "Reading settlingProperties\n" << endl;
 
-IOdictionary sedimentProperties
+IOdictionary settlingProperties
 (
     IOobject
     (
-        "sedimentProperties",
+        "settlingProperties",
         runTime.constant(),
         mesh,
         IOobject::MUST_READ_IF_MODIFIED,
@@ -96,13 +99,11 @@ IOdictionary sedimentProperties
     )
 );
 
-dimensionedScalar rhoS("rhoS", dimDensity, sedimentProperties);
-dimensionedScalar dS("dS", dimLength, sedimentProperties);
 dimensionedScalar rhoF(dimDensity, 1000);
 
 // Initialize Settling Model
 Info << "Initialize settling Model\n" << endl;
-SettlingModel settlingModel(sedimentProperties);
+SettlingModel settlingModel(settlingProperties);
 
 Info<< "Reading field settling velocity Ws\n" << endl;
 volVectorField Ws
@@ -120,7 +121,7 @@ volVectorField Ws
 
 Info<< "Initialize sediment settling velocity\n" << endl;
 
-Ws = settlingModel.Ufall(C, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 Ws.correctBoundaryConditions();
 
 Info<< "Reading/calculating face flux field phi\n" << endl;
