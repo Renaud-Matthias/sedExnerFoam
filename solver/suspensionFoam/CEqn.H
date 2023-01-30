@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 {
-    volScalarField epsEff("epsEff", turbulence->nut() + turbulence->nu());
+    volScalarField epsEff("epsEff", turbulence->nut());
     
     fvScalarMatrix CEqn
     (
@@ -44,4 +44,10 @@ License
     Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 
     Ws.correctBoundaryConditions();
+
+    Info<< "sediment phase volume fraction = "
+            << C.weightedAverage(mesh.V()).value()
+            << "  Min(C) = " << gMin(C)
+            << "  Max(C) = " << gMax(C)
+            << endl;
 }
