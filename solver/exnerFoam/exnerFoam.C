@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
     dimensionedScalar duneWidth(dimLength, 0.5);
     
-    Zbf = Zbmax*exp(pow((aMesh.areaCentres().component(0)-xMid)/duneWidth,2));
+    Zbf = Zbmax*exp(pow((aMesh.areaCentres().component(0)-xMid)/duneWidth, 2));
 
     Info << "Zb field initiated" << endl;
 
