@@ -22,26 +22,19 @@ boundaryField
 {
     #includeEtc "caseDicts/setConstraintTypes"
 
-    inlet1
+    inlet
     {
-        type        fixedValue;
-        value       $internalField;
-    }
-
-    inlet2
-    {
-        type        fixedValue;
-        value       $internalField;
+        type        cyclic;
     }
 
     outlet
     {
-        type        zeroGradient;
+        type        cyclic;
     }
 
-    bound
+    sides
     {
-        type        symmetry;
+        type        empty;
     }
 }
 

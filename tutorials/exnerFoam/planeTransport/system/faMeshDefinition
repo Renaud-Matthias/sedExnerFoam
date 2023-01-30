@@ -18,30 +18,22 @@ polyMeshPatches ( "top.*" );
 
 boundary
 {
-    inlet1
+    inlet
     {
-        type patch;
-        ownerPolyPatch top1;
-        neighbourPolyPatch inlet;
-    }
-
-    inlet2
-    {
-        type patch;
-        ownerPolyPatch top2;
+        type cyclic;
         neighbourPolyPatch inlet;
     }
 
     outlet
     {
-        type patch;
-        neighbourPolyPatch outflow;
+        type cyclic;
+        neighbourPolyPatch outlet;
     }
 
-    bound
+    sides
     {
-        type symmetry;
-        neighbourPolyPatch bound;
+        type empty;
+        neighbourPolyPatch sides;
     }
 }
 

@@ -9,36 +9,12 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       areaScalarField;
-    object      Zb;
+    class       dictionary;
+    object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions          [0 1 0 0 0 0 0];
-
-internalField       uniform 0;
-
-referenceLevel      0;
-
-boundaryField
-{
-    #includeEtc "caseDicts/setConstraintTypes"
-
-    inlet
-    {
-        type        cyclic;
-    }
-
-    outlet
-    {
-        type        cyclic;
-    }
-
-    sides
-    {
-        type        empty;
-    }
-}
+Ds              0.00001; // m2/s
 
 
 // ************************************************************************* //
