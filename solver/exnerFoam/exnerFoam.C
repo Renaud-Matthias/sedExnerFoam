@@ -78,13 +78,21 @@ int main(int argc, char *argv[])
 
     Info << "number of points" << aMesh.nPoints() << endl;
 
-    Info << "number of faces" << aMesh.faces() << endl;
+    Info << "area centers " << aMesh.areaCentres().component(0) << endl;
+    
+    dimensionedScalar Zbmax(dimLength, 0.2);
 
-    Info << "number of edges" << aMesh.edges() << endl;
+    dimensionedScalar xMid(dimLength, 5);
+
+    dimensionedScalar duneWidth(dimLength, 0.5);
     
-    //Zbmax = dimensionedScalar(dimLength, 0.2);
-    
-    //Zbf = Zbmax*exp(pow((pos().x-5)/10,2));
+    Zbf = Zbmax*exp(pow((aMesh.areaCentres().component(0)-xMid)/duneWidth,2));
+
+    Info << "Zb field initiated" << endl;
+
+    Zbf.correctBoundaryConditions();
+
+    Info << "Zb boundary conditions corrected" << endl;
     
     Info<< "\nStarting time loop\n" << endl;
 
