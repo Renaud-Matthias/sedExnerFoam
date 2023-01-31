@@ -74,25 +74,18 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
     #include "createFaMesh.H"
     #include "createFaFields.H"
+
+    Info << "number of areas" << aMesh.nFaces() << endl;
+
+    // set initial condition for dune tutorial
+    // should later be directly in the tutorial case
+    forAll(aMesh.areaCentres(), i)
+    {
+        scalar x = aMesh.areaCentres()[i].component(0);
+        Zbf[i] = 0.2*Foam::exp(-0.25*pow(x-5, 2));
+    }
+    
     #include "createVolFields.H"
-
-    Info << "number of points" << aMesh.nPoints() << endl;
-
-    Info << "area centers " << aMesh.areaCentres().component(0) << endl;
-    
-    dimensionedScalar Zbmax(dimLength, 0.2);
-
-    dimensionedScalar xMid(dimLength, 5);
-
-    dimensionedScalar duneWidth(dimLength, 0.5);
-    
-    Zbf = Zbmax*exp(pow((aMesh.areaCentres().component(0)-xMid)/duneWidth, 2));
-
-    Info << "Zb field initiated" << endl;
-
-    Zbf.correctBoundaryConditions();
-
-    Info << "Zb boundary conditions corrected" << endl;
     
     Info<< "\nStarting time loop\n" << endl;
 

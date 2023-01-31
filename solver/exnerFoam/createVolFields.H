@@ -36,3 +36,6 @@ volScalarField Zb
     mesh,
     dimensionedScalar(dimLength, Zero)
 );
+
+vsm.mapToVolume(Zbf, Zb.boundaryFieldRef());
+Zb.write();
