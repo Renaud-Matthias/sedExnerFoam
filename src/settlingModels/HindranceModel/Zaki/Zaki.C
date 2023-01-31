@@ -55,5 +55,5 @@ Foam::tmp<Foam::volScalarField> Foam::settlingModels::Zaki::hindrance
 ) const
 {
     scalar nExponent(dict_.get<scalar>("n"));
-    return pow((1-C/Cmax), nExponent);
+    return pow((1-C), nExponent)*neg(C-Cmax);
 }
