@@ -16,7 +16,7 @@ FoamFile
 
 solvers
 {
-    Zbf
+    Zb
     {
         solver          PBiCG;
         preconditioner  DILU;

@@ -4,6 +4,8 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 foamListTimes -rm -withZero
 
+rm -r dynamicCode
+
 foamCleanPolyMesh
 
 #------------------------------------------------------------------------------

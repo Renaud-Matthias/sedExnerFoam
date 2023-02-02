@@ -9,40 +9,32 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      faSchemes;
+    class       areaVectorField;
+    object      Qb;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
-{
-    default            Euler;
-}
+dimensions          [0 2 -1 0 0 0 0];
 
-gradSchemes
-{
-    default            Gauss linear;
-}
+internalField       uniform (0 0 0);
 
-divSchemes
+boundaryField
 {
-    default            none;
-    div(phis,Zbf)       Gauss upwind phis;
-}
 
-laplacianSchemes
-{
-    default            none;
-}
+    inlet
+    {
+        type        cyclic;
+    }
 
-interpolationSchemes
-{
-    default            linear;
-}
+    outlet
+    {
+        type        cyclic;
+    }
 
-lnGradSchemes
-{
-    default            corrected;
+    sides
+    {
+        type        empty;
+    }
 }
 
 
