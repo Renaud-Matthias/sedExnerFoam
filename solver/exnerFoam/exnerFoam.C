@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
     scalar alpha(0.1);
         label beta(3);*/
-    
+
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.loop())
