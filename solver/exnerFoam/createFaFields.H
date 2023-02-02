@@ -21,11 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 Info<< "Reading field Zbf" << endl;
-areaScalarField Zbf
+areaScalarField Zb
 (
     IOobject
     (
-        "Zbf",
+        "Zb",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
@@ -53,6 +53,19 @@ areaVectorField U
     IOobject
     (
         "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh
+);
+
+areaVectorField Qb
+(
+    IOobject
+    (
+        "Qb",
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,

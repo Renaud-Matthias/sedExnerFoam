@@ -82,10 +82,18 @@ int main(int argc, char *argv[])
     forAll(aMesh.areaCentres(), i)
     {
         scalar x = aMesh.areaCentres()[i].component(0);
-        Zbf[i] = 0.2*Foam::exp(-0.25*pow(x-5, 2));
+        Zb[i] = 0.2*Foam::exp(-0.25*pow(x-5, 2));
     }
     
     #include "createVolFields.H"
+
+    /*dimensionedScalar Q(2.0);
+    dimensionedScalar H(1.0);
+
+    U = Q/(H-Zb);
+
+    scalar alpha(0.1);
+        label beta(3);*/
     
     Info<< "\nStarting time loop\n" << endl;
 
@@ -95,15 +103,17 @@ int main(int argc, char *argv[])
 
         faScalarMatrix ZbEqn
         (
-            fam::ddt(Zbf)
-          + fam::div(phis, Zbf)
+            fam::ddt(Zb)
+          + fam::div(phis, Zb)
         );
 
         ZbEqn.solve();
+        
+        Zb.correctBoundaryConditions();
 
         if (runTime.writeTime())
         {
-            vsm.mapToVolume(Zbf, Zb.boundaryFieldRef());
+            vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
 
             runTime.write();
         }

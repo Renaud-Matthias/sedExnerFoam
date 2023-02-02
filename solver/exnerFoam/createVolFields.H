@@ -23,11 +23,11 @@ License
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
-volScalarField Zb
+volScalarField Zbvf
 (
     IOobject
     (
-        "Zb",
+        "Zbvf",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -37,5 +37,5 @@ volScalarField Zb
     dimensionedScalar(dimLength, Zero)
 );
 
-vsm.mapToVolume(Zbf, Zb.boundaryFieldRef());
-Zb.write();
+vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
+Zbvf.write();
