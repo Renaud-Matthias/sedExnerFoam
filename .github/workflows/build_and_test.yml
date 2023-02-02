@@ -15,10 +15,10 @@ jobs:
           #cd ${{ github.workspace }} && source /openfoam/bash.rc && 
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           ./Allwmake
-      #- name: Test
-      #  run: |
-      #    shopt -s expand_aliases && source /openfoam/bash.rc && 
-      #    cd tuto/blabla && suspensionFoam
+      - name: Test 1DSedim
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc && 
+          cd tests/1DSedim && ./Allrun && ./Allclean
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
