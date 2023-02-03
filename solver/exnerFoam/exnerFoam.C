@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
     
     #include "createVolFields.H"
 
-    dimensionedVector Q("Q",dimVelocity*dimLength,vector(1,0,0));
-    dimensionedScalar H("H",dimLength,1);
+    dimensionedVector Q("Q", dimVelocity*dimLength, vector(1, 0, 0));
+    dimensionedScalar H("H", dimLength, 1);
 
     Info << "\nStarting time loop\n" << endl;
 
