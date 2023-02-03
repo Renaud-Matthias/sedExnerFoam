@@ -24,10 +24,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    surfactantFoam
-
-Group
-    grpFiniteAreaSolvers
+    exnerFoam
 
 Description
     finiteArea equation solver.
@@ -36,24 +33,24 @@ Description
     The equation is given by:
 
     \f[
-        \ddt{Zb} + \div(phis,Zb)
+        \ddt{Zb} + \div(phis)
     \f]
 
     Where:
     \vartable
-        Cs      | Passive scalar
-        Ds      | Diffusion coefficient
+        Zb      | Bed elevationPassive scalar
+        phib    | Diffusion coefficient
     \endvartable
 
     \heading Required fields
     \plaintable
-        Cs      | Passive scalar
-        Us      | Velocity [m/s]
+        Zb      | bed elevation [m]
+        U       | Velocity [m/s]
+        Qb      | Bedload flux [m2/s]
     \endplaintable
 
 Author
-    Zeljko Tukovic, FMENA
-    Hrvoje Jasak, Wikki Ltd.
+    Matthias Renaud, LEGI
 
 \*---------------------------------------------------------------------------*/
 
@@ -82,34 +79,44 @@ int main(int argc, char *argv[])
     forAll(aMesh.areaCentres(), i)
     {
         scalar x = aMesh.areaCentres()[i].component(0);
-        Zb[i] = 0.2*Foam::exp(-0.25*pow(x-5, 2));
+        Zb[i] = 0.2*Foam::exp(-0.1*pow(x-10, 2));
     }
     
     #include "createVolFields.H"
 
-    /*dimensionedScalar Q(2.0);
-    dimensionedScalar H(1.0);
+    dimensionedVector Q("Q",dimVelocity*dimLength,vector(1,0,0));
+    dimensionedScalar H("H",dimLength,1);
 
-    U = Q/(H-Zb);
-
-    scalar alpha(0.1);
-        label beta(3);*/
-
-    Info<< "\nStarting time loop\n" << endl;
+    Info << "\nStarting time loop\n" << endl;
 
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.value() << endl;
 
+        forAll(aMesh.areaCentres(), i)
+        {
+            scalar qb = Q.value().x()/(H.value()-Zb[i]); // explicit
+            //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]); //implicit
+            Qb[i] = vector(qb, 0, 0);
+        }
+
         faScalarMatrix ZbEqn
-        (
-            fam::ddt(Zb)
-          + fam::div(phis, Zb)
-        );
+            (
+                fam::ddt(Zb)
+                + fac::div(Qb) //explicit
+                //+ fam::div(phib,Zb) //implicit
+            );
 
         ZbEqn.solve();
-        
-        Zb.correctBoundaryConditions();
+
+        //Zb.correctBoundaryConditions();
+        //Qb.correctBoundaryConditions();
+
+        Info<< "bed elevation = "
+            << Zb.weightedAverage(aMesh.S()).value()
+            << "  Min(Zb) = " << gMin(Zb)
+            << "  Max(Zb) = " << gMax(Zb)
+            << endl;
 
         if (runTime.writeTime())
         {
@@ -119,6 +126,7 @@ int main(int argc, char *argv[])
         }
 
         runTime.printExecutionTime(Info);
+        
     }
 
     Info<< "End\n" << endl;

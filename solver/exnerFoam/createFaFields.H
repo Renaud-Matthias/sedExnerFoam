@@ -74,15 +74,15 @@ areaVectorField Qb
     aMesh
 );
 
-edgeScalarField phis
+edgeScalarField phib
 (
     IOobject
     (
-        "phis",
+        "phib",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
-    linearEdgeInterpolate(U) & aMesh.Le()
+    linearEdgeInterpolate(Qb) & aMesh.Le()
 );
