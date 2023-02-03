@@ -54,11 +54,10 @@ internalField       uniform 0;
 
 };*/
 
-//referenceLevel      0;
+referenceLevel      0;
 
 boundaryField
 {
-    #includeEtc "caseDicts/setConstraintTypes"
 
     inlet
     {

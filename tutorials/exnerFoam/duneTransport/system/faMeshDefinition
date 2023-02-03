@@ -14,27 +14,36 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-polyMeshPatches ( "top.*" );
+polyMeshPatches ( "bottom" );
 
 boundary
 {
     inlet
     {
         type cyclic;
-        neighbourPolyPatch inlet;
+	ownerPolyPatch bottom;
+        neighbourPolyPatch outlet;
     }
 
     outlet
     {
         type cyclic;
-        neighbourPolyPatch outlet;
+	ownerPolyPatch bottom;
+        neighbourPolyPatch inlet;
     }
 
     sides
     {
         type empty;
+	ownerPolyPatch bottom;
         neighbourPolyPatch sides;
     }
+}
+
+defaultPatch
+{
+    name empty;
+    type empty;
 }
 
 

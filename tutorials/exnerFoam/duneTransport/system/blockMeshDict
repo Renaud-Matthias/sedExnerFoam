@@ -14,23 +14,15 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// A flat plate that is only partial covered by the finiteArea mesh.
-// Depending on the decomposition, the outflow boundary may
-// coincide with a processor patch.
-
-// Additionally the plate is split into two top zones (top1 top2)
-// with different inlet boundary conditions
-
 scale   1;
 
 height  0.1;
 width   1;
-len     10;
+len     20;
 
-nx 60;
+nx 120;
 ny 1;
 nz 1;
-nout 20;
 
 vertices
 (
@@ -55,7 +47,8 @@ boundary
 (
     inlet
     {
-        type patch;
+        type cyclic;
+        neighbourPatch outlet;
         faces
         (
             (0 4 7 3)
@@ -74,7 +67,8 @@ boundary
 
     outlet
     {
-        type patch;
+        type cyclic;
+        neighbourPatch inlet;
         faces
         (
             (2 6 5 1)

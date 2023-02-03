@@ -27,7 +27,8 @@ gradSchemes
 divSchemes
 {
     default            none;
-    div(phis,Zb)       Gauss upwind phis;
+    div(Qb)            Gauss linear;
+    //div(phib,Zb)       Gauss upwind phib;
 }
 
 laplacianSchemes
