@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 {
-    volScalarField epsEff("epsEff", turbulence->nut());
+    volScalarField epsEff("epsEff", turbulence->nut()/Sc);
     
     fvScalarMatrix CEqn
     (

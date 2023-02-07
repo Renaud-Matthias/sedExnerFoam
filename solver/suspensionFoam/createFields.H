@@ -84,6 +84,7 @@ dimensionedScalar nuF("nu", transportProperties);
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 dimensionedScalar dS("dS", dimLength, transportProperties);
 dimensionedScalar Cmax("Cmax", dimless, transportProperties);
+dimensionedScalar Sc("Sc", dimless, transportProperties);
 
 Info<< "Reading settlingProperties\n" << endl;
 
@@ -140,8 +141,11 @@ surfaceScalarField phip
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
+    //phi
     fvc::flux(U+Ws)
 );
+
+//phip = fvc::interpolate(U+Ws) & mesh.Sf();
 
 singlePhaseTransportModel laminarTransport(U, phi);
 
