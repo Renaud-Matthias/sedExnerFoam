@@ -79,13 +79,16 @@ int main(int argc, char *argv[])
     forAll(aMesh.areaCentres(), i)
     {
         scalar x = aMesh.areaCentres()[i].component(0);
-        Zb[i] = 0.2*Foam::exp(-0.1*pow(x-10, 2));
+        Zb[i] = 0.2*Foam::exp(-pow((x-0.3)/0.1, 2));
     }
     
     #include "createVolFields.H"
 
     dimensionedVector Q("Q", dimVelocity*dimLength, vector(1, 0, 0));
     dimensionedScalar H("H", dimLength, 1);
+
+    scalar alpha(0.05);
+    scalar beta(2);
 
     Info << "\nStarting time loop\n" << endl;
 
@@ -95,7 +98,8 @@ int main(int argc, char *argv[])
 
         forAll(aMesh.areaCentres(), i)
         {
-            scalar qb = Q.value().x()/(H.value()-Zb[i]); // explicit
+            scalar qb = alpha *
+                Foam::pow(Q.value().x() / (H.value()-Zb[i]), beta); // explicit
             //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]); //implicit
             Qb[i] = vector(qb, 0, 0);
         }
@@ -109,8 +113,8 @@ int main(int argc, char *argv[])
 
         ZbEqn.solve();
 
-        //Zb.correctBoundaryConditions();
-        //Qb.correctBoundaryConditions();
+        Zb.correctBoundaryConditions();
+        Qb.correctBoundaryConditions();
 
         Info<< "bed elevation = "
             << Zb.weightedAverage(aMesh.S()).value()
@@ -124,6 +128,8 @@ int main(int argc, char *argv[])
 
             runTime.write();
         }
+
+        Info << Zbvf.boundaryField() << endl;
 
         runTime.printExecutionTime(Info);
         

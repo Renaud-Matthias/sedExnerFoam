@@ -54,22 +54,24 @@ internalField       uniform 0;
 
 };*/
 
-referenceLevel      0;
+//referenceLevel      0;
 
 boundaryField
 {
 
-    inlet
+    inletFa
     {
-        type        cyclic;
+        type        fixedValue;
+        value       uniform 0.1;
     }
 
-    outlet
+    outletFa
     {
-        type        cyclic;
+        type        fixedValue;
+        value       uniform 0;
     }
 
-    sides
+    sidesFa
     {
         type        empty;
     }
