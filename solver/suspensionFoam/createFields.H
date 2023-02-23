@@ -80,6 +80,7 @@ IOdictionary transportProperties
     )
 );
 
+// fluid and sediment properties
 dimensionedScalar nuF("nu", transportProperties);
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 dimensionedScalar dS("dS", dimLength, transportProperties);
@@ -100,6 +101,7 @@ IOdictionary settlingProperties
     )
 );
 
+// water density, should be changed and read in case
 dimensionedScalar rhoF(dimDensity, 1000);
 
 // Initialize Settling Model
@@ -141,11 +143,10 @@ surfaceScalarField phip
         IOobject::READ_IF_PRESENT,
         IOobject::AUTO_WRITE
     ),
-    //phi
-    fvc::flux(U+Ws)
+    fvc::interpolate(U+Ws) & mesh.Sf()
 );
 
-//phip = fvc::interpolate(U+Ws) & mesh.Sf();
+phip = fvc::flux(U+Ws);
 
 singlePhaseTransportModel laminarTransport(U, phi);
 
