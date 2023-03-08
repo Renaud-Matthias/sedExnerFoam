@@ -2,6 +2,7 @@
 
 # Remove the mesh
 foamCleanPolyMesh
+rm -r constant/faMesh
 
 # Remove time folders
 foamListTimes -rm -time 0: -withZero
