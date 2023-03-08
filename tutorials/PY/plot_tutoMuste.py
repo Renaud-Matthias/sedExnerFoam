@@ -1,5 +1,6 @@
 """
-Compare experiment results from Muste & Yu (2005) with numerical results obtained with suspensionFoam solver
+Compare experiment results from Muste & Yu (2005) with numerical results
+obtained with suspensionFoam solver
 Three different cases can be chosen :
 - CW : a clear water case with no sediment
 - NS1 : a case with natural sand with diameter ranging from 0.21 to 0.25 mm
@@ -40,10 +41,9 @@ u_star_Muste = 0.042
 nu = 1e-6
 rhof = 1e3
 
-##
-## case selection
-##
-##
+
+# *** case selection *** #
+
 solver = "suspensionFoam"
 
 iplotMeanProf = 1
@@ -166,13 +166,17 @@ mpl.rcParams["lines.markersize"] = ms
 
 #
 gs = gridspec.GridSpec(1, 1)
-gs.update(left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
+gs.update(
+    left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
 gs3 = gridspec.GridSpec(1, 3)
-gs.update(left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
+gs.update(
+    left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
 gs4 = gridspec.GridSpec(1, 4)
-gs.update(left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.05, hspace=0.15)
+gs.update(
+    left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.05, hspace=0.15)
 gs2 = gridspec.GridSpec(1, 2)
-gs.update(left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
+gs.update(
+    left=0.065, right=0.975, top=0.95, bottom=0.15, wspace=0.3, hspace=0.3)
 #
 # Figure size
 #
@@ -190,25 +194,25 @@ if iplotMeanProf == 1:
     # plot in dimensioned variables
     #
     fig1 = figure(
-        num=1, figsize=(figwidth, figheight), dpi=60, facecolor="w", edgecolor="w"
-    )
+        num=1, figsize=(figwidth, figheight),
+        dpi=60, facecolor="w", edgecolor="w")
 
     ax0 = subplot(gs4[0, 0])
     p00 = ax0.plot(Vel[0, :], Z_vect / H_f, "-", label=solver)
     p00 = ax0.plot(
-        Vel_Muste[ExpKeep], Pos_Muste[ExpKeep], "or", fillstyle="none", label="CW1"
-    )
+        Vel_Muste[ExpKeep], Pos_Muste[ExpKeep], "or",
+        fillstyle="none", label="CW1")
     xlabel(r"$U (m/s)$")
     ylabel(r"$z/h$")
     axis([0, 1, zmin, zmax])
 
     ax0 = subplot(gs4[0, 1])
     p00 = ax0.plot(
-        (1 - alpha[1:N]) * Tauf[3, 1:N], Z_vect[1:N] / H_f, "-", label="suspensionFoam"
-    )
+        (1 - alpha[1:N]) * Tauf[3, 1:N],
+        Z_vect[1:N] / H_f, "-", label="suspensionFoam")
     p00 = ax0.plot(
-        UW_Muste * u_star_Muste**2, Pos_Muste_UW, "or", fillstyle="none", label="CW1"
-    )
+        UW_Muste * u_star_Muste**2,
+        Pos_Muste_UW, "or", fillstyle="none", label="CW1")
     xlabel(r"$-\rho^f \overline{u^{f\prime} w^{f\prime}}$")
     axis([0, 1.2 * u_star_Muste**2, zmin, zmax])
     ax0.tick_params(labelleft="off")
@@ -238,11 +242,13 @@ if iplotMeanProf == 1:
         label="Rouse (fit)",
     )
     if case == "NS1":
-        p00 = ax0.plot(Phi_Muste_Phi, Pos_Muste_Phi, "o", fillstyle="none", label="NS1")
+        p00 = ax0.plot(
+            Phi_Muste_Phi, Pos_Muste_Phi, "o",
+            fillstyle="none", label="NS1")
     if case == "NBS1":
         p00 = ax0.plot(
-            Phi_Muste_Phi, Pos_Muste_Phi, "o", fillstyle="none", label="NBS1"
-        )
+            Phi_Muste_Phi, Pos_Muste_Phi, "o",
+            fillstyle="none", label="NBS1")
     legend(fontsize=12, loc=legloc)
     xlabel(r"$\phi$")
     axis([alphaMin, alphaMax, zmin, zmax])
@@ -268,14 +274,12 @@ if iplotWallUnitProf == 1:
     toto = np.where(zplus < 11.6)
     ulog[toto] = zplus[toto]
 
-    semilogx(Z_vect * u_star_num / nu, Vel[0, :] / u_star_num, "-", label=solver)
+    semilogx(
+        Z_vect * u_star_num / nu, Vel[0, :] / u_star_num, "-", label=solver)
     semilogx(
         np.array(Pos_Muste[ExpKeep]) * H_f * u_star_Muste / 1e-6,
-        np.array(Vel_Muste[ExpKeep]) / u_star_Muste,
-        "or",
-        fillstyle="none",
-        label="Exp",
-    )
+        np.array(Vel_Muste[ExpKeep]) / u_star_Muste, "or",
+        fillstyle="none", label="Exp")
     semilogx(zplus, ulog, "--", label="Log law")
     ylabel(r"$u/u*$")
     xlabel(r"$z+$")

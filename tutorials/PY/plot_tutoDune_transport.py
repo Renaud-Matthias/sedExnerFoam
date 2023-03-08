@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from fluidfoam import readof as rdf
 
-path_tuto = "../exnerFoam/duneTransport/"
+path_tuto = "../exnerFoam/duneTransport"
 
 Z0dune = 0.2
 x0dune = 0.3
@@ -17,7 +17,7 @@ timeList = [0, 0.5, 1]  # times at which solution is wanted
 
 # convert timeList to list of string
 for i, t in enumerate(timeList):
-    if type(t) != type("a"):
+    if not isinstance(t, str):
         timeList[i] = str(t)
 
 # parameters for Qb, must correspond to exnerFoam case
@@ -62,7 +62,10 @@ ZB_ana = []
 for t in timeList:
     t_float = float(t)
     print(f"\nsolving at t = {t} s")
-    fcost = lambda ZB: np.sum((ZB - CI_dune(X - t_float * C(ZB))) ** 2)
+
+    def fcost(ZB):
+        return np.sum((ZB - CI_dune(X - t_float * C(ZB))) ** 2)
+
     res = minimize(fcost, ZB0, method="SLSQP", options={"maxiter": 500})
     if res.success:
         print(f"minimization algorithm successfull in {res.nit} iterations")
@@ -90,7 +93,7 @@ for zb_ana, zb_num in zip(ZB_ana, ZB_num):
     err_rmse.append(rmse)
     err_score.append(score)
 
-### PLOT analytical solution ###
+# PLOT analytical solution #
 
 fig1, axs = plt.subplots(3, figsize=(10, 10), layout="constrained")
 
