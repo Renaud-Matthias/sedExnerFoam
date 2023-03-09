@@ -19,41 +19,46 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Zaki.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef ZakiModified_H
+#define ZakiModified_H
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+#include "HindranceModel.H"
 
 namespace Foam
 {
 namespace settlingModels
 {
-    defineTypeNameAndDebug(Zaki, 0);
-    addToRunTimeSelectionTable(HindranceModel, Zaki, dictionary);
-}
-}
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::settlingModels::Zaki::Zaki(const dictionary& dict)
+class ZakiModified
 :
-    HindranceModel(dict)
+    public HindranceModel
 {
-}
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+public:
 
-Foam::settlingModels::Zaki::~Zaki()
-{}
+    //- Runtime type information
+    TypeName("ZakiModified");
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::settlingModels::Zaki::hindrance
-(
-    const volScalarField& C,
-    const dimensionedScalar& Cmax
-) const
-{
-    scalar nExponent(dict_.get<scalar>("n"));
-    return pow(1 - C, nExponent); // * neg(C-Cmax);
-}
+    // Constructors
+
+        //- Construct from components
+    ZakiModified(const dictionary& dict);
+
+
+    //- Destructor
+    virtual ~ZakiModified();
+
+
+    // Member functions
+    tmp<volScalarField> hindrance
+    (
+        const volScalarField& C,
+        const dimensionedScalar& Cmax
+    ) const;
+};
+
+} // End namespace settlingModels
+} // End namespace Foam
+
+#endif

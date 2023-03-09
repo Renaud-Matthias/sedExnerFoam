@@ -19,7 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Zaki.H"
+#include "ZakiModified.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -28,14 +28,14 @@ namespace Foam
 {
 namespace settlingModels
 {
-    defineTypeNameAndDebug(Zaki, 0);
-    addToRunTimeSelectionTable(HindranceModel, Zaki, dictionary);
+    defineTypeNameAndDebug(ZakiModified, 0);
+    addToRunTimeSelectionTable(HindranceModel, ZakiModified, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Zaki::Zaki(const dictionary& dict)
+Foam::settlingModels::ZakiModified::ZakiModified(const dictionary& dict)
 :
     HindranceModel(dict)
 {
@@ -43,17 +43,18 @@ Foam::settlingModels::Zaki::Zaki(const dictionary& dict)
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Zaki::~Zaki()
+Foam::settlingModels::ZakiModified::~ZakiModified()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::settlingModels::Zaki::hindrance
+Foam::tmp<Foam::volScalarField> Foam::settlingModels::ZakiModified::hindrance
 (
     const volScalarField& C,
     const dimensionedScalar& Cmax
 ) const
 {
     scalar nExponent(dict_.get<scalar>("n"));
-    return pow(1 - C, nExponent); // * neg(C-Cmax);
+    return pow(1 - C, nExponent - 1)
+        * pow((1 - C / Cmax) * neg(C - Cmax), Cmax);
 }
