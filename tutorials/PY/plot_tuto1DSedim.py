@@ -154,7 +154,7 @@ for i, t in enumerate(t_plot_list):
         interp_Cexp(t + t0_true), z_array * 100 + 10,
         ls="--", lw=2, c=col_exp, label="experiment")
     axs[i].plot(
-        Cnum[i], Ynum * 100 +10, lw=2, c=col_num, label="OpenFoam")
+        Cnum[i], Ynum * 100 + 10, lw=2, c=col_num, label="OpenFoam")
 
     axs[i].set_title(f"t = {t} s")
     axs[i].set_ylim(0, 6)
