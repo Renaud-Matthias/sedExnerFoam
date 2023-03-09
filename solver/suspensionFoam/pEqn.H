@@ -85,6 +85,7 @@ fvOptions.correct(U);
 
 // Update flux
 phip = fvc::flux(U+Ws);
+//phip = fvc::interpolate(U+Ws) & mesh.Sf();
 
 // Correct Uf if the mesh is moving
 fvc::correctUf(Uf, U, phi);
