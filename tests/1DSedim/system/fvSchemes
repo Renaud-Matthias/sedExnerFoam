@@ -17,7 +17,7 @@ FoamFile
 
 ddtSchemes
 {
-    default         Euler explicit;
+    default         Euler implicit;
 }
 
 gradSchemes
@@ -46,12 +46,7 @@ laplacianSchemes
 interpolationSchemes
 {
     default  linear;
-    interpolate((U+Ws)) upwind phi;/*//downwind phip;
-    flux(U) linear;
-    flux((U+Ws)) upwind phi;
-    flux(HbyA) linear;
-    dotInterpolate(S,U_0) linear;
-    interpolate((1|A(U))) linear;*/
+    flux((U+Ws)) downwind phip;
 }
 
 snGradSchemes

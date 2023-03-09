@@ -21,8 +21,8 @@ fallModel
 
 hindranceModel
 {
-	type   Zaki;
-	n      4.65;
+	type   ZakiModified;
+	n      3.45;
 }
 
 // ************************************************************************* //
