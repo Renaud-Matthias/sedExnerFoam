@@ -29,9 +29,9 @@ divSchemes
 {
     default         none;
 // UEqn
-    div(phi,U)  Gauss upwind;//limitedLinear01 1;
+    div(phi,U)     Gauss upwind phi;
 // CEqn
-    div(phip,C)    Gauss upwind phip;
+    div(phip,C)    Gauss Gamma 1;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 
@@ -40,31 +40,19 @@ divSchemes
 laplacianSchemes
 {
     default         Gauss linear orthogonal;
-    /*// UEqn
-    laplacian(nuEff,U) Gauss linear;
-// CEqn
-    laplacian(epsEff,C) Gauss linear;
-// pEqn
-    laplacian((1|A(U)),p) Gauss linear;
-// k and EpsilonEqn 
-    laplacian(DkEff,k) Gauss linear;
-    laplacian(DkEff,beta) Gauss linear;
-    laplacian(DepsilonEff,epsilon) Gauss linear;
-    laplacian(DepsilonEff,beta) Gauss linear;
-        laplacian(DomegaEff,omega) Gauss linear;*/
 }
 
 
 interpolationSchemes
 {
     default  linear;
-    interpolate((U+Ws)) downwind phip;
-    //flux(U) linear;
-    //flux((U+Ws)) upwind phi;
-    //flux(HbyA) linear;
-    //default localMax;
-    //dotInterpolate(S,U_0) linear;
-    //interpolate((1|A(U))) linear;
+    flux((U+Ws)) downwind phip;
+    /*interpolate((U+Ws)) upwind phi;//downwind phip;
+    flux(U) linear;
+    flux((U+Ws)) upwind phi;
+    flux(HbyA) linear;
+    dotInterpolate(S,U_0) linear;
+    interpolate((1|A(U))) linear;*/
 }
 
 snGradSchemes

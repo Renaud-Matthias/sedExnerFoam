@@ -17,13 +17,12 @@ FoamFile
 fallModel
 {
 	type   Stokes;
-//        value  0.00157;
 }
 
 hindranceModel
 {
-	type   Zaki;
-	n      1.2;
+	type   ZakiModified;
+	n      3.45;
 }
 
 // ************************************************************************* //

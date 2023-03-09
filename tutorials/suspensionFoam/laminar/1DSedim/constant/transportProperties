@@ -26,7 +26,7 @@ Cmax    [0 0 0 0 0 0 0] 0.6; // max volumic sediment concentration
 
 transportModel  Newtonian;
 
-nu              nu [ 0 2 -1 0 0 0 0 ] 2.105e-05;
+nu      nu [ 0 2 -1 0 0 0 0 ] 2.105e-05;
 
 Sc      [0 0 0 0 0 0 0] 1; // Schmidt number
 

@@ -42,15 +42,17 @@ solvers
 
     C
     {
-        solver          PBiCG;
-        preconditioner  DILU;
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
         tolerance       1e-9;
         relTol          0;
     }
     CFinal
     {
-        solver          PBiCG;
-        preconditioner  DILU;
+        //solver          PBiCG;
+        //preconditioner  DILU;
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
         tolerance       1e-9;
         relTol          0;
     }
