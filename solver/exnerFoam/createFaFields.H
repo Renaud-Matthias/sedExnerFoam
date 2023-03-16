@@ -20,6 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// Create Finite Area mesh
+faMesh aMesh(mesh);
+
 Info<< "Reading field Zbf" << endl;
 areaScalarField Zb
 (

@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "createFaMesh.H"
     #include "createFaFields.H"
 
     Info << "number of areas" << aMesh.nFaces() << endl;
@@ -79,7 +78,10 @@ int main(int argc, char *argv[])
     forAll(aMesh.areaCentres(), i)
     {
         scalar x = aMesh.areaCentres()[i].component(0);
-        Zb[i] = 0.2*Foam::exp(-pow((x-0.3)/0.1, 2));
+        scalar y = aMesh.areaCentres()[i].component(1);
+        scalar distCenterSqr = pow(x - 2, 2) + pow(y, 2);
+        Zb[i] = 0.1 * Foam::exp(-distCenterSqr / 0.36);
+        //Zb[i] = 0.1*Foam::exp(-pow((x-1.8)/0.6, 2));
     }
     
     #include "createVolFields.H"
@@ -88,13 +90,15 @@ int main(int argc, char *argv[])
     dimensionedScalar H("H", dimLength, 1);
 
     scalar alpha(0.05);
-    scalar beta(2);
+    scalar beta(1.5);
 
     Info << "\nStarting time loop\n" << endl;
 
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.value() << endl;
+
+        //#include "meshMove.H"
 
         forAll(aMesh.areaCentres(), i)
         {
