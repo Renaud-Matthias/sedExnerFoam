@@ -20,7 +20,7 @@ solvers
     p
     {
         solver          GAMG;
-        tolerance       1e-06;
+        tolerance       1e-9;
         relTol          0.0001;
         maxIter         30;
         smoother        DIC;
@@ -36,26 +36,50 @@ solvers
     pFinal
     {
         $p;
-        tolerance       1e-6;
+        tolerance       1e-9;
         relTol          0;
     }
 
     C
     {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-9;
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+
+        MULESCorr       yes;
+        nLimiterIter    3;
+        alphaApplyPrevCorr  no;
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
         relTol          0;
-	minIter		1;
+        minIter         1;
     }
+    //	    solver          smoothSolver;
+    //    smoother        symGaussSeidel;
+     //   tolerance       1e-9;
+    //    relTol          0;
+   // }
     CFinal
     {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-9;
-        relTol          0;
-	minIter		1;
+        $C;
+	    //solver          PBiCG;
+        //preconditioner  DILU;
+       // solver          smoothSolver;
+        //smoother        symGaussSeidel;
+        //tolerance       1e-9;
+        //relTol          0;
     }
+
+    "C.*Diffusion"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-6;
+        relTol          0;
+        minIter         1;
+    }
+
     "(k|epsilon|omega)"
     {
         solver          PBiCG;
@@ -63,7 +87,6 @@ solvers
         tolerance       1e-6;
         relTol          0.001;
     }
-
     "(kFinal|epsilonFinal|omegaFinal)"
     {
         solver          PBiCG;
