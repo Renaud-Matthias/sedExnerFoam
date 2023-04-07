@@ -21,21 +21,50 @@ License
 \*---------------------------------------------------------------------------*/
 {
     volScalarField epsEff("epsEff", turbulence->nut()/Sc);
-    
-    fvScalarMatrix CEqn
+    word scheme("div(phi,C)");
+    word schemer("div(phir,C)");
+    surfaceScalarField phiC
     (
-          fvm::ddt(C)
-        + fvm::div(phip, C)
-        - fvm::laplacian(epsEff, C)
-        ==
-          fvOptions(C)
+        fvc::flux
+        (
+            phi,
+            C,
+            scheme
+        )
+      + fvc::flux
+        (
+	    fvc::flux(Ws),
+            C,
+            schemer
+        )
     );
-    
-    CEqn.relax();
-    
-    fvOptions.constrain(CEqn);
-    
-    CEqn.solve();
+
+    MULES::explicitSolve
+    (
+        geometricOneField(),
+        C,
+        phi,
+        phiC,
+        zeroField(),
+        zeroField(),
+        UniformField<scalar>(0.99*0.7),
+        zeroField()
+    );
+
+
+    // Apply the diffusion term separately to allow implicit solution
+    // and boundedness of the explicit advection
+    {
+        fvScalarMatrix CEqn
+        (
+            fvm::ddt(C) - fvc::ddt(C)
+          - fvm::laplacian(epsEff, C)
+        );
+
+        CEqn.solve(mesh.solver("CDiffusion"));
+
+        phiC += CEqn.flux();
+    }
 
     C.correctBoundaryConditions();
     

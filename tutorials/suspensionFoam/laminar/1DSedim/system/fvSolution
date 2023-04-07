@@ -42,20 +42,44 @@ solvers
 
     C
     {
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+
+        MULESCorr       yes;
+        nLimiterIter    3;
+        alphaApplyPrevCorr  no;
+
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-9;
+        tolerance       1e-6;
         relTol          0;
+        minIter         1;
     }
+    //	    solver          smoothSolver;
+    //    smoother        symGaussSeidel;
+     //   tolerance       1e-9;
+    //    relTol          0;
+   // }
     CFinal
     {
-        //solver          PBiCG;
+        $C;
+	    //solver          PBiCG;
         //preconditioner  DILU;
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
-        tolerance       1e-9;
-        relTol          0;
+       // solver          smoothSolver;
+        //smoother        symGaussSeidel;
+        //tolerance       1e-9;
+        //relTol          0;
     }
+
+    "C.*Diffusion"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-6;
+        relTol          0;
+        minIter         1;
+    }
+
 }
 
 PIMPLE
