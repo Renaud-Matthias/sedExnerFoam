@@ -24,7 +24,7 @@ actions
         source  boxToCell;
         sourceInfo
         {
-            box (-0.1 0. -0.1) (0.1 0.00023 0.1);
+            box (-0.1 0. -0.1) (0.1 0.0015 0.1);
         }
     }
     setsToZones

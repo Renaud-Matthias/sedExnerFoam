@@ -9,11 +9,11 @@ from fluidfoam import readof as rdf
 
 path_tuto = "../exnerFoam/duneTransport"
 
-Z0dune = 0.2
-x0dune = 0.3
-widthDune = 0.1
+Z0dune = 0.1
+x0dune = 1.8
+widthDune = 0.6
 
-timeList = [0, 0.5, 1]  # times at which solution is wanted
+timeList = [0, 10, 20]  # times at which solution is wanted
 
 # convert timeList to list of string
 for i, t in enumerate(timeList):
@@ -22,12 +22,12 @@ for i, t in enumerate(timeList):
 
 # parameters for Qb, must correspond to exnerFoam case
 alpha = 0.05
-beta = 2
+beta = 1.5
 
 Qflow = 1.0  # discharge
 Hwater = 1.0  # water depth
 
-# ---- load simulation results -----#
+# ---- load simulation results ----- #
 
 X = rdf.readmesh(path_tuto)[0]
 
@@ -37,7 +37,7 @@ for t in timeList:
     zb = rdf.readfield(path_tuto, time_name=t, name="Zbvf", boundary="bottom")
     ZB_num.append(zb)
 
-# ---- semi-analytical solution ----#
+# ---- semi-analytical solution ---- #
 
 
 def CI_dune(X):
@@ -59,14 +59,12 @@ ZB0 = CI_dune(X)
 
 ZB_ana = []
 
-for t in timeList:
+def solve_dune(t):
+    """Return dune shape at time t"""
     t_float = float(t)
     print(f"\nsolving at t = {t} s")
-
-    def fcost(ZB):
-        return np.sum((ZB - CI_dune(X - t_float * C(ZB))) ** 2)
-
-    res = minimize(fcost, ZB0, method="SLSQP", options={"maxiter": 500})
+    def fcost(ZB): return np.sum((ZB - CI_dune(X - t_float * C(ZB))) ** 2)
+    res = minimize(fcost, ZB0, method="SLSQP", options={"gtol":1e-5, "maxiter":500})
     if res.success:
         print(f"minimization algorithm successfull in {res.nit} iterations")
     else:
@@ -75,7 +73,12 @@ for t in timeList:
     print("precision achieved :")
     print(f"objective function : {res.fun}")
     print(f"jacobian value : {res.fun}")
-    ZB_ana.append(res.x)
+    return res.x
+
+for t in timeList:
+    t_float = float(t)
+    zb = solve_dune(t)
+    ZB_ana.append(zb)
 
 
 def RMSE_SCORE(Xref, X):

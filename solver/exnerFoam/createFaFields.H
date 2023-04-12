@@ -51,6 +51,8 @@ IOdictionary transportProperties
     )
 );
 
+#include "getSetUp.H"
+
 areaVectorField U
 (
     IOobject
@@ -88,4 +90,32 @@ edgeScalarField phib
         IOobject::NO_WRITE
     ),
     linearEdgeInterpolate(Qb) & aMesh.Le()
+);
+
+areaScalarField Da
+(
+    IOobject
+    (
+        "Da",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
+
+areaScalarField theta
+(
+    IOobject
+    (
+        "theta",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimensionSet(0, 0, 0, 0, 0, 0, 0), Zero)
 );

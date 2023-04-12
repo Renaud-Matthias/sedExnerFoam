@@ -61,9 +61,9 @@ laplacianSchemes
 interpolationSchemes
 {
     default  linear;
-    interpolate((U+Ws)) downwind phip;
+    //interpolate((U+Ws)) downwind phip;
     //flux(U) linear;
-    //flux((U+Ws)) upwind phi;
+    flux(U+Ws) downwind phip;
     //flux(HbyA) linear;
     //default localMax;
     //dotInterpolate(S,U_0) linear;

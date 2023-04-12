@@ -75,7 +75,7 @@ if case == "CW":
     beta = 1
     legloc = 2
 elif case == "NS1":
-    sol = "../suspensionFoam/RAS/MUSTE/MUSTE_NS1_topoSet"
+    sol = "../suspensionFoam/RAS/MUSTE/MUSTE_NS1"
     tout = "200/"
     figName = "MUSTE_NS1"
 

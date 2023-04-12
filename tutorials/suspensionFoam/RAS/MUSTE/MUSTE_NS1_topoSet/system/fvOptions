@@ -24,7 +24,7 @@ fixedC
         cellSet         porosity;
         fieldValues
         {
-            C           0.001;
+            C           0.002;
         }
     }
 

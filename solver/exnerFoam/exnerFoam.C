@@ -33,7 +33,7 @@ Description
     The equation is given by:
 
     \f[
-        \ddt{Zb} + \div(phis)
+        \ddt(Zb) + \div(Qb) = \laplacian(Da, Zb)
     \f]
 
     Where:
@@ -56,6 +56,7 @@ Author
 
 #include "fvCFD.H"
 #include "faCFD.H"
+#include "unitConversion.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -74,23 +75,37 @@ int main(int argc, char *argv[])
     Info << "number of areas" << aMesh.nFaces() << endl;
 
     // set initial condition for dune tutorial
-    // should later be directly in the tutorial case
-    forAll(aMesh.areaCentres(), i)
+    // initiate Zb level, dune or triangle for slide
+    if (setupType=="dune")
     {
-        scalar x = aMesh.areaCentres()[i].component(0);
-        scalar y = aMesh.areaCentres()[i].component(1);
-        scalar distCenterSqr = pow(x - 2, 2) + pow(y, 2);
-        Zb[i] = 0.1 * Foam::exp(-distCenterSqr / 0.36);
-        //Zb[i] = 0.1*Foam::exp(-pow((x-1.8)/0.6, 2));
+        forAll(aMesh.areaCentres(), i)
+        {
+            scalar x = aMesh.areaCentres()[i].component(0);
+            scalar X = (x - x0dune.value()) / Sdune.value();
+            //scalar y = aMesh.areaCentres()[i].component(1);
+            //scalar distCenterSqr = pow(x - 2, 2) + pow(y, 2);
+            //Zb[i] = 0.1 * Foam::exp(-distCenterSqr / 0.36);
+            Zb[i] = Hdune.value() * Foam::exp(-pow(X, 2));
+        }
+    }
+
+    else if (setupType=="avalanche")
+    {
+        scalar slopeCI = Foam::tan(Foam::degToRad(thetaCone));
+        forAll(aMesh.areaCentres(), i)
+        {
+            scalar x = aMesh.areaCentres()[i].component(0);
+            scalar zl = slopeCI * (x - x0cone.value() + coneW.value())
+                * pos(x - x0cone.value() + coneW.value())
+                * neg0(x - x0cone.value());
+            scalar zr = -slopeCI * (x - x0cone.value() - coneW.value())
+                * pos(x - x0cone.value())
+                * neg(x - x0cone.value() - coneW.value());
+            Zb[i] = zl + zr;
+        }
     }
     
     #include "createVolFields.H"
-
-    dimensionedVector Q("Q", dimVelocity*dimLength, vector(1, 0, 0));
-    dimensionedScalar H("H", dimLength, 1);
-
-    scalar alpha(0.05);
-    scalar beta(1.5);
 
     Info << "\nStarting time loop\n" << endl;
 
@@ -98,20 +113,38 @@ int main(int argc, char *argv[])
     {
         Info<< "Time = " << runTime.value() << endl;
 
-        //#include "meshMove.H"
+        theta = Foam::tan(Foam::mag(fac::grad(Zb)));
 
-        forAll(aMesh.areaCentres(), i)
+        if (setupType=="dune")
         {
-            scalar qb = alpha *
-                Foam::pow(Q.value().x() / (H.value()-Zb[i]), beta); // explicit
-            //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]); //implicit
-            Qb[i] = vector(qb, 0, 0);
+            forAll(aMesh.areaCentres(), i)
+            {
+                // explicit
+                scalar qb = alpha *
+                    Foam::pow(
+                        Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
+                // implicit
+                //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]);
+                Qb[i] = vector(qb, 0, 0);
+            }
+        }
+        else if (setupType=="avalanche")
+        {
+            forAll(aMesh.areaCentres(), i)
+            {
+                /*scalar thetaLocal = theta[i] - Foam::degToRad(thetaRep);
+                scalar da = Foam::tan(
+                    Foam::mag(thetaLocal)) * pos(thetaLocal);
+                Da[i] = da;*/
+                Da[i] = 0.01;
+            }
         }
 
         faScalarMatrix ZbEqn
             (
                 fam::ddt(Zb)
                 + fac::div(Qb) //explicit
+                - fac::laplacian(Da, Zb)
                 //+ fam::div(phib,Zb) //implicit
             );
 
@@ -132,8 +165,6 @@ int main(int argc, char *argv[])
 
             runTime.write();
         }
-
-        Info << Zbvf.boundaryField() << endl;
 
         runTime.printExecutionTime(Info);
         

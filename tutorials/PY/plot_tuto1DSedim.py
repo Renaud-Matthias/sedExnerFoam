@@ -209,7 +209,7 @@ def savefig(fig, path):
     if answer == "yes":
         fig.savefig(
             path, format="png", transparent=True)
-    print(f"figure saved at : {path}")
+        print(f"figure saved at : {path}")
 
 
 savefig(fig1, "./Figures/1DSedim_Cprofiles.png")
