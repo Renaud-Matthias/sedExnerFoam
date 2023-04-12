@@ -59,12 +59,15 @@ ZB0 = CI_dune(X)
 
 ZB_ana = []
 
+
 def solve_dune(t):
     """Return dune shape at time t"""
     t_float = float(t)
     print(f"\nsolving at t = {t} s")
-    def fcost(ZB): return np.sum((ZB - CI_dune(X - t_float * C(ZB))) ** 2)
-    res = minimize(fcost, ZB0, method="SLSQP", options={"gtol":1e-5, "maxiter":500})
+    def fcost(ZB): return np.sum(
+            (ZB - CI_dune(X - t_float * C(ZB))) ** 2)
+    res = minimize(
+        fcost, ZB0, method="SLSQP", options={"gtol": 1e-5, "maxiter": 500})
     if res.success:
         print(f"minimization algorithm successfull in {res.nit} iterations")
     else:
@@ -74,6 +77,7 @@ def solve_dune(t):
     print(f"objective function : {res.fun}")
     print(f"jacobian value : {res.fun}")
     return res.x
+
 
 for t in timeList:
     t_float = float(t)
