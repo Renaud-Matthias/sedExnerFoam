@@ -145,7 +145,14 @@ int main(int argc, char *argv[])
                 scalar da = Foam::tan(
                     Foam::mag(thetaLocal)) * pos(thetaLocal);
                 Da[i] = da;*/
-                Da[i] = 0.1;
+                if (theta[i] > Foam::degToRad(thetaRep))
+                {
+                    Da[i] = 0.1;
+                }
+                else
+                {
+                    Da[i] = 0.0;
+                }
             }
         }
 
