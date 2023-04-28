@@ -1,0 +1,27 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setupProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+setupType         avalanche;
+initialBedForm    tangente;
+
+bedFormPos        3;  // initial position of cone summit
+bedFormWidth      0.1;  // with of cone
+
+reposeAngle       32;  // angle of repose (in °)
+angleIni          40;  // initial slope angle (in °)
+
+// ************************************************************************* //

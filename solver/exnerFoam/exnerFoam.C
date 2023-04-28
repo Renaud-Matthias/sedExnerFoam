@@ -91,17 +91,26 @@ int main(int argc, char *argv[])
 
     else if (setupType=="avalanche")
     {
-        scalar slopeCI = Foam::tan(Foam::degToRad(thetaCone));
+        scalar slopeCI = Foam::tan(Foam::degToRad(thetabf));
+        
+        scalar alphaCI = (2/Lbf.value()) * Foam::tan(2*(1-0.9));
+        
+        dimensionedScalar heightbf(dimLength);
+        heightbf.value() = (2 / alphaCI) * Foam::tan(slopeCI);
+
         forAll(aMesh.areaCentres(), i)
         {
             scalar x = aMesh.areaCentres()[i].component(0);
+            /*
             scalar zl = slopeCI * (x - x0cone.value() + coneW.value())
                 * pos(x - x0cone.value() + coneW.value())
                 * neg0(x - x0cone.value());
             scalar zr = -slopeCI * (x - x0cone.value() - coneW.value())
                 * pos(x - x0cone.value())
                 * neg(x - x0cone.value() - coneW.value());
-            Zb[i] = zl + zr;
+            Zb[i] = zl + zr;*/
+            Zb[i] = heightbf.value()
+                * (1 - 0.5 * Foam::atan(alphaCI* (x - x0bf.value()))); 
         }
     }
     
@@ -136,7 +145,7 @@ int main(int argc, char *argv[])
                 scalar da = Foam::tan(
                     Foam::mag(thetaLocal)) * pos(thetaLocal);
                 Da[i] = da;*/
-                Da[i] = 0.01;
+                Da[i] = 0.1;
             }
         }
 

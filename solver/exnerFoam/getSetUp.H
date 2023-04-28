@@ -48,9 +48,9 @@ dimensionedScalar Sdune(dimLength);
 
 // variables for avalanche case
 scalar thetaRep = 0;  // angle of repose (in degrees)
-scalar thetaCone = 0;  // initial angle of cone (in degrees)
-dimensionedScalar x0cone(dimLength);  // initial position of cone
-dimensionedScalar coneW(dimLength);
+scalar thetabf = 0;  // initial angle of cone (in degrees)
+dimensionedScalar x0bf(dimLength);  // position related to initial bed form
+dimensionedScalar Lbf(dimLength);  // initial bedorm width
 
 if (setupType=="dune")
 {
@@ -68,11 +68,12 @@ if (setupType=="dune")
 
 else if (setupType=="avalanche")
 {
-    Info << "Select cone avalanche case" << endl;
-    x0cone.value() = readScalar(setupProperties.lookup("conePos"));
-    coneW.value() = readScalar(setupProperties.lookup("coneWidth"));
+    Info << "Select avalanche case" << endl;
+    word zb0type(setupProperties.lookup("initialBedForm"));
+    x0bf.value() = readScalar(setupProperties.lookup("bedFormPos"));
+    Lbf.value() = readScalar(setupProperties.lookup("bedFormWidth"));
     thetaRep = readScalar(setupProperties.lookup("reposeAngle"));
-    thetaCone = readScalar(setupProperties.lookup("angleIni"));
+    thetabf = readScalar(setupProperties.lookup("angleIni"));
 }
 
 else
