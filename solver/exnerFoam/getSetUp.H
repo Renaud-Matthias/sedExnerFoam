@@ -34,52 +34,40 @@ IOdictionary setupProperties
     )
 );
 
-//string setupType("setupType", setupProperties);
-word setupType(setupProperties.lookup("setupType"));
+// initial bedform
+dictionary bedformDict(setupProperties.subDict("bedform"));
+word initialBedform(bedformDict.lookup("type"));
+
+word bedload(setupProperties.lookup("bedload"));
+word avalanche(setupProperties.lookup("avalanche"));
+//word setupType(setupProperties.lookup("setupType"));
 
 // variables for dune transport case
 scalar alpha = 0;
 scalar beta = 0;
 dimensionedScalar Hwater(dimLength);
 dimensionedVector Qwater(dimensionSet(0, 2, -1, 0, 0, 0, 0));
-dimensionedScalar Hdune(dimLength);
-dimensionedScalar x0dune(dimLength);
-dimensionedScalar Sdune(dimLength);
 
 // variables for avalanche case
+word avalancheModel;
+dimensionedScalar DaMax(dimensionSet(0, 2, -1, 0, 0, 0, 0));
 scalar thetaRep = 0;  // angle of repose (in degrees)
-scalar thetabf = 0;  // initial angle of cone (in degrees)
-dimensionedScalar x0bf(dimLength);  // position related to initial bed form
-dimensionedScalar Lbf(dimLength);  // initial bedorm width
+dimensionedScalar x0bf(dimLength);
+dimensionedScalar Lbf(dimLength);
 
-if (setupType=="dune")
+if (bedload=="on")
 {
     Info << "Select dune transport case" << endl;
     Hwater.value() = readScalar(setupProperties.lookup("Hwater"));
     Qwater.value() = vector(setupProperties.lookup("Qwater"));
-    Info << "flag 1" << endl;
-    Hdune.value() = readScalar(setupProperties.lookup("duneHeight"));
-    Info << "flag 2" << endl;
-    x0dune.value() = readScalar(setupProperties.lookup("dunePos"));
-    Sdune.value() = readScalar(setupProperties.lookup("duneWidth"));
     alpha = readScalar(setupProperties.lookup("alpha"));
     beta = readScalar(setupProperties.lookup("beta"));
 }
 
-else if (setupType=="avalanche")
+if (avalanche=="on")
 {
     Info << "Select avalanche case" << endl;
-    word zb0type(setupProperties.lookup("initialBedForm"));
-    x0bf.value() = readScalar(setupProperties.lookup("bedFormPos"));
-    Lbf.value() = readScalar(setupProperties.lookup("bedFormWidth"));
+    avalancheModel = word(setupProperties.lookup("avalancheModel"));
+    DaMax.value() = readScalar(setupProperties.lookup("DaMax"));
     thetaRep = readScalar(setupProperties.lookup("reposeAngle"));
-    thetabf = readScalar(setupProperties.lookup("angleIni"));
-}
-
-else
-{
-    Info << "in setupProperties :" << endl;
-    Info << setupType << " not recognised" << endl;
-    //error wordNotFound("false setupType specified");
-    //wordNotFound << exit();
 }
