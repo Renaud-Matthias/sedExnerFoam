@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
                 Qb[i] = vector(qb, 0, 0);
             }
         }
+        
         if (avalanche=="on")
         {
             #include "updateDa.H"

@@ -20,7 +20,7 @@ height  1;
 width   0.1;
 len     6;
 
-nx 50;
+nx 100;
 ny 1;
 nz 1;
 

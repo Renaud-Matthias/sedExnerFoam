@@ -41,7 +41,7 @@ else if (avalancheModel == "Vinent")
         Da[i] = DaMax.value() * Foam::pos(theta[i] - Foam::degToRad(thetaRep))
             * (Foam::tanh(Foam::tan(theta[i])
             - Foam::tanh(Foam::tan(Foam::degToRad(thetaRep)))))
-            / Foam::tan(theta[i]);
+            / (Foam::tan(theta[i]) + SMALL);
     }
 }
 else

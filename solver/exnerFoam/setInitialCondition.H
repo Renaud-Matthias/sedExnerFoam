@@ -63,3 +63,31 @@ else if (initialBedform=="tangente")
             * (1 - 0.5 * Foam::atan(alphaCI* (x - x0bf.value())));
     }
 }
+
+else if (initialBedform=="cone")
+{
+    dimensionedScalar x0cone(dimLength);
+    dimensionedScalar Wcone(dimLength);
+    scalar thetaCone = 0;
+
+    // x coordinates of cone center
+    x0cone.value() = readScalar(bedformDict.lookup("conePos"));
+    // hald of cone width
+    Wcone.value() = readScalar(bedformDict.lookup("coneWidth"));
+    // angle of the slope (in degrees)
+    thetaCone = readScalar(bedformDict.lookup("angle"));
+
+    forAll(aMesh.areaCentres(), i)
+    {
+        scalar x = aMesh.areaCentres()[i].component(0);
+        scalar zbinf = (x - x0cone.value() + Wcone.value())
+            * Foam::tan(degToRad(thetaCone))
+            * pos(x - x0cone.value() + Wcone.value()) * neg(x - x0cone.value());
+        scalar zbsup = -(x - x0cone.value() - Wcone.value())
+            * Foam::tan(degToRad(thetaCone))
+            * pos0(x - x0cone.value())
+            * neg(x - x0cone.value() - Wcone.value());
+        Zb[i] = zbinf + zbsup;
+    }
+    Info << Zb << endl;
+}

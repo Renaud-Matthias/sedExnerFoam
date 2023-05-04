@@ -17,10 +17,10 @@ FoamFile
 // dune parameters
 bedform
 {
-    type              tangente;
-    bedFormPos        3;    // initial bedform position
-    bedFormWidth      0.5;  // with of cone
-    angleIni          40;  // initial slope angle (in °)
+    type              cone;
+    conePos           3;    // cone center position
+    coneWidth         1;  // width of cone
+    angle             55;  // initial slope angle (in °)
 }
 
 bedload           off;
