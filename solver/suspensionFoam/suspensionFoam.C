@@ -71,6 +71,7 @@ Description
 #include "fvcSmooth.H"
 
 #include "SettlingModel.H"
+#include "sedbedManager.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

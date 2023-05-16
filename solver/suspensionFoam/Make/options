@@ -22,11 +22,13 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
-    -I../../src/settlingModels/lnInclude
+    -I../../src/settlingModels/lnInclude \
+    -I../../src/sedbedManager/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lsettlingModels \
+    -lsedbedManager \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \

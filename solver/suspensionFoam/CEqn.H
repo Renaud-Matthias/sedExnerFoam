@@ -59,7 +59,11 @@ License
         (
             fvm::ddt(C) - fvc::ddt(C)
           - fvm::laplacian(epsEff, C)
+          ==
+            fvOptions(C)
         );
+
+        fvOptions.constrain(CEqn);
 
         CEqn.solve(mesh.solver("CDiffusion"));
 

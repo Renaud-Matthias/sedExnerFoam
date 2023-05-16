@@ -127,7 +127,25 @@ Info<< "Initialize sediment settling velocity\n" << endl;
 Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 Ws.correctBoundaryConditions();
 
-Info<< "Reading/calculating face flux field phi\n" << endl;
+Info<< "Reading bedloadProperties\n" << endl;
+
+IOdictionary bedloadProperties
+(
+    IOobject
+    (
+        "bedloadProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
+
+// Instantiate sedbedManager object
+Info << "Instantiate sedbedManager" << endl;
+sedbedManager faBed(bedloadProperties, mesh);
+
+Info << "Reading/calculating face flux field phi\n" << endl;
 
 #include "createPhi.H"
 
