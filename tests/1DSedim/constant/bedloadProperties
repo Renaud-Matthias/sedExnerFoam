@@ -10,45 +10,12 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    location    "constant";
+    object      bedloadProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     suspensionFoam;
+// ************************** sediment properties ************************** //
 
-startFrom       latestTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1500;
-
-deltaT          1;
-
-writeControl    adjustableRunTime;
-
-writeInterval   500;
-
-purgeWrite      0;
-
-writeFormat     asci;
-
-writePrecision  6;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable on;
-
-adjustTimeStep  off;
-
-maxCo           0.3;
-
-maxAlphaCo      0.3;
-
-maxDeltaT       2e-1;
+sedimentBedPatches    None;
 
 // ************************************************************************* //
