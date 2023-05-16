@@ -18,13 +18,13 @@ actions
 (
     // Load initial cellSet
     {
-        name    porosity;
+        name    referenceLevel;
         type    cellZoneSet;
         action  new;
         source  boxToCell;
         sourceInfo
         {
-            box (-0.1 0. -0.1) (0.1 0.0015 0.1);
+            box (-0.1 0 -0.1) (0.1 0.0005 0.1);
         }
     }
     setsToZones

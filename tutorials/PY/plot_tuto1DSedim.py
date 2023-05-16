@@ -141,7 +141,7 @@ nplot = len(Cnum)
 nlines = 1 + (nplot - 1) // 3
 ncolumns = min(3, nplot)
 
-fig1 = plt.figure(figsize=(3.5 * ncolumns, 4 * nlines), layout="constrained")
+fig1 = plt.figure(figsize=(2.5 * ncolumns, 4 * nlines), layout="constrained")
 col_exp, col_num = "black", "#ea5545"
 
 gs = fig1.add_gridspec(nlines, ncolumns)
@@ -182,6 +182,7 @@ ax.plot(time_list, Yinter_inf * 100 + 10,
 
 ax.set_xlabel("t [s]")
 ax.set_ylabel("z [cm]")
+ax.set_ylim(0, 6)
 
 legend_elements = [
     Patch(facecolor=col_up, label="upper interface"),

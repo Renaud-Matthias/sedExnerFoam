@@ -8,6 +8,4 @@ topoSet
 cp -r 0_org 0
 
 # Run suspensionFoam
-suspensionFoam > log&
-
-funkySetFields -time 0:
+suspensionFoam > log
