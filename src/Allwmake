@@ -21,5 +21,6 @@ export OF_VERSION="$foam_api"
 set -x
 
 wmake libso settlingModels
+wmake libso sedbedManager
 
 #------------------------------------------------------------------------------

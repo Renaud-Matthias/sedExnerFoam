@@ -4,5 +4,6 @@ cd "${0%/*}" || exit                            # Run from this directory
 set -x
 
 wclean libso settlingModels
+wclean libso sedbedManager
 
 #------------------------------------------------------------------------------
