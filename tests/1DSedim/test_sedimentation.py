@@ -7,9 +7,6 @@ Return error if results and data do not match
 
 import numpy as np
 from fluidfoam import readof as rdf
-import os
-
-os.system('./Allrun')
 
 Ysimu = rdf.readmesh('./')[1]
 
@@ -32,7 +29,5 @@ for cs, cd in zip(Csimu, Cdata):
     err = np.max(np.abs(cs - cd) / np.std(cd))
     if err > tol:
         success = False
-
-os.system('./Allclean')
 
 assert success
