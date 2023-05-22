@@ -18,6 +18,15 @@ License
     You should have received a copy of the GNU General Public License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::sedbedManager
+
+Description
+    Manage the presence of a sediment bed in the domain
+
+SourceFiles
+    sedbedManager.C
+
 \*---------------------------------------------------------------------------*/
 
 #ifndef sedbedManager_H
@@ -25,6 +34,7 @@ License
 
 #include "dictionary.H"
 #include "dynamicFvMesh.H"
+#include "gravityMeshObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,9 +46,13 @@ class sedbedManager
 {
 protected:
 
-    bool exist_;
+    bool bedExist_;
     const dictionary& dict_;
     fvMesh& mesh_;
+    const meshObjects::gravity& g_;  // gravitational acceleration
+    // List of patches names corresponding to a sediment bed
+    List<word> bedPatchesNames_;
+    List<label> bedPatchesID_;
     
 public:
 
@@ -46,7 +60,8 @@ public:
     sedbedManager
     (
         dictionary& dict,
-        fvMesh& mesh
+        fvMesh& mesh,
+        const meshObjects::gravity& g
     );
 
 
@@ -54,7 +69,20 @@ public:
     virtual ~sedbedManager();
 
     //- Member functions
+    // Existence of sedbed patches
     bool exist() const;
+
+    // Return
+    void findBedPatches();
+
+    // Return List of sedbed patches names
+    List<word> getPatchesNames() const;
+
+    // Check patch existence and return patch ID
+    label checkPatchExistence(word patchName) const;
+    
+    // Check if patch are well oriented
+    void checkPatchOrientation(const polyPatch& aPatch) const;
     
 };
 

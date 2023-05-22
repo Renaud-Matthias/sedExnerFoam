@@ -143,7 +143,13 @@ IOdictionary bedloadProperties
 
 // Instantiate sedbedManager object
 Info << "Instantiate sedbedManager" << endl;
-sedbedManager faBed(bedloadProperties, mesh);
+sedbedManager faBed(bedloadProperties, mesh, g);
+
+if (faBed.exist())
+{
+    Info << "sediment bed patches:" << endl
+        << faBed.getPatchesNames() << endl;
+}
 
 Info << "Reading/calculating face flux field phi\n" << endl;
 
