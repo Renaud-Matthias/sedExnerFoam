@@ -19,7 +19,7 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           cd tests/1DSedim && ./Allrun &&
-	  python test_sedimentation.py && ./Allclean
+          python test_sedimentation.py && ./Allclean
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
