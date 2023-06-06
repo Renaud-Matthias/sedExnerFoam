@@ -34,6 +34,8 @@ SourceFiles
 
 #include "dictionary.H"
 #include "dynamicFvMesh.H"
+#include "faCFD.H"
+#include "Time.H"
 #include "gravityMeshObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -44,19 +46,14 @@ namespace Foam
 
 class sedbedManager
 {
-protected:
-
-    bool bedExist_;
-    const dictionary& dict_;
-    fvMesh& mesh_;
-    const meshObjects::gravity& g_;  // gravitational acceleration
-    // List of patches names corresponding to a sediment bed
-    List<word> bedPatchesNames_;
-    List<label> bedPatchesID_;
-    
 public:
 
-    //- Constructor
+    autoPtr<faMesh> aMesh_;
+    autoPtr<areaVectorField> shields;  // shields number
+    autoPtr<areaVectorField> qb;  // bedload transport
+    autoPtr<volSurfaceMapping> vsm;
+
+     //- Constructor
     sedbedManager
     (
         dictionary& dict,
@@ -68,21 +65,34 @@ public:
     //- Destructor
     virtual ~sedbedManager();
 
-    //- Member functions
-    // Existence of sedbed patches
+    //- Public member functions
+
+    // Existence of sediment bed
     bool exist() const;
 
-    // Return
-    void findBedPatches();
+    // Check if bed exists
+    void checkBedExistence();
 
-    // Return List of sedbed patches names
-    List<word> getPatchesNames() const;
-
-    // Check patch existence and return patch ID
-    label checkPatchExistence(word patchName) const;
+    // Return copy of patches ID labelList
+    labelList bedPatchesID();
     
+protected:
+
+    bool bedExist_;
+    const dictionary& dict_;
+    fvMesh& mesh_;
+    const meshObjects::gravity& g_;  // gravitational acceleration
+    // List of patches names corresponding to a sediment bed
+    List<word> bedPatchesNames_;
+    labelList bedPatchesID_;
+
+    //- Protected member functions
+
     // Check if patch are well oriented
-    void checkPatchOrientation(const polyPatch& aPatch) const;
+    void checkFaMeshOrientation() const;
+
+    // get sediment bed patches ID
+    void getPatchesID();
     
 };
 

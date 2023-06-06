@@ -22,7 +22,11 @@ License
 
 #include "sedbedManager.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Local Functions * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -35,9 +39,18 @@ Foam::sedbedManager::sedbedManager
 :
     bedExist_(false), dict_(dict), mesh_(mesh), g_(g)
 {
-    findBedPatches();
+    checkBedExistence();
+    if (bedExist_)
+    {
+        aMesh_.reset(new faMesh(mesh_));
+        vsm.reset(new volSurfaceMapping(aMesh_.ref()));
+        getPatchesID();
+        checkFaMeshOrientation();
+        
+        Info << "faMesh patches ID : " << bedPatchesID_ << endl;
+        Info << "faMesh patches names : " << bedPatchesNames_ << endl;
+    }
 }
-
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -58,57 +71,70 @@ bool Foam::sedbedManager::exist() const
     }
 }
 
-void Foam::sedbedManager::findBedPatches()
+
+void Foam::sedbedManager::checkBedExistence()
 {
-    if (dict_.found("sedimentBedPatches"))
+    if (dict_.found("sedimentBed"))
     {
-        List<word> bedPatchesNames(dict_.lookup("sedimentBedPatches"));
-        forAll(bedPatchesNames, i)
+        word isBed(dict_.lookup("sedimentBed"));
+        if (isBed=="yes")
         {
-            word patchName = bedPatchesNames[i];
-            label patchID = checkPatchExistence(patchName);
-            const polyPatch patch = mesh_.boundaryMesh()[patchID];
-            checkPatchOrientation(patch);
-            bedPatchesNames_.append(patchName);
-            bedPatchesID_.append(patchID);
+            bedExist_ = true;
         }
-        bedExist_ = true;
+        else if (isBed=="no")
+        {
+            bedExist_ = false;
+        }
+        else
+        {
+            FatalError
+                << "wrong keyword" << endl;
+            Info << abort(FatalError) << endl;
+        }
     }
     else
     {
-        Info << "no sediment bed in the domain" << endl;
+        Info << "no sediment bed" << endl;
         bedExist_ = false;
     }
 }
 
-Foam::List<Foam::word> Foam::sedbedManager::getPatchesNames() const
+labelList Foam::sedbedManager::bedPatchesID()
 {
-    return bedPatchesNames_.clone();
+    return bedPatchesID_.clone();
 }
 
-Foam::label Foam::sedbedManager::checkPatchExistence(word patchName) const
+void Foam::sedbedManager::getPatchesID()
 {
-    label patchID = mesh_.boundaryMesh().findPatchID(patchName);
-    if (patchID==-1)
+    List<word> bedPatchesNames(dict_.lookup("sedimentBedPatches"));
+    forAll(bedPatchesNames, i)
     {
-        FatalError
-            << "bedPatch " << patchName
-            << "does not exist" << endl
-            << "existing patches are:" << endl
-            << mesh_.boundaryMesh().names() << endl;
-        Info << abort(FatalError) << endl;
+        word patchName = bedPatchesNames[i];
+        label patchID = mesh_.boundaryMesh().findPatchID(patchName);
+        if (patchID==-1)
+        {
+            FatalError
+                << "bedPatch " << patchName
+                << " does not exist" << endl
+                << "existing patches are:" << endl
+                << mesh_.boundaryMesh().names() << endl;
+            Info << abort(FatalError) << endl;
+        }
+        bedPatchesNames_.append(patchName);
+        bedPatchesID_.append(patchID);
+        //bedPatches_.append(patch);
     }
-    return patchID;
 }
 
-void Foam::sedbedManager::checkPatchOrientation
-(
-    const polyPatch& patch
-) const
+void Foam::sedbedManager::checkFaMeshOrientation() const
 {
-    forAll(patch.faceAreas(), i)
+    if (not bedExist_)
     {
-        double res = g_.value() & patch.faceAreas()[i];
+        return;
+    }
+    forAll(aMesh_->faceLabels(), i)
+    {
+        double res = g_.value() & aMesh_->faceAreaNormals()[i];
         if (res <= 0)
         {
             FatalError
