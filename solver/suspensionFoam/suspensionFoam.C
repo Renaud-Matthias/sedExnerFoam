@@ -60,6 +60,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "faCFD.H"
 #include "CMULES.H"
 #include "dynamicFvMesh.H"
 #include "singlePhaseTransportModel.H"
@@ -91,6 +92,7 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
     #include "createDyMControls.H"
     #include "createFields.H"
+    #include "createFaFields.H"
     #include "createUfIfPresent.H"
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
@@ -173,9 +175,55 @@ int main(int argc, char *argv[])
             }
         }
 
-        runTime.write();
+        if (faBed.exist())
+        {
+            //const volSymmTensorField& Reff = turbulence->devReff();
+            for (const label patchID : faBed.bedPatchesID())
+            {
+                Info << "patch ID : " << patchID << endl;
+                vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
+                const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
+                const scalarField& magSfp =
+                    mesh.magSf().boundaryField()[patchID];
+                volSymmTensorField Reff =
+                    turbulence->muEff() * dev(twoSymm(fvc::grad(U)));
+                const symmTensorField& Reffp = Reff.boundaryField()[patchID];
+                // compute shields number
+                ssp = ((-Sfp / magSfp) & Reffp)
+                    / (mag(g).value() * dS.value()
+                    *(rhoS.value() - rhoF.value()));
+                // map volumic shields number to area shields number
+                faBed.shields.ref().primitiveFieldRef() =
+                    faBed.vsm.ref().mapToSurface<vector>
+                    (
+                        shieldsVf.boundaryFieldRef()
+                    );
+                // Compute bedload with Meyer Peter Muller law
+                //faBed.qb.ref() =
+            }
+            //Info << "Info : " << turbulence->devReff() << endl;
+        }
 
-        runTime.printExecutionTime(Info);
+        if (runTime.writeTime())
+        {
+            if (faBed.exist())
+            {
+                // map area<>Fields to vol<>Fields
+                faBed.vsm.ref().mapToVolume
+                    (
+                        faBed.shields.ref(),
+                        shieldsVf.boundaryFieldRef()
+                    );
+                faBed.vsm.ref().mapToVolume
+                    (
+                        faBed.qb.ref(),
+                        qbVf.boundaryFieldRef()
+                    );
+            }
+            runTime.write();
+
+            runTime.printExecutionTime(Info);
+        }
     }
 
     Info<< "End\n" << endl;

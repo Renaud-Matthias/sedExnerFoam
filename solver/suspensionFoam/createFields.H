@@ -19,6 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 Info<< "Reading field C\n" << endl;
 
 volScalarField C
@@ -127,30 +128,6 @@ Info<< "Initialize sediment settling velocity\n" << endl;
 Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 Ws.correctBoundaryConditions();
 
-Info<< "Reading bedloadProperties\n" << endl;
-
-IOdictionary bedloadProperties
-(
-    IOobject
-    (
-        "bedloadProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
-
-// Instantiate sedbedManager object
-Info << "Instantiate sedbedManager" << endl;
-sedbedManager faBed(bedloadProperties, mesh, g);
-
-if (faBed.exist())
-{
-    Info << "sediment bed patches:" << endl
-        << faBed.getPatchesNames() << endl;
-}
-
 Info << "Reading/calculating face flux field phi\n" << endl;
 
 #include "createPhi.H"
@@ -183,6 +160,34 @@ label pRefCell = 0;
 scalar pRefValue = 0.0;
 setRefCell(p, pimple.dict(), pRefCell, pRefValue);
 mesh.setFluxRequired(p.name());
+
+volVectorField shieldsVf
+(
+    IOobject
+    (
+        "shieldsvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimless, Zero)
+);
+
+volVectorField qbVf
+(
+    IOobject
+    (
+        "qbVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
 
 #include "createMRF.H"
 #include "createFvOptions.H"
