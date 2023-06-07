@@ -38,19 +38,7 @@ IOdictionary bedloadProperties
 Info << "Instantiate sedbedManager" << endl;
 sedbedManager faBed(bedloadProperties, mesh, g);
 
-areaVectorField shields
-(
-    IOobject
-    (
-        "shields",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    faBed.aMesh_.ref(),
-    dimensionedVector(dimless, vector::zero)
-);
+//Info << "check sediment bed existence" << endl;
 
 if (faBed.exist())
 {

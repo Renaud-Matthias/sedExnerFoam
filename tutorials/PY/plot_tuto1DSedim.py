@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 path_data = "../DATA/PhamVanBang2006/"
 path_tuto = "../suspensionFoam/laminar/1DSedim/"
 
-t_plot_list = [0, 540, 1380]
+t_plot_list = [0, 540, 900, 1380]
 # possible choices are :
 # 0.0 ; 60.0 ; 120.0 ; 180.0 ; 240.0 ; 300.0 ; 360.0 ; 420.0 ; 480.0 ; 540.0
 # 600.0 ; 660.0 ; 720.0 ; 780.0 ; 840.0 ; 900.0 ; 960.0 ; 1020.0 ; 1080.0
@@ -138,8 +138,8 @@ for i, t in enumerate(time_list):
 
 
 nplot = len(Cnum)
-nlines = 1 + (nplot - 1) // 3
-ncolumns = min(3, nplot)
+nlines = 1 + (nplot - 1) // 2
+ncolumns = min(2, nplot)
 
 fig1 = plt.figure(figsize=(2.5 * ncolumns, 4 * nlines), layout="constrained")
 col_exp, col_num = "black", "#ea5545"
@@ -148,7 +148,7 @@ gs = fig1.add_gridspec(nlines, ncolumns)
 axs = []
 
 for i, t in enumerate(t_plot_list):
-    i_line, i_col = divmod(i, 3)
+    i_line, i_col = divmod(i, 2)
     axs.append(fig1.add_subplot(gs[i_line, i_col]))
     axs[i].plot(
         interp_Cexp(t + t0_true), z_array * 100 + 10,
