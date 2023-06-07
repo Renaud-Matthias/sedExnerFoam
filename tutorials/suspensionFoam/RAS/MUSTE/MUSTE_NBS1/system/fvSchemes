@@ -31,7 +31,9 @@ divSchemes
 // UEqn
     div(phi,U)  Gauss limitedLinearV 1;
 // CEqn
-    div(phip,C)    Gauss upwind phip;
+// CEqn
+    div(phi,C)    Gauss vanLeer;
+    div(phir,C)   Gauss linear;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 // k and EpsilonEqn
@@ -61,7 +63,7 @@ laplacianSchemes
 interpolationSchemes
 {
     default  linear;
-    interpolate((U+Ws)) downwind phip;
+    flux((U+Ws)) downwind phip;
     //flux(U) linear;
     //flux((U+Ws)) upwind phi;
     //flux(HbyA) linear;
@@ -79,6 +81,7 @@ fluxRequired
 {
     default         no;
     p               ;
+    C               ;
 }
 wallDist
 {

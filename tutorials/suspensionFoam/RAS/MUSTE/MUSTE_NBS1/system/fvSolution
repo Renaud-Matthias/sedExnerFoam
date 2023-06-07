@@ -39,23 +39,37 @@ solvers
         tolerance       1e-6;
         relTol          0;
     }
-
+    
     C
     {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-9;
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+
+        MULESCorr       yes;
+        nLimiterIter    3;
+        alphaApplyPrevCorr  no;
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
+    
     CFinal
     {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-9;
+        $C;
+    }
+
+    "C.*Diffusion"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-6;
         relTol          0;
         minIter         1;
     }
+    
     "(k|epsilon|omega)"
     {
         solver          PBiCG;
