@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
         }
 
         Info << "max(Da) : " << max(Da) << endl;
-        Info << "Da values : " << mag(Da) << endl;
 
         faScalarMatrix ZbEqn
             (
@@ -129,6 +128,11 @@ int main(int argc, char *argv[])
             << "  Min(Zb) = " << gMin(Zb)
             << "  Max(Zb) = " << gMax(Zb)
             << endl;
+
+        if (isMeshMoving)
+        {
+            #include "moveMesh.H"
+        }
 
         if (runTime.writeTime())
         {

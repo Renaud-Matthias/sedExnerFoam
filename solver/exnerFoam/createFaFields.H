@@ -51,6 +51,20 @@ IOdictionary transportProperties
     )
 );
 
+bool isMeshMoving(false);
+word movingMesh(transportProperties.lookup("movingMesh"));
+
+if (movingMesh=="yes")
+{
+    isMeshMoving = true;
+}
+else if (movingMesh!="no")
+{
+    FatalError << "wrong keyword movingMesh in transportProperties" << endl
+        << "options are : yes  no" << endl;
+    Info << abort(FatalError) << endl;
+}
+
 #include "getSetUp.H"
 
 areaVectorField U
