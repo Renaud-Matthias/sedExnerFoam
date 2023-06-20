@@ -175,6 +175,8 @@ volVectorField shieldsVf
     dimensionedVector(dimless, Zero)
 );
 
+dimensionedScalar critShields(dimless, 0.047);
+
 volVectorField qbVf
 (
     IOobject
