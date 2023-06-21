@@ -23,6 +23,10 @@ License
 //Info << aMesh.areaCentres().internalField() << endl;
 //Info << Zb << endl;
 
+word patchName = "bed";
+
+label aPatchID = mesh.boundaryMesh().findPatchID(patchName);
+
 scalarField deltaH = Zb.primitiveField();
 
 forAll(aMesh.areaCentres(), facei)
@@ -31,4 +35,37 @@ forAll(aMesh.areaCentres(), facei)
     deltaH[facei] = dh;
 }
 
-Info << "dh : " << deltaH << endl;
+//Info << "dh : " << deltaH << endl;
+
+primitivePatchInterpolation patchInterpolator (mesh.boundaryMesh()[aPatchID]);
+
+scalarField pointValues = patchInterpolator.faceToPointInterpolate(deltaH);
+
+//Info << "pointValues : " << pointValues << endl;
+
+// Mesh motion
+//vectorField newPoints(mesh.points().size(), 0);
+
+//Info << "delta H : " << pointValues << endl;
+
+//Info << "boundaryMesh : " << mesh.boundaryMesh()[patchName] << endl;
+
+//Info << "bed patch ID : " << aPatchID << ", patchName : " << patchName << endl;
+
+//Info << "boundaryMesh points coordinates" << mesh.boundaryMesh()[patchName].meshPoints() << endl;
+
+pointField newPoints = mesh.points();
+
+labelList bedPointsLabels = mesh.boundaryMesh()[patchName].meshPoints();
+
+forAll(bedPointsLabels, i)
+{
+    label pointPatch = bedPointsLabels[i];
+    newPoints[pointPatch].z() += pointValues[i];
+}
+
+mesh.movePoints(newPoints);
+
+//bool meshChanged = mesh.update();
+
+//Info << "mesh update : " << meshChanged << endl;

@@ -20,6 +20,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// motion solver
+/*autoPtr<motionSolver> mSolver;
+
+if (isMeshMoving)
+{
+    mSolver.reset(motionSolver::New(mesh));
+    }*/
+
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 

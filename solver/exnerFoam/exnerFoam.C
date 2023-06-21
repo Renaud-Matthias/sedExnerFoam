@@ -55,8 +55,12 @@ Author
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "dynamicFvMesh.H"
 #include "faCFD.H"
+#include "motionSolver.H"
+#include "primitivePatchInterpolation.H"
 #include "unitConversion.H"
+#include "pointMesh.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -69,7 +73,7 @@ int main(int argc, char *argv[])
 
     #include "setRootCaseLists.H"
     #include "createTime.H"
-    #include "createMesh.H"
+    #include "createDynamicFvMesh.H"
     #include "createFaFields.H"
 
     Info << "number of areas" << aMesh.nFaces() << endl;

@@ -22,6 +22,12 @@ License
 
 // Create Finite Area mesh
 faMesh aMesh(mesh);
+label Psize = aMesh.points().size();
+
+Info << "aMesh n points : " << Psize << endl;
+
+// Create Point mesh
+pointMesh pMesh(mesh);
 
 Info<< "Reading field Zbf" << endl;
 areaScalarField Zb
@@ -51,8 +57,10 @@ IOdictionary transportProperties
     )
 );
 
+#include "getSetUp.H"
+
 bool isMeshMoving(false);
-word movingMesh(transportProperties.lookup("movingMesh"));
+word movingMesh(setupProperties.lookup("movingMesh"));
 
 if (movingMesh=="yes")
 {
@@ -65,8 +73,6 @@ else if (movingMesh!="no")
     Info << abort(FatalError) << endl;
 }
 
-#include "getSetUp.H"
-
 areaVectorField U
 (
     IOobject
@@ -75,7 +81,7 @@ areaVectorField U
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     aMesh
 );
@@ -88,7 +94,7 @@ areaVectorField Qb
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     aMesh
 );
