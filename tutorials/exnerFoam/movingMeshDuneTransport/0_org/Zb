@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       areaScalarField;
+    object      Zb;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions          [0 1 0 0 0 0 0];
+
+internalField       uniform 0;
+
+/*internalField         #codeStream
+{
+    codeInclude
+    #{
+        #include "fvCFD.H"
+        #include "faCFD.H"
+    #};
+
+    codeOptions
+    #{
+        -I$(LIB_SRC)/finiteVolume/lnInclude \
+        -I$(LIB_SRC)/finiteArea/lnInclude \
+        -I$(LIB_SRC)/meshTools/lnInclude
+    #};
+    codeLibs
+    #{
+        -lfiniteVolume \
+        -lmeshTools
+    #};
+    code
+    #{
+        const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+	const faMesh& aMesh = refCast<const faMesh>(d.db());
+        scalarField Zbf(aMesh.nFaces(), 0); // initiate field to 0
+
+        forAll(aMesh.areaCentres(), i)
+        {
+            scalar x = aMesh.areaCentres()[i].component(0);
+            Zbf[i] = 0.2*Foam::exp(-0.25*pow(x-5, 2));
+        }
+        //writeEntry(os, "", Zbf);
+        Zbf.writeEntry("", os);
+    #};
+
+};*/
+
+//referenceLevel      0;
+
+boundaryField
+{
+
+    inletFa
+    {
+        type        fixedValue;
+        value       uniform 0.1;
+    }
+
+    outletFa
+    {
+        type        fixedValue;
+        value       uniform 0;
+    }
+
+    sidesFa
+    {
+        type        empty;
+    }
+}
+
+
+// ************************************************************************* //

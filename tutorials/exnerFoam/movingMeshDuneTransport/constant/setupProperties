@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setupProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+movingMesh      yes;
+
+// dune parameters
+bedform
+{
+    type             gaussian;
+    duneHeight       0.1;
+    dunePos          2;
+    duneWidth        0.6;
+}
+
+bedload          on;
+Hwater           1;
+Qwater           (1 0 0);
+alpha            0.05;
+beta             1.5;
+
+
+avalanche        off;
+//avalancheModel   Vinent;
+//DaMax             0.1;  // max avalanche diffusivity
+//reposeAngle       32;  // angle of repose (in degrees)
+
+
+// ************************************************************************* //
