@@ -41,6 +41,9 @@ primitivePatchInterpolation patchInterpolator (mesh.boundaryMesh()[aPatchID]);
 
 scalarField pointValues = patchInterpolator.faceToPointInterpolate(deltaH);
 
+Info << ", min(deltaH) : " << min(pointValues);
+Info << ", max(deltaH) : " << max(pointValues) << endl;
+
 //Info << "pointValues : " << pointValues << endl;
 
 // Mesh motion

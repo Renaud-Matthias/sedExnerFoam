@@ -31,6 +31,8 @@ if (isMeshMoving)
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
+const dimensionedVector g(dimensionSet(0, 1, -2, 0, 0, 0, 0), vector(0, 0, -9.81));
+
 volScalarField Zbvf
 (
     IOobject
@@ -45,5 +47,21 @@ volScalarField Zbvf
     dimensionedScalar(dimLength, Zero)
 );
 
+volVectorField Qbvf
+(
+    IOobject
+    (
+        "Qbvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
+
 vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
 Zbvf.write();
+vsm.mapToVolume(Qb, Qbvf.boundaryFieldRef());
+Qbvf.write();

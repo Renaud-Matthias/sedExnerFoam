@@ -24,6 +24,9 @@ License
 faMesh aMesh(mesh);
 label Psize = aMesh.points().size();
 
+//mesh motion solver
+//autoPtr<motionSolver> motionPtr;
+
 Info << "aMesh n points : " << Psize << endl;
 
 // Create Point mesh
@@ -72,19 +75,6 @@ else if (movingMesh!="no")
         << "options are : yes  no" << endl;
     Info << abort(FatalError) << endl;
 }
-
-areaVectorField U
-(
-    IOobject
-    (
-        "U",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    aMesh
-);
 
 areaVectorField Qb
 (

@@ -93,17 +93,22 @@ int main(int argc, char *argv[])
 
         theta = Foam::atan(Foam::mag(fac::grad(Zb)));
 
+        // finite area normals
+        const vectorField& faNormals = aMesh.faceAreaNormals();
+        
         if (bedload=="on")
         {
             forAll(aMesh.areaCentres(), i)
             {
                 // explicit
+                vector nFace = -faNormals[i];
                 scalar qb = alpha *
                     Foam::pow(
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
                 // implicit
                 //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]);
                 Qb[i] = vector(qb, 0, 0);
+                //Qb[i] = vector(qb * nFace.z(), 0, qb * nFace.x());
             }
         }
         
@@ -113,6 +118,15 @@ int main(int argc, char *argv[])
         }
 
         Info << "max(Da) : " << max(Da) << endl;
+
+        // correct slope
+        //slopeCorr = -faNormals & g;
+        forAll(faNormals, i)
+        {
+            vector surfaceNormal = faNormals[i];
+            scalar slopeCorr = surfaceNormal & (g.value() / mag(g.value()));
+            Qb[i] /= slopeCorr;
+        }
 
         faScalarMatrix ZbEqn
             (
@@ -141,6 +155,7 @@ int main(int argc, char *argv[])
         if (runTime.writeTime())
         {
             vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
+            vsm.mapToVolume(Qb, Qbvf.boundaryFieldRef());
 
             runTime.write();
         }
