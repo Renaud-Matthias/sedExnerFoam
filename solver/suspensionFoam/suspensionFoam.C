@@ -177,39 +177,7 @@ int main(int argc, char *argv[])
 
         if (faBed.exist())
         {
-            //const volSymmTensorField& Reff = turbulence->devReff();
-            for (const label patchID : faBed.bedPatchesID())
-            {
-                Info << "patch ID : " << patchID << endl;
-                vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
-                const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
-                const scalarField& magSfp =
-                    mesh.magSf().boundaryField()[patchID];
-                volSymmTensorField Reff =
-                    rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
-                const symmTensorField& Reffp = Reff.boundaryField()[patchID];
-                // compute shields number
-                ssp = ((-Sfp / magSfp) & Reffp)
-                    / (mag(g).value() * dS.value()
-                    * (rhoS.value() - rhoF.value()));
-                // map volumic shields number to area shields number
-                faBed.shields.ref().primitiveFieldRef() =
-                    faBed.vsm.ref().mapToSurface<vector>
-                    (
-                        shieldsVf.boundaryFieldRef()
-                    );
-                
-                // Compute bedload with Meyer Peter Muller law
-                // no threshold at the moment
-                dimensionedScalar mpmE(dimless, 8);
-                Info << "compute qb using MPM law" << endl;
-                dimensionedScalar smallVal(dimless, SMALL);
-                faBed.qb.ref() = mpmE * (faBed.shields.ref() / (smallVal + mag(faBed.shields.ref())))
-                    * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
-                    * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
-                    * (mag(faBed.shields.ref()) - critShields), 1.5);
-            }
-            //Info << "Info : " << turbulence->devReff() << endl;
+            #include "bedload.H"
         }
 
         if (runTime.writeTime())
