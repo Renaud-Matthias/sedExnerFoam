@@ -37,7 +37,7 @@ forAll(aMesh.areaCentres(), facei)
 
 //Info << "dh : " << deltaH << endl;
 
-primitivePatchInterpolation patchInterpolator (mesh.boundaryMesh()[aPatchID]);
+primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
 
 scalarField pointValues = patchInterpolator.faceToPointInterpolate(deltaH);
 
@@ -53,9 +53,11 @@ Info << ", max(deltaH) : " << max(pointValues) << endl;
 
 //Info << "boundaryMesh : " << mesh.boundaryMesh()[patchName] << endl;
 
-//Info << "bed patch ID : " << aPatchID << ", patchName : " << patchName << endl;
+//Info << "bed patch ID : " << aPatchID
+//<< ", patchName : " << patchName << endl;
 
-//Info << "boundaryMesh points coordinates" << mesh.boundaryMesh()[patchName].meshPoints() << endl;
+//Info << "boundaryMesh points coordinates"
+//<< mesh.boundaryMesh()[patchName].meshPoints() << endl;
 
 pointField newPoints = mesh.points();
 
