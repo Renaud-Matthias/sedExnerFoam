@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
             forAll(aMesh.areaCentres(), i)
             {
                 // explicit
-                vector nFace = -faNormals[i];
+                // vector nFace = -faNormals[i];
                 scalar qb = alpha *
                     Foam::pow(
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);

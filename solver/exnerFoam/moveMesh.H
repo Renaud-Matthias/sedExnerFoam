@@ -27,17 +27,50 @@ word patchName = "bed";
 
 label aPatchID = mesh.boundaryMesh().findPatchID(patchName);
 
-scalarField deltaH = Zb.primitiveField();
+primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
 
+// predictor step
+//Zbedges = linearEdgeInterpolate(Zb);
+//patchInterpolator.faceToEdgeInterpolate(Zb);
+scalarField Zbpred(Zb.clone());
+
+// filter zb
+// compute face displacements
+for (label iout=0; iout<Nouter; iout++)
+{
+    // predictor step
+    forAll(aMesh.areaCentres(), i)
+    {
+        if (i!=0 and i!=aMesh.nFaces()-1)
+        {
+            Zbpred[i] = 0.5 * Zbpred[i] + 0.25 * (Zbpred[i-1] + Zbpred[i+1]);
+        }
+    }
+    scalarField dzbCorr = Zb - Zbpred;
+    for (label iin=0; iin<Ninner; iin++)
+    {
+        forAll(aMesh.areaCentres(), i)
+        {
+            if (i!=0 and i!=aMesh.nFaces()-1)
+            {
+                dzbCorr = 0.5 * dzbCorr[i] + 0.25 * (dzbCorr[i-1] + dzbCorr[i+1]);
+            }
+        }
+    }
+    Zbpred += dzbCorr;
+}
+
+Zb.primitiveFieldRef() = Zbpred;
+
+
+// compute face displacements
 forAll(aMesh.areaCentres(), facei)
 {
     scalar dh = Zb[facei] - aMesh.areaCentres()[facei].z();
     deltaH[facei] = dh;
 }
 
-//Info << "dh : " << deltaH << endl;
-
-primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
+// interpolate dh on mesh points
 
 scalarField pointValues = patchInterpolator.faceToPointInterpolate(deltaH);
 

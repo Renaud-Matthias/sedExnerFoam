@@ -46,6 +46,33 @@ areaScalarField Zb
     aMesh
 );
 
+areaScalarField deltaH
+(
+    IOobject
+    (
+        "deltaH",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimLength, Zero)
+);
+
+edgeScalarField Zbedges
+(
+    IOobject
+    (
+        "Zbedges",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    linearEdgeInterpolate(Zb)
+);
+
 Info<< "Reading transportProperties\n" << endl;
 
 IOdictionary transportProperties
@@ -62,6 +89,7 @@ IOdictionary transportProperties
 
 #include "getSetUp.H"
 
+// moving mesh parameters
 bool isMeshMoving(false);
 word movingMesh(setupProperties.lookup("movingMesh"));
 
@@ -75,6 +103,10 @@ else if (movingMesh!="no")
         << "options are : yes  no" << endl;
     Info << abort(FatalError) << endl;
 }
+
+// number of loop for bed shape corrector
+const label Nouter(readLabel(setupProperties.lookup("Nouter")));
+const label Ninner(readLabel(setupProperties.lookup("Ninner")));
 
 areaVectorField Qb
 (
