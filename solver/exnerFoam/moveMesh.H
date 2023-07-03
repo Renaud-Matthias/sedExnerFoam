@@ -53,7 +53,8 @@ for (label iout=0; iout<Nouter; iout++)
         {
             if (i!=0 and i!=aMesh.nFaces()-1)
             {
-                dzbCorr = 0.5 * dzbCorr[i] + 0.25 * (dzbCorr[i-1] + dzbCorr[i+1]);
+                dzbCorr = 0.5 * dzbCorr[i]
+                    + 0.25 * (dzbCorr[i-1] + dzbCorr[i+1]);
             }
         }
     }
