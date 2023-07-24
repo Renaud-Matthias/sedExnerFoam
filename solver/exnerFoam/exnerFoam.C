@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
             forAll(aMesh.areaCentres(), i)
             {
                 // explicit
-                // vector nFace = -faNormals[i];
+                vector nFace = -faNormals[i];
                 scalar qb = alpha *
                     Foam::pow(
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
@@ -127,13 +127,15 @@ int main(int argc, char *argv[])
             scalar slopeCorr = surfaceNormal & (g.value() / mag(g.value()));
             Qb[i] /= slopeCorr;
         }
-
+        Qb.correctBoundaryConditions();
+        //Zb += runTime.time().deltaT() * fac::div(Qb);
+        
         faScalarMatrix ZbEqn
             (
                 fam::ddt(Zb)
                 + fac::div(Qb) //explicit
                 - fac::laplacian(Da, Zb)
-                //+ fam::div(phib,Zb) //implicit
+                //+ fam::div(phib, Zb) //implicit
             );
 
         ZbEqn.solve();

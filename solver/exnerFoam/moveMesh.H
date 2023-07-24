@@ -30,12 +30,27 @@ label aPatchID = mesh.boundaryMesh().findPatchID(patchName);
 primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
 
 // predictor step
-//Zbedges = linearEdgeInterpolate(Zb);
+Zbedges = linearEdgeInterpolate(Zb);
 //patchInterpolator.faceToEdgeInterpolate(Zb);
-scalarField Zbpred(Zb.clone());
+//scalarField Zbpred(Zb.clone());
 
 // filter zb
 // compute face displacements
+diffFilter.primitiveFieldRef() = alphaFilter * aMesh.S();
+
+for (label iout=0; iout<Nouter; iout++)
+{
+    Zbpred = Zb + fac::laplacian(diffFilter, Zb);
+    dzCorr = Zb - Zbpred;
+    for (label iin=0; iin<Ninner; iin++)
+    {
+        dzCorr = dzCorr + fac::laplacian(diffFilter, dzCorr);
+    }
+    Zb = Zbpred + dzCorr;
+    Zb.correctBoundaryConditions();
+}
+
+/*
 for (label iout=0; iout<Nouter; iout++)
 {
     // predictor step
@@ -61,7 +76,7 @@ for (label iout=0; iout<Nouter; iout++)
     Zbpred += dzbCorr;
 }
 
-Zb.primitiveFieldRef() = Zbpred;
+    Zb.primitiveFieldRef() = Zbpred;*/
 
 
 // compute face displacements

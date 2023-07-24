@@ -104,10 +104,6 @@ else if (movingMesh!="no")
     Info << abort(FatalError) << endl;
 }
 
-// number of loop for bed shape corrector
-const label Nouter(readLabel(setupProperties.lookup("Nouter")));
-const label Ninner(readLabel(setupProperties.lookup("Ninner")));
-
 areaVectorField Qb
 (
     IOobject
@@ -160,4 +156,57 @@ areaScalarField theta
     ),
     aMesh,
     dimensionedScalar(dimensionSet(0, 0, 0, 0, 0, 0, 0), Zero)
+);
+
+/* ---- fields for filtering exner equation ---- */
+
+// number of loop for bed shape corrector
+const label Nouter(readLabel(setupProperties.lookup("Nouter")));
+const label Ninner(readLabel(setupProperties.lookup("Ninner")));
+
+areaScalarField Zbpred
+(
+    IOobject
+    (
+        "Zbpred",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimLength, Zero),
+    "zeroGradient"
+);
+
+areaScalarField dzCorr
+(
+    IOobject
+    (
+        "dzCorr",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimLength, Zero),
+    "zeroGradient"
+);
+
+scalar alphaFilter = readScalar(setupProperties.lookup("alphaFilter"));
+
+areaScalarField diffFilter
+(
+    IOobject
+    (
+        "diffFilter",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimArea, Zero),
+    "zeroGradient"
 );
