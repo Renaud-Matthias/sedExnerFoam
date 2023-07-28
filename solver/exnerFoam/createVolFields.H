@@ -31,10 +31,8 @@ if (isMeshMoving)
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
-const dimensionedVector g
-(
-    dimensionSet(0, 1, -2, 0, 0, 0, 0), vector(0, 0, -9.81)
-);
+// gravity acceleration vector
+#include "readGravitationalAcceleration.H"
 
 volScalarField Zbvf
 (
