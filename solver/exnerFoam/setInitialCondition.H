@@ -89,5 +89,4 @@ else if (initialBedform=="cone")
             * neg(x - x0cone.value() - Wcone.value());
         Zb[i] = zbinf + zbsup;
     }
-    Info << Zb << endl;
 }

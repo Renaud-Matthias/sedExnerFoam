@@ -158,6 +158,20 @@ areaScalarField theta
     dimensionedScalar(dimensionSet(0, 0, 0, 0, 0, 0, 0), Zero)
 );
 
+areaScalarField rhsExnerEq
+(
+    IOobject
+    (
+        "rhsExnerEq",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedScalar(dimensionSet(0, 1, -1, 0, 0, 0, 0), Zero)
+);
+
 /* ---- fields for filtering exner equation ---- */
 
 // number of loop for bed shape corrector

@@ -15,6 +15,10 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 movingMesh           no;
+// parameter for filter
+alphaFilter          0;
+Nouter               0;
+Ninner               0;
 
 // dune parameters
 bedform

@@ -76,8 +76,6 @@ int main(int argc, char *argv[])
     #include "createDynamicFvMesh.H"
     #include "createFaFields.H"
 
-    Info << "number of areas" << aMesh.nFaces() << endl;
-
     // set initial condition for dune tutorial
     // initiate Zb level, dune or triangle for slide
 
@@ -87,9 +85,13 @@ int main(int argc, char *argv[])
 
     Info << "\nStarting time loop\n" << endl;
 
+    label iterTimeLoop = 0;
+
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.value() << endl;
+
+        iterTimeLoop += 1;
 
         theta = Foam::atan(Foam::mag(fac::grad(Zb)));
 
@@ -107,8 +109,8 @@ int main(int argc, char *argv[])
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
                 // implicit
                 //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]);
-                Qb[i] = vector(qb, 0, 0);
-                //Qb[i] = vector(qb * nFace.z(), 0, qb * nFace.x());
+                //Qb[i] = vector(qb, 0, 0);
+                Qb[i] = vector(qb * nFace.z(), 0, qb * nFace.x());
             }
         }
         
@@ -126,19 +128,26 @@ int main(int argc, char *argv[])
             vector surfaceNormal = faNormals[i];
             scalar slopeCorr = surfaceNormal & (g.value() / mag(g.value()));
             Qb[i] /= slopeCorr;
+            Da[i] /= slopeCorr;
         }
         Qb.correctBoundaryConditions();
-        //Zb += runTime.time().deltaT() * fac::div(Qb);
-        
-        faScalarMatrix ZbEqn
-            (
-                fam::ddt(Zb)
-                + fac::div(Qb) //explicit
-                - fac::laplacian(Da, Zb)
-                //+ fam::div(phib, Zb) //implicit
-            );
 
-        ZbEqn.solve();
+        if (timeResolution=="custom")
+        {
+                #include "explicitExnerSolve.H"
+        }
+        // with matrix construction
+        else
+        {
+            faScalarMatrix ZbEqn
+                (
+                    fam::ddt(Zb)
+                    + fac::div(Qb) //explicit
+                    - fac::laplacian(Da, Zb)
+                    //+ fam::div(phib, Zb) //implicit
+                );
+            ZbEqn.solve();
+        }
 
         Zb.correctBoundaryConditions();
         Qb.correctBoundaryConditions();

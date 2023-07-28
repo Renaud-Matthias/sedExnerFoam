@@ -34,6 +34,27 @@ const volSurfaceMapping vsm(aMesh);
 // gravity acceleration vector
 #include "readGravitationalAcceleration.H"
 
+// parameters on how to solve exner equation, time scheme
+// choice between normal openfoam scheme
+// or Adam Bashforth scheme (explicit)
+word timeResolution;
+if (setupProperties.found("timeResolution"))
+{
+    timeResolution = word(setupProperties.lookup("timeResolution"));
+}
+else
+{
+    timeResolution = "normal";
+}
+if (timeResolution!="normal" and timeResolution!="custom")
+{
+    FatalError << "wrong keyword in setupProperties dictionary! ";
+    FatalError << "timeResolution possible values are\n normal custom:" << endl;
+    Info << abort(FatalError) << endl;
+}
+
+
+// Instantiate volume field for paraviewable results
 volScalarField Zbvf
 (
     IOobject

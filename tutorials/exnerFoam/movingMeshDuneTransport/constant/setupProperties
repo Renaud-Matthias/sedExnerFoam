@@ -14,7 +14,14 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-movingMesh      yes;
+movingMesh      no;
+// bed corrector (Jensen 1999)
+alphaFilter     0;
+Nouter          0;
+Ninner          0;
+
+// scheme for time discretisation
+timeResolution  custom;
 
 // dune parameters
 bedform
