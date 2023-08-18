@@ -51,6 +51,8 @@ public:
     autoPtr<faMesh> aMesh_;
     autoPtr<areaVectorField> shields;  // shields number
     autoPtr<areaVectorField> qb;  // bedload transport
+    autoPtr<areaVectorField> zb;  // bed elevation
+    autoPtr<edgeScalarField> phib;  // qb flux through fa mesh edges
     autoPtr<volSurfaceMapping> vsm;
 
      //- Constructor
