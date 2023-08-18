@@ -20,10 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-//const volSymmTensorField& Reff = turbulence->devReff();
+// compute wallShearStress on each patch belonging to sediment bed
 for (const label patchID : faBed.bedPatchesID())
 {
     Info << "patch ID : " << patchID << endl;
+    // compute wall shear stress on patch
     vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
     const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
     const scalarField& magSfp =
@@ -31,25 +32,37 @@ for (const label patchID : faBed.bedPatchesID())
     volSymmTensorField Reff =
         rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
     const symmTensorField& Reffp = Reff.boundaryField()[patchID];
+    
     // compute shields number
     ssp = ((-Sfp / magSfp) & Reffp)
         / (mag(g).value() * dS.value()
         * (rhoS.value() - rhoF.value()));
-    // map volumic shields number to area shields number
-    faBed.shields.ref().primitiveFieldRef() =
-        faBed.vsm.ref().mapToSurface<vector>
-        (
-            shieldsVf.boundaryFieldRef()
-        );
-    // Compute bedload with Meyer Peter Muller law
-    // no threshold at the moment
-    dimensionedScalar mpmE(dimless, 8);
-    Info << "compute qb using MPM law" << endl;
-    dimensionedScalar smallVal(dimless, SMALL);
-    faBed.qb.ref() =
-        mpmE * (faBed.shields.ref() / (smallVal + mag(faBed.shields.ref())))
-        * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
-        * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
-        * (mag(faBed.shields.ref()) - critShields), 1.5);
 }
-//Info << "Info : " << turbulence->devReff() << endl;
+
+// map volumic shields number to area shields number
+faBed.shields.ref().primitiveFieldRef() =
+    faBed.vsm.ref().mapToSurface<vector>
+    (
+        shieldsVf.boundaryFieldRef()
+    );
+// compute bedload with Meyer Peter Muller law
+// no threshold at the moment
+dimensionedScalar mpmE(dimless, 8);
+
+Info << "compute qb using MPM law" << endl;
+
+dimensionedScalar smallVal(dimless, SMALL);
+faBed.qb.ref() =
+    mpmE * (faBed.shields.ref() / (smallVal + mag(faBed.shields.ref())))
+    * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
+    * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
+    * (mag(faBed.shields.ref()) - critShields), 1.5);
+
+// compute qb flux through fa mesh edges
+faBed.phib.ref() =
+    linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh_.ref().Le();
+
+// solve exner
+
+//faBed.zd.ref() = faBed.zb.ref()
+//    + runTime.time().deltaT * fac::edgeIntegrate(phib)
