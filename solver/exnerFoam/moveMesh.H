@@ -20,6 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "filterExner.H"
+
 //Info << aMesh.areaCentres().internalField() << endl;
 //Info << Zb << endl;
 
@@ -27,57 +29,8 @@ word patchName = "bed";
 
 label aPatchID = mesh.boundaryMesh().findPatchID(patchName);
 
+// set-up interpolator
 primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
-
-// predictor step
-Zbedges = linearEdgeInterpolate(Zb);
-//patchInterpolator.faceToEdgeInterpolate(Zb);
-//scalarField Zbpred(Zb.clone());
-
-// filter zb
-// compute face displacements
-diffFilter.primitiveFieldRef() = alphaFilter * aMesh.S();
-
-for (label iout=0; iout<Nouter; iout++)
-{
-    Zbpred = Zb + fac::laplacian(diffFilter, Zb);
-    dzCorr = Zb - Zbpred;
-    for (label iin=0; iin<Ninner; iin++)
-    {
-        dzCorr = dzCorr + fac::laplacian(diffFilter, dzCorr);
-    }
-    Zb = Zbpred + dzCorr;
-    Zb.correctBoundaryConditions();
-}
-
-/*
-for (label iout=0; iout<Nouter; iout++)
-{
-    // predictor step
-    forAll(aMesh.areaCentres(), i)
-    {
-        if (i!=0 and i!=aMesh.nFaces()-1)
-        {
-            Zbpred[i] = 0.5 * Zbpred[i] + 0.25 * (Zbpred[i-1] + Zbpred[i+1]);
-        }
-    }
-    scalarField dzbCorr = Zb - Zbpred;
-    for (label iin=0; iin<Ninner; iin++)
-    {
-        forAll(aMesh.areaCentres(), i)
-        {
-            if (i!=0 and i!=aMesh.nFaces()-1)
-            {
-                dzbCorr = 0.5 * dzbCorr[i]
-                    + 0.25 * (dzbCorr[i-1] + dzbCorr[i+1]);
-            }
-        }
-    }
-    Zbpred += dzbCorr;
-}
-
-    Zb.primitiveFieldRef() = Zbpred;*/
-
 
 // compute face displacements
 forAll(aMesh.areaCentres(), facei)
@@ -88,25 +41,10 @@ forAll(aMesh.areaCentres(), facei)
 
 // interpolate dh on mesh points
 
-scalarField pointValues = patchInterpolator.faceToPointInterpolate(deltaH);
+scalarField dispVals = patchInterpolator.faceToPointInterpolate(deltaH);
 
-Info << ", min(deltaH) : " << min(pointValues);
-Info << ", max(deltaH) : " << max(pointValues) << endl;
-
-//Info << "pointValues : " << pointValues << endl;
-
-// Mesh motion
-//vectorField newPoints(mesh.points().size(), 0);
-
-//Info << "delta H : " << pointValues << endl;
-
-//Info << "boundaryMesh : " << mesh.boundaryMesh()[patchName] << endl;
-
-//Info << "bed patch ID : " << aPatchID
-//<< ", patchName : " << patchName << endl;
-
-//Info << "boundaryMesh points coordinates"
-//<< mesh.boundaryMesh()[patchName].meshPoints() << endl;
+Info << ", min(deltaH) : " << min(dispVals);
+Info << ", max(deltaH) : " << max(dispVals) << endl;
 
 pointField newPoints = mesh.points();
 
@@ -115,7 +53,7 @@ labelList bedPointsLabels = mesh.boundaryMesh()[patchName].meshPoints();
 forAll(bedPointsLabels, i)
 {
     label pointPatch = bedPointsLabels[i];
-    newPoints[pointPatch].z() += pointValues[i];
+    newPoints[pointPatch].z() += dispVals[i];
 }
 
 mesh.movePoints(newPoints);

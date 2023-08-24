@@ -21,18 +21,19 @@ License
 \*---------------------------------------------------------------------------*/
 
 // update bedload flux through edges
+
 phib = linearEdgeInterpolate(Qb) & aMesh.Le();
 
 rhsExnerEq = fac::edgeIntegrate(phib);
 
 // euler explicit
-if (iterTimeLoop == 1)
+if (iterTimeLoop==1 or schemeCustom=="euler")
 {
     Zb = Zb + runTime.time().deltaT() * (- rhsExnerEq);
 }
 
 // Adam Bashforth 1 (order 2)
-else
+else if (iterTimeLoop==2 or schemeCustom=="adamBashforth1")
 {
     Zb = Zb + 0.5 * runTime.time().deltaT() *
         (
@@ -40,7 +41,12 @@ else
             - rhsExnerEq.oldTime()
         );
 }
-
+else
+{
+    FatalError << "wrong scheme, possible options are : " << endl;
+    FatalError << "euler, adamBashforth2" << endl;
+    Info << abort(FatalError) << endl;
+}
 /*Zb += runTime.time().deltaT() *
     (
         - fac::edgeIntegrate(phib)

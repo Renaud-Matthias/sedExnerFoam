@@ -31,6 +31,15 @@ if (isMeshMoving)
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
+// access point displacement
+pointVectorField& pointDisplacement = const_cast<pointVectorField&>
+(
+	mesh.objectRegistry::lookupObject<pointVectorField>
+	(
+	"pointDisplacement"
+	)
+);
+
 // gravity acceleration vector
 #include "readGravitationalAcceleration.H"
 
@@ -51,6 +60,12 @@ if (timeResolution!="normal" and timeResolution!="custom")
     FatalError << "wrong keyword in setupProperties dictionary! ";
     FatalError << "timeResolution possible values are\n normal custom:" << endl;
     Info << abort(FatalError) << endl;
+}
+
+word schemeCustom;
+if (timeResolution=="custom")
+{
+    schemeCustom = word(setupProperties.lookup("schemeCustom"));
 }
 
 
