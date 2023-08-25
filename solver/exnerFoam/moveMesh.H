@@ -36,28 +36,34 @@ primitivePatchInterpolation patchInterpolator(mesh.boundaryMesh()[aPatchID]);
 forAll(aMesh.areaCentres(), facei)
 {
     scalar dh = Zb[facei] - aMesh.areaCentres()[facei].z();
-    deltaH[facei] = dh;
+    deltaH[facei].z() = dh;
 }
 
 // interpolate dh on mesh points
 
-scalarField dispVals = patchInterpolator.faceToPointInterpolate(deltaH);
+vectorField dispVals = patchInterpolator.faceToPointInterpolate(deltaH);
 
-Info << ", min(deltaH) : " << min(dispVals);
-Info << ", max(deltaH) : " << max(dispVals) << endl;
+Info << ", min(|deltaH|) : " << min(mag(dispVals));
+Info << ", max(|deltaH|) : " << max(mag(dispVals)) << endl;
+Info << ", mean(deltaH) : " << average(deltaH.internalFieldRef()) << endl; 
 
-pointField newPoints = mesh.points();
+/*pointField newPoints = mesh.points();
 
 labelList bedPointsLabels = mesh.boundaryMesh()[patchName].meshPoints();
 
 forAll(bedPointsLabels, i)
 {
     label pointPatch = bedPointsLabels[i];
-    newPoints[pointPatch].z() += dispVals[i];
+    newPoints[pointPatch] += dispVals[i];
 }
 
-mesh.movePoints(newPoints);
+mesh.movePoints(newPoints);*/
 
-//bool meshChanged = mesh.update();
+pointDisplacement.boundaryFieldRef()[aPatchID] == dispVals;
 
-//Info << "mesh update : " << meshChanged << endl;
+bool meshChanged = mesh.update();
+
+if (meshChanged)
+{
+    Info << "mesh has been updated" << endl;
+}

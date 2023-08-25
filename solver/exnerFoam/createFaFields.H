@@ -46,7 +46,7 @@ areaScalarField Zb
     aMesh
 );
 
-areaScalarField deltaH
+areaVectorField deltaH
 (
     IOobject
     (
@@ -57,7 +57,7 @@ areaScalarField deltaH
         IOobject::NO_WRITE
     ),
     aMesh,
-    dimensionedScalar(dimLength, Zero)
+    dimensionedVector(dimLength, Zero)
 );
 
 edgeScalarField Zbedges
