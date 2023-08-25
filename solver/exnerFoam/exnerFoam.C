@@ -56,11 +56,13 @@ Author
 
 #include "fvCFD.H"
 #include "dynamicFvMesh.H"
+#include "meshTools.H"
 #include "faCFD.H"
 #include "motionSolver.H"
 #include "primitivePatchInterpolation.H"
 #include "unitConversion.H"
 #include "pointMesh.H"
+#include "pointPatchField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
