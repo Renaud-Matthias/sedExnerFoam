@@ -63,6 +63,7 @@ Description
 #include "faCFD.H"
 #include "CMULES.H"
 #include "dynamicFvMesh.H"
+#include "meshTools.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulentTransportModel.H"
 #include "pimpleControl.H"
@@ -70,6 +71,9 @@ Description
 #include "fvOptions.H"
 #include "localEulerDdtScheme.H"
 #include "fvcSmooth.H"
+#include "primitivePatchInterpolation.H"
+#include "pointMesh.H"
+#include "pointPatchField.H"
 
 #include "SettlingModel.H"
 #include "sedbedManager.H"

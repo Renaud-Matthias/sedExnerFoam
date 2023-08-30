@@ -87,7 +87,7 @@ if (faBed.exist())
                     "zb",
                     runTime.timeName(),
                     mesh,
-                    IOobject::NO_READ,
+                    IOobject::MUST_READ,
                     IOobject::NO_WRITE
                 ),
                 faBed.aMesh_.ref(),
@@ -100,6 +100,24 @@ if (faBed.exist())
     {
         faBed.zb.ref()[facei] = faBed.aMesh_.ref().areaCentres()[facei];
     }
+
+    faBed.deltaH.reset
+        (
+            new areaVectorField
+            (
+                IOobject
+                (
+                    "deltaH",
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                faBed.aMesh_.ref(),
+                dimensionedVector(dimLength, Zero)
+            )
+        );
+
 
     faBed.phib.reset
         (

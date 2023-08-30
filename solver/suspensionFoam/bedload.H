@@ -58,11 +58,36 @@ faBed.qb.ref() =
     * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
     * (mag(faBed.shields.ref()) - critShields), 1.5);
 
+
 // compute qb flux through fa mesh edges
+Info << "combute flux of qb through faces edges" << endl;
 faBed.phib.ref() =
     linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh_.ref().Le();
 
-// solve exner
 
-//faBed.zd.ref() = faBed.zb.ref()
-//    + runTime.time().deltaT * fac::edgeIntegrate(phib)
+// solve exner explicitly (euler explicit)
+Info << "explicit exner solve" << endl;
+faBed.zb.ref() = faBed.zb.ref() + runTime.time().deltaT()
+    * vector(0, 0, 1) * ( -fac::edgeIntegrate(faBed.phib.ref()));
+
+// compute faces displacements
+Info << "compute faces displacements" << endl;
+forAll(faBed.aMesh_.ref().areaCentres(), facei)
+{
+    vector dh =
+        faBed.zb.ref()[facei] - faBed.aMesh_.ref().areaCentres()[facei];
+    faBed.deltaH.ref()[facei] = dh;
+}
+
+pointVectorField& pointDisplacement = const_cast<pointVectorField&>
+(
+    mesh.objectRegistry::lookupObject<pointVectorField>
+    (
+        "pointDisplacement"
+    )
+);
+
+if (faBed.meshMotion())
+{
+        #include "meshMove.H"
+}
