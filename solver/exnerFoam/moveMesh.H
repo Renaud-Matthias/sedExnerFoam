@@ -45,7 +45,7 @@ vectorField dispVals = patchInterpolator.faceToPointInterpolate(deltaH);
 
 Info << ", min(|deltaH|) : " << min(mag(dispVals));
 Info << ", max(|deltaH|) : " << max(mag(dispVals)) << endl;
-Info << ", mean(deltaH) : " << average(deltaH.internalFieldRef()) << endl; 
+Info << ", mean(deltaH) : " << average(deltaH.internalFieldRef()) << endl;
 
 /*pointField newPoints = mesh.points();
 

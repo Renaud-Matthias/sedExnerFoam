@@ -20,24 +20,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// motion solver
-/*autoPtr<motionSolver> mSolver;
-
-if (isMeshMoving)
-{
-    mSolver.reset(motionSolver::New(mesh));
-    }*/
-
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
-// access point displacement
+// access point displacement from objectRegistry
 pointVectorField& pointDisplacement = const_cast<pointVectorField&>
 (
-	mesh.objectRegistry::lookupObject<pointVectorField>
-	(
-	"pointDisplacement"
-	)
+    mesh.objectRegistry::lookupObject<pointVectorField>
+    (
+        "pointDisplacement"
+    )
 );
 
 // gravity acceleration vector
