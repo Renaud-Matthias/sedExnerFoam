@@ -37,15 +37,15 @@ Foam::sedbedManager::sedbedManager
     const meshObjects::gravity& g
 )
 :
-    bedExist_(false), meshMove_(false), dict_(dict), mesh_(mesh), g_(g)
+    bedExist_(false), meshMotion_(false), dict_(dict), mesh_(mesh), g_(g)
 {
-    checkBedExistence();
+    checkBedExistence_();
     if (bedExist_)
     {
         aMesh_.reset(new faMesh(mesh_));
         vsm.reset(new volSurfaceMapping(aMesh_.ref()));
         getPatchesID();
-        checkFaMeshOrientation();
+        checkFaMeshOrientation_();
         
         Info << "faMesh patches ID : " << bedPatchesID_ << endl;
         Info << "faMesh patches names : " << bedPatchesNames_ << endl;
@@ -66,34 +66,6 @@ labelList Foam::sedbedManager::bedPatchesID()
     return bedPatchesID_.clone();
 }
 
-void Foam::sedbedManager::checkBedExistence()
-{
-    if (dict_.found("sedimentBed"))
-    {
-        word isBed(dict_.lookup("sedimentBed"));
-        if (isBed=="on")
-        {
-            bedExist_ = true;
-        }
-        else if (isBed=="off")
-        {
-            bedExist_ = false;
-            meshMove_ = dict_.getOrDefault<bool>("meshMovement", true);
-        }
-        else
-        {
-            FatalError
-                << "wrong keyword" << endl;
-            Info << abort(FatalError) << endl;
-        }
-    }
-    else
-    {
-        Info << "no sediment bed" << endl;
-        bedExist_ = false;
-    }
-}
-
 bool Foam::sedbedManager::exist() const
 {
     if (bedExist_)
@@ -108,7 +80,7 @@ bool Foam::sedbedManager::exist() const
 
 bool Foam::sedbedManager::meshMotion() const
 {
-    if (meshMove_)
+    if (meshMotion_)
     {
         return true;
     }
@@ -118,31 +90,37 @@ bool Foam::sedbedManager::meshMotion() const
     }
 }
 
-// protected member functions
+//- Protected member functions
 
-void Foam::sedbedManager::getPatchesID()
+void Foam::sedbedManager::checkBedExistence_()
 {
-    List<word> bedPatchesNames(dict_.lookup("sedimentBedPatches"));
-    forAll(bedPatchesNames, i)
+    if (dict_.found("sedimentBed"))
     {
-        word patchName = bedPatchesNames[i];
-        label patchID = mesh_.boundaryMesh().findPatchID(patchName);
-        if (patchID==-1)
+        word isBed(dict_.lookup("sedimentBed"));
+        if (isBed=="on")
         {
-            FatalError
-                << "bedPatch " << patchName
-                << " does not exist" << endl
-                << "existing patches are:" << endl
-                << mesh_.boundaryMesh().names() << endl;
+            bedExist_ = true;
+        }
+        else if (isBed=="off")
+        {
+            bedExist_ = false;
+            checkMeshMotion_();
+        }
+        else
+        {
+            FatalError << "wrong keyword wrong keyword!"
+                << " possible options are: on off" << endl;
             Info << abort(FatalError) << endl;
         }
-        bedPatchesNames_.append(patchName);
-        bedPatchesID_.append(patchID);
-        //bedPatches_.append(patch);
+    }
+    else
+    {
+        Info << "no sediment bed" << endl;
+        bedExist_ = false;
     }
 }
 
-void Foam::sedbedManager::checkFaMeshOrientation() const
+void Foam::sedbedManager::checkFaMeshOrientation_() const
 {
     if (not bedExist_)
     {
@@ -160,6 +138,55 @@ void Foam::sedbedManager::checkFaMeshOrientation() const
                 << "should be positive" << endl;
             Info << abort(FatalError) << endl;
         }
+    }
+}
+
+void Foam::sedbedManager::getPatchesID()
+{
+    List<word> bedPatchesNames(dict_.lookup("sedimentBedPatches"));
+    forAll(bedPatchesNames, i)
+    {
+        word patchName = bedPatchesNames[i];
+        label patchID = mesh_.boundaryMesh().findPatchID(patchName);
+        if (patchID==-1)
+        {
+            FatalError << "bedPatch " << patchName
+                << " does not exist" << endl
+                << "existing patches are:" << endl
+                << mesh_.boundaryMesh().names() << endl;
+            Info << abort(FatalError) << endl;
+        }
+        bedPatchesNames_.append(patchName);
+        bedPatchesID_.append(patchID);
+    }
+}
+
+void Foam::sedbedManager::checkMeshMotion_()
+{
+    if (dict_.found("meshMotion"))
+    {
+        word meshMotionState(dict_.lookup("meshMotion"));
+        if (meshMotionState=="on")
+        {
+            meshMotion_ = true;
+        }
+        else if (meshMotionState=="off")
+        {
+            meshMotion_ = false;
+            Info << "no mesh motion, "
+                << "bedload and shields are computed "
+                << "but bed will not move" << endl;
+        }
+        else
+        {
+            FatalError << "wrong keyword! possible options are: on off,"
+                << " default is on" << endl;
+            Info << abort(FatalError) << endl;
+        }
+    }
+    else
+    {
+        meshMotion_ = true;
     }
 }
 

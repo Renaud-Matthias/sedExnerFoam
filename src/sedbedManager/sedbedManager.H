@@ -78,9 +78,6 @@ public:
     // Return copy of patches ID labelList
     labelList bedPatchesID();
 
-    // Check if bed exists
-    void checkBedExistence();
-
     // Existence of sediment bed
     bool exist() const;
 
@@ -90,18 +87,29 @@ public:
 protected:
 
     bool bedExist_;
-    bool meshMove_;
+    
+    bool meshMotion_;
+    
     const dictionary& dict_;
+    
     fvMesh& mesh_;
+
     const meshObjects::gravity& g_;  // gravitational acceleration
-    // List of patches names corresponding to a sediment bed
-    List<word> bedPatchesNames_;
+
     labelList bedPatchesID_;
+    
+    List<word> bedPatchesNames_;
 
     //- Protected member functions
 
+    // Check if bed exists
+    void checkBedExistence_();
+
     // Check if patch are well oriented
-    void checkFaMeshOrientation() const;
+    void checkFaMeshOrientation_() const;
+
+    // check mesh motion state (on/off)
+    void checkMeshMotion_();
 
     // get sediment bed patches ID
     void getPatchesID();
