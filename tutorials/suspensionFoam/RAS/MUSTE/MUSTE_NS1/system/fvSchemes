@@ -84,7 +84,7 @@ fluxRequired
 }
 wallDist
 {
-method meshWave;
+    method meshWave;
 }
 
 
