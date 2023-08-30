@@ -37,7 +37,7 @@ Foam::sedbedManager::sedbedManager
     const meshObjects::gravity& g
 )
 :
-    bedExist_(false), dict_(dict), mesh_(mesh), g_(g)
+    bedExist_(false), meshMove_(false), dict_(dict), mesh_(mesh), g_(g)
 {
     checkBedExistence();
     if (bedExist_)
@@ -59,31 +59,26 @@ Foam::sedbedManager::~sedbedManager()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-bool Foam::sedbedManager::exist() const
-{
-    if (bedExist_)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
+// public member functions
 
+labelList Foam::sedbedManager::bedPatchesID()
+{
+    return bedPatchesID_.clone();
+}
 
 void Foam::sedbedManager::checkBedExistence()
 {
     if (dict_.found("sedimentBed"))
     {
         word isBed(dict_.lookup("sedimentBed"));
-        if (isBed=="yes")
+        if (isBed=="on")
         {
             bedExist_ = true;
         }
-        else if (isBed=="no")
+        else if (isBed=="off")
         {
             bedExist_ = false;
+            meshMove_ = dict_.getOrDefault<bool>("meshMovement", true);
         }
         else
         {
@@ -99,10 +94,31 @@ void Foam::sedbedManager::checkBedExistence()
     }
 }
 
-labelList Foam::sedbedManager::bedPatchesID()
+bool Foam::sedbedManager::exist() const
 {
-    return bedPatchesID_.clone();
+    if (bedExist_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
+
+bool Foam::sedbedManager::meshMotion() const
+{
+    if (meshMove_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// protected member functions
 
 void Foam::sedbedManager::getPatchesID()
 {

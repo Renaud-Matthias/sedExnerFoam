@@ -32,11 +32,15 @@ SourceFiles
 #ifndef sedbedManager_H
 #define sedbedManager_H
 
+#include "fvCFD.H"
 #include "dictionary.H"
 #include "dynamicFvMesh.H"
+#include "meshTools.H"
 #include "faCFD.H"
 #include "Time.H"
 #include "gravityMeshObject.H"
+#include "pointMesh.H"
+#include "pointPatchField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,8 +56,10 @@ public:
     autoPtr<areaVectorField> shields;  // shields number
     autoPtr<areaVectorField> qb;  // bedload transport
     autoPtr<areaVectorField> zb;  // bed elevation
+    autoPtr<areaVectorField> deltaH;  // bed level increment
     autoPtr<edgeScalarField> phib;  // qb flux through fa mesh edges
-    autoPtr<volSurfaceMapping> vsm;
+    autoPtr<pointVectorField> pointDisp; // point displacement for mesh motion
+    autoPtr<volSurfaceMapping> vsm;  // to read faFields with paraview
 
      //- Constructor
     sedbedManager
@@ -69,18 +75,22 @@ public:
 
     //- Public member functions
 
-    // Existence of sediment bed
-    bool exist() const;
+    // Return copy of patches ID labelList
+    labelList bedPatchesID();
 
     // Check if bed exists
     void checkBedExistence();
 
-    // Return copy of patches ID labelList
-    labelList bedPatchesID();
+    // Existence of sediment bed
+    bool exist() const;
+
+    // Mesh motion activated or not
+    bool meshMotion() const;
     
 protected:
 
     bool bedExist_;
+    bool meshMove_;
     const dictionary& dict_;
     fvMesh& mesh_;
     const meshObjects::gravity& g_;  // gravitational acceleration
