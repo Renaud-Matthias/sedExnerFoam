@@ -86,7 +86,11 @@ dimensionedScalar nuF("nu", transportProperties);
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 dimensionedScalar dS("dS", dimLength, transportProperties);
 dimensionedScalar Cmax("Cmax", dimless, transportProperties);
-dimensionedScalar Sc("Sc", dimless, transportProperties);
+dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
+if (transportProperties.found("Sc"))
+{
+    Sc.value() = readScalar(transportProperties.lookup("Sc"));
+}
 
 Info<< "Reading settlingProperties\n" << endl;
 
