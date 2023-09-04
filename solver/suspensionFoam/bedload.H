@@ -64,11 +64,10 @@ Info << "combute flux of qb through faces edges" << endl;
 faBed.phib.ref() =
     linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh_.ref().Le();
 
-
 // solve exner explicitly (euler explicit)
 Info << "explicit exner solve" << endl;
 faBed.zb.ref() = faBed.zb.ref() + runTime.time().deltaT()
-    * vector(0, 0, 1) * ( -fac::edgeIntegrate(faBed.phib.ref()));
+    * (-g/mag(g)).value() * ( -fac::edgeIntegrate(faBed.phib.ref()));
 
 // compute faces displacements
 Info << "compute faces displacements" << endl;
@@ -79,13 +78,7 @@ forAll(faBed.aMesh_.ref().areaCentres(), facei)
     faBed.deltaH.ref()[facei] = dh;
 }
 
-pointVectorField& pointDisplacement = const_cast<pointVectorField&>
-(
-    mesh.objectRegistry::lookupObject<pointVectorField>
-    (
-        "pointDisplacement"
-    )
-);
+Info << "faBed mesh motion : " << faBed.meshMotion() << endl;
 
 if (faBed.meshMotion())
 {

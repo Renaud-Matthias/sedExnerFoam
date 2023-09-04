@@ -100,15 +100,15 @@ void Foam::sedbedManager::checkBedExistence_()
         if (isBed=="on")
         {
             bedExist_ = true;
+            checkMeshMotion_();
         }
         else if (isBed=="off")
         {
             bedExist_ = false;
-            checkMeshMotion_();
         }
         else
         {
-            FatalError << "wrong keyword wrong keyword!"
+            FatalError << "wrong keyword"
                 << " possible options are: on off" << endl;
             Info << abort(FatalError) << endl;
         }
@@ -179,7 +179,7 @@ void Foam::sedbedManager::checkMeshMotion_()
         }
         else
         {
-            FatalError << "wrong keyword! possible options are: on off,"
+            FatalError << "wrong keyword for entry meshMotion! possible options are: on off,"
                 << " default is on" << endl;
             Info << abort(FatalError) << endl;
         }

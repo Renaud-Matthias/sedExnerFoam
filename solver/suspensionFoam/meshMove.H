@@ -20,6 +20,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+pointVectorField& pointDisplacement = const_cast<pointVectorField&>
+(
+    mesh.objectRegistry::lookupObject<pointVectorField>
+    (
+        "pointDisplacement"
+    )
+);
+
 // get vertices displacement through interpolation for each bed patch
 Info << "compute vertices displacement for mesh motion" << endl;
 for (const label patchID : faBed.bedPatchesID())
