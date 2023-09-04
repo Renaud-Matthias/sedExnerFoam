@@ -179,7 +179,8 @@ void Foam::sedbedManager::checkMeshMotion_()
         }
         else
         {
-            FatalError << "wrong keyword for entry meshMotion! possible options are: on off,"
+            FatalError << "wrong keyword for entry meshMotion!"
+                << " possible options are: on off,"
                 << " default is on" << endl;
             Info << abort(FatalError) << endl;
         }
