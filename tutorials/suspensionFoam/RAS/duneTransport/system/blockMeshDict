@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 1e-3;
+
+// channel dimensions
+length         900;
+height         90;
+width          6.03;
+
+// dune dimensions and coordinates
+duneHeight     25;
+duneLength     100;
+dunePos        200;
+
+nx             300;
+nz             20;
+gz             5;
+
+xupDune        #eval{ $dunePos - 0.5 * ($duneLength) };
+xdoDune        #eval{ $dunePos + 0.5 * ($duneLength) };
+
+vertices        
+(
+    // --- Block 1 --- \\
+    // bottom vertices
+    (0 0 0) // 0
+    ($length 0 0) // 1
+    ($length $width 0) // 2
+    (0 $width 0) // 3
+    // top vertices
+    (0 0 $height) // 4
+    ($length 0 $height) // 5
+    ($length $width $height) // 6
+    (0 $width $height) // 7    
+);
+
+blocks
+(
+    // top blocks
+    hex (0 1 2 3 4 5 6 7) ($nx 1 $nz) simpleGrading (1 1 $gz)
+);
+
+edges
+(
+    polyLine 0 1
+    (
+        ($xupDune 0 0)
+        ($dunePos 0 $duneHeight)
+        ($xdoDune 0 0)
+    )
+    polyLine 3 2
+    (
+        ($xupDune $width 0)
+        ($dunePos $width $duneHeight)
+        ($xdoDune $width 0)
+    )
+        
+);
+
+boundary
+(
+    inlet
+    {
+        type   patch;
+        faces
+            (
+                (0 4 7 3)
+            );
+    }
+    outlet
+    {
+        type   patch;
+        faces
+            (
+                (1 2 6 5)
+            );
+    }
+    top
+    {
+        type   wall;
+        faces
+            (
+                (4 5 6 7)
+            );
+    }
+    bed
+    {
+        type   wall;
+        faces
+            (
+                (3 2 1 0)
+            );
+    }
+    sides
+    {
+        type empty;
+        faces
+            (
+                (0 1 5 4)
+                (3 7 6 2)
+            );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

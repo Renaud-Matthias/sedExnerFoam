@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Create the mesh
+blockMesh
+# finite areas mesh
+makeFaMesh
+
+# create the initial time folder
+cp -r 0_org 0
+
+# Run suspensionFoam
+suspensionFoam > log
