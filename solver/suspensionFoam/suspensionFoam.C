@@ -70,6 +70,7 @@ Description
 #include "CorrectPhi.H"
 #include "fvOptions.H"
 #include "localEulerDdtScheme.H"
+#include "unitConversion.H"
 #include "fvcSmooth.H"
 #include "primitivePatchInterpolation.H"
 #include "pointMesh.H"
@@ -198,6 +199,11 @@ int main(int argc, char *argv[])
                     (
                         faBed.qb.ref(),
                         qbVf.boundaryFieldRef()
+                    );
+                faBed.vsm.ref().mapToVolume
+                    (
+                        faBed.thetaBed.ref(),
+                        thetaVf.boundaryFieldRef()
                     );
             }
             runTime.write();

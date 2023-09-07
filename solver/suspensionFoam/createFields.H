@@ -195,5 +195,19 @@ volVectorField qbVf
     dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
 );
 
+volScalarField thetaVf
+(
+    IOobject
+    (
+        "thetaVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero)
+);
+
 #include "createMRF.H"
 #include "createFvOptions.H"

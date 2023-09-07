@@ -45,6 +45,7 @@ faBed.shields.ref().primitiveFieldRef() =
     (
         shieldsVf.boundaryFieldRef()
     );
+
 // compute bedload with Meyer Peter Muller law
 // no threshold at the moment
 dimensionedScalar mpmE(dimless, 8);
@@ -58,11 +59,23 @@ faBed.qb.ref() =
     * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
     * (mag(faBed.shields.ref()) - critShields), 1.5);
 
+const vectorField& nFaces =
+    faBed.aMesh.ref().faceAreaNormals().internalField();
+vector gUnit = (g / mag(g)).value();
+
+
+// compute bed slope angle
+faBed.thetaBed.ref().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
+
+if (faBed.isAvalanche())
+{
+    #include "sedimAvalanche.H"
+}
 
 // compute qb flux through fa mesh edges
 Info << "combute flux of qb through faces edges" << endl;
 faBed.phib.ref() =
-    linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh_.ref().Le();
+    linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh.ref().Le();
 
 // solve exner explicitly (euler explicit)
 Info << "explicit exner solve" << endl;
@@ -71,10 +84,10 @@ faBed.zb.ref() = faBed.zb.ref() + runTime.time().deltaT()
 
 // compute faces displacements
 Info << "compute faces displacements" << endl;
-forAll(faBed.aMesh_.ref().areaCentres(), facei)
+forAll(faBed.aMesh.ref().areaCentres(), facei)
 {
     vector dh =
-        faBed.zb.ref()[facei] - faBed.aMesh_.ref().areaCentres()[facei];
+        faBed.zb.ref()[facei] - faBed.aMesh.ref().areaCentres()[facei];
     faBed.deltaH.ref()[facei] = dh;
 }
 

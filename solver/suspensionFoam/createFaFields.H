@@ -56,7 +56,7 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh_.ref(),
+                faBed.aMesh.ref(),
                 dimensionedVector(dimless, Zero)
             )
         );
@@ -73,7 +73,7 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh_.ref(),
+                faBed.aMesh.ref(),
                 dimensionedVector(dimVelocity * dimLength, Zero)
             )
         );
@@ -90,15 +90,15 @@ if (faBed.exist())
                     IOobject::MUST_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh_.ref(),
+                faBed.aMesh.ref(),
                 dimensionedVector(dimLength, Zero)
             )
         );
 
     // initiate zb value with fa mesh bottom boundary faces coordinates
-    forAll(faBed.aMesh_.ref().areaCentres(), facei)
+    forAll(faBed.aMesh.ref().areaCentres(), facei)
     {
-        faBed.zb.ref()[facei] = faBed.aMesh_.ref().areaCentres()[facei];
+        faBed.zb.ref()[facei] = faBed.aMesh.ref().areaCentres()[facei];
     }
 
     faBed.deltaH.reset
@@ -113,7 +113,7 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh_.ref(),
+                faBed.aMesh.ref(),
                 dimensionedVector(dimLength, Zero)
             )
         );
@@ -131,8 +131,25 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh_.ref(),
+                faBed.aMesh.ref(),
                 dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
+            )
+        );
+
+    faBed.thetaBed.reset
+        (
+            new areaScalarField
+            (
+                IOobject
+                (
+                    "thetaBed",
+                    runTime.timeName(),
+                    mesh,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                faBed.aMesh.ref(),
+                dimensionedScalar(dimless, Zero)
             )
         );
 }
