@@ -37,13 +37,18 @@ Foam::sedbedManager::sedbedManager
     const meshObjects::gravity& g
 )
 :
-    bedExist_(false), meshMotion_(false), dict_(dict), mesh_(mesh), g_(g)
+    bedExist_(false),
+    meshMotion_(false),
+    avalanche_(false),
+    dict_(dict),
+    mesh_(mesh),
+    g_(g)
 {
     checkBedExistence_();
     if (bedExist_)
     {
-        aMesh_.reset(new faMesh(mesh_));
-        vsm.reset(new volSurfaceMapping(aMesh_.ref()));
+        aMesh.reset(new faMesh(mesh_));
+        vsm.reset(new volSurfaceMapping(aMesh.ref()));
         getPatchesID();
         checkFaMeshOrientation_();
         
@@ -60,6 +65,18 @@ Foam::sedbedManager::~sedbedManager()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 // public member functions
+
+bool Foam::sedbedManager::isAvalanche()
+{
+    if (avalanche_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 labelList Foam::sedbedManager::bedPatchesID()
 {
@@ -101,6 +118,7 @@ void Foam::sedbedManager::checkBedExistence_()
         {
             bedExist_ = true;
             checkMeshMotion_();
+            checkAvalancheModel_();
         }
         else if (isBed=="off")
         {
@@ -120,15 +138,37 @@ void Foam::sedbedManager::checkBedExistence_()
     }
 }
 
+void Foam::sedbedManager::checkAvalancheModel_()
+{
+    if (dict_.found("avalanche"))
+    {
+        word avModel(dict_.lookup("avalanche"));
+        if (avModel=="on")
+        {
+            avalanche_ = true;
+        }
+        else if (avModel=="off")
+        {
+            avalanche_ = false;
+        }
+        else
+        {
+            FatalError << "wrong keyword for entry avalanche,"
+                << " possible options are: on off" << endl;
+            Info << abort(FatalError) << endl;
+        }
+    }
+}
+
 void Foam::sedbedManager::checkFaMeshOrientation_() const
 {
     if (not bedExist_)
     {
         return;
     }
-    forAll(aMesh_->faceLabels(), i)
+    forAll(aMesh->faceLabels(), i)
     {
-        double res = g_.value() & aMesh_->faceAreaNormals()[i];
+        double res = g_.value() & aMesh->faceAreaNormals()[i];
         if (res <= 0)
         {
             FatalError

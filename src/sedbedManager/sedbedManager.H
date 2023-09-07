@@ -52,12 +52,13 @@ class sedbedManager
 {
 public:
 
-    autoPtr<faMesh> aMesh_;
+    autoPtr<faMesh> aMesh;
     autoPtr<areaVectorField> shields;  // shields number
     autoPtr<areaVectorField> qb;  // bedload transport
     autoPtr<areaVectorField> zb;  // bed elevation
     autoPtr<areaVectorField> deltaH;  // bed level increment
     autoPtr<edgeScalarField> phib;  // qb flux through fa mesh edges
+    autoPtr<areaScalarField> thetaBed;  // angle of bed slope
     autoPtr<pointVectorField> pointDisp; // point displacement for mesh motion
     autoPtr<volSurfaceMapping> vsm;  // to read faFields with paraview
 
@@ -75,6 +76,9 @@ public:
 
     //- Public member functions
 
+    // avalanche module activated or not
+    bool isAvalanche();
+
     // Return copy of patches ID labelList
     labelList bedPatchesID();
 
@@ -89,6 +93,8 @@ protected:
     bool bedExist_;
     
     bool meshMotion_;
+
+    bool avalanche_;
     
     const dictionary& dict_;
     
@@ -102,6 +108,9 @@ protected:
 
     //- Protected member functions
 
+    // check if avalanche model is used
+    void checkAvalancheModel_();
+    
     // Check if bed exists
     void checkBedExistence_();
 
