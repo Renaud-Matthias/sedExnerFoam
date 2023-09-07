@@ -95,7 +95,15 @@ int main(int argc, char *argv[])
 
         iterTimeLoop += 1;
 
-        theta = Foam::atan(Foam::mag(fac::grad(Zb)));
+        if (isMeshMoving)
+        {
+            theta.primitiveFieldRef() =
+                Foam::acos(aMesh.faceAreaNormals() & (g / mag(g)).value());
+        }
+        else
+        {
+            theta = Foam::atan(Foam::mag(fac::grad(Zb)));
+        }
 
         // finite area normals
         const vectorField& faNormals = aMesh.faceAreaNormals();
@@ -104,15 +112,11 @@ int main(int argc, char *argv[])
         {
             forAll(aMesh.areaCentres(), i)
             {
-                // explicit
-                //vector nFace = -faNormals[i];
                 scalar qb = alpha *
                     Foam::pow(
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
-                // implicit
-                //scalar qb = Q.value().x()/Zb[i]*(H.value()-Zb[i]);
                 Qb[i] = vector(qb, 0, 0);
-                //Qb[i] = vector(qb * nFace.z(), 0, qb * nFace.x());
+                Ub[i] = Qb[i] / (Zb[i] + SMALL);
             }
         }
         
@@ -123,30 +127,44 @@ int main(int argc, char *argv[])
 
         Info << "max(Da) : " << max(Da) << endl;
 
-        // correct slope
-        //slopeCorr = -faNormals & g;
+        // bed slope correction
         forAll(faNormals, i)
         {
             vector surfaceNormal = faNormals[i];
-            scalar slopeCorr = surfaceNormal & (g.value() / mag(g.value()));
+            scalar slopeCorr = surfaceNormal & (g / mag(g)).value();
             Qb[i] /= slopeCorr;
             Da[i] /= slopeCorr;
         }
         Qb.correctBoundaryConditions();
 
-        if (timeResolution=="custom")
+        // flux of qb through edges
+        phiqb = linearEdgeInterpolate(Qb) & aMesh.Le();
+        
+        if (eqRes=="custom")
         {
                 #include "explicitExnerSolve.H"
         }
         // with matrix construction
-        else
+        else if (eqRes=="explicit")
         {
+            Info << "exner equation explicit solve" << endl;
             faScalarMatrix ZbEqn
                 (
                     fam::ddt(Zb)
-                    + fac::div(Qb) //explicit
+                    + fac::div(Qb) // explicit
                     - fac::laplacian(Da, Zb)
-                    //+ fam::div(phib, Zb) //implicit
+                );
+            ZbEqn.solve();
+        }
+        else if (eqRes=="implicit")
+        {
+            phiub = linearEdgeInterpolate(Ub) & aMesh.Le();
+            Info << "exner equation implicit solve" << endl;
+            faScalarMatrix ZbEqn
+                (
+                    fam::ddt(Zb)
+                    + fam::div(phiub, Zb) // implicit
+                    - fac::laplacian(Da, Zb)
                 );
             ZbEqn.solve();
         }

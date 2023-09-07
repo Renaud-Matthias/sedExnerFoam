@@ -93,13 +93,14 @@ IOdictionary transportProperties
 bool isMeshMoving(false);
 word movingMesh(setupProperties.lookup("movingMesh"));
 
-if (movingMesh=="yes")
+if (movingMesh=="on")
 {
     isMeshMoving = true;
+    Info << "mesh motion enable" << endl;
 }
-else if (movingMesh!="no")
+else if (movingMesh!="off")
 {
-    FatalError << "wrong keyword movingMesh in transportProperties" << endl
+    FatalError << "wrong keyword movingMesh in setupProperties" << endl
         << "options are : yes  no" << endl;
     Info << abort(FatalError) << endl;
 }
@@ -117,17 +118,45 @@ areaVectorField Qb
     aMesh
 );
 
-edgeScalarField phib
+areaVectorField Ub
 (
     IOobject
     (
-        "phib",
+        "Ub",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    aMesh,
+    dimensionedVector(dimVelocity, vector(0, 0, 0))
+);
+
+dimensionedScalar dLength(dimLength, SMALL);
+edgeScalarField phiqb
+(
+    IOobject
+    (
+        "phiqb",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
         IOobject::NO_WRITE
     ),
     linearEdgeInterpolate(Qb) & aMesh.Le()
+);
+
+edgeScalarField phiub
+(
+    IOobject
+    (
+        "phiub",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    linearEdgeInterpolate(Ub) & aMesh.Le()
 );
 
 areaScalarField Da
@@ -152,10 +181,10 @@ areaScalarField theta
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::NO_WRITE
+        IOobject::AUTO_WRITE
     ),
     aMesh,
-    dimensionedScalar(dimensionSet(0, 0, 0, 0, 0, 0, 0), Zero)
+    dimensionedScalar(dimless, Zero)
 );
 
 areaScalarField rhsExnerEq

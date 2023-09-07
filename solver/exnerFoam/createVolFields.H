@@ -23,42 +23,8 @@ License
 // Volume-to surface mapping object
 const volSurfaceMapping vsm(aMesh);
 
-// access point displacement from objectRegistry
-pointVectorField& pointDisplacement = const_cast<pointVectorField&>
-(
-    mesh.objectRegistry::lookupObject<pointVectorField>
-    (
-        "pointDisplacement"
-    )
-);
-
 // gravity acceleration vector
 #include "readGravitationalAcceleration.H"
-
-// parameters on how to solve exner equation, time scheme
-// choice between normal openfoam scheme
-// or Adam Bashforth scheme (explicit)
-word timeResolution;
-if (setupProperties.found("timeResolution"))
-{
-    timeResolution = word(setupProperties.lookup("timeResolution"));
-}
-else
-{
-    timeResolution = "normal";
-}
-if (timeResolution!="normal" and timeResolution!="custom")
-{
-    FatalError << "wrong keyword in setupProperties dictionary! ";
-    FatalError << "timeResolution possible values are\n normal custom:" << endl;
-    Info << abort(FatalError) << endl;
-}
-
-word schemeCustom;
-if (timeResolution=="custom")
-{
-    schemeCustom = word(setupProperties.lookup("schemeCustom"));
-}
 
 
 // Instantiate volume field for paraviewable results

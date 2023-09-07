@@ -71,3 +71,30 @@ if (avalanche=="on")
     DaMax.value() = readScalar(setupProperties.lookup("DaMax"));
     thetaRep = readScalar(setupProperties.lookup("reposeAngle"));
 }
+
+//- resolution of exner equation
+// choice between normal openfoam scheme (implicit/explicit solve)
+// or Adam Bashforth scheme (explicit)
+word eqRes;
+if (setupProperties.found("resolution"))
+{
+    eqRes = word(setupProperties.lookup("resolution"));
+}
+else
+{
+    eqRes = "explicit";
+}
+
+if (eqRes!="explicit" and eqRes!="implicit" and eqRes!="custom")
+{
+    FatalError << "wrong keyword in setupProperties dictionary! "
+        << "resolution entry, possible values are : "
+        << "explicit implicit custom" << endl;
+    Info << abort(FatalError) << endl;
+}
+
+word schemeCustom;
+if (eqRes=="custom")
+{
+    schemeCustom = word(setupProperties.lookup("schemeCustom"));
+}

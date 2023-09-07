@@ -20,16 +20,12 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// update bedload flux through edges
-
-phib = linearEdgeInterpolate(Qb) & aMesh.Le();
-
-rhsExnerEq = fac::edgeIntegrate(phib);
+rhsExnerEq = - fac::edgeIntegrate(phiqb);
 
 // euler explicit
 if (iterTimeLoop==1 or schemeCustom=="euler")
 {
-    Zb = Zb + runTime.time().deltaT() * (- rhsExnerEq);
+    Zb = Zb + runTime.time().deltaT() * rhsExnerEq;
 }
 
 // Adam Bashforth 1 (order 2)
@@ -43,13 +39,7 @@ else if (iterTimeLoop==2 or schemeCustom=="adamBashforth1")
 }
 else
 {
-    FatalError << "wrong scheme, possible options are : " << endl;
-    FatalError << "euler, adamBashforth2" << endl;
+    FatalError << "wrong scheme, possible options are :" << endl
+        << "euler, adamBashforth1" << endl;
     Info << abort(FatalError) << endl;
 }
-/*Zb += runTime.time().deltaT() *
-    (
-        - fac::edgeIntegrate(phib)
-        //fac::div(Qb)  // bedload
-        //- fac::laplacian(Da, Zb)  // avalanche related diffusion
-    );*/

@@ -22,9 +22,6 @@ License
 
 #include "filterExner.H"
 
-//Info << aMesh.areaCentres().internalField() << endl;
-//Info << Zb << endl;
-
 word patchName = "bed";
 
 label aPatchID = mesh.boundaryMesh().findPatchID(patchName);
@@ -47,7 +44,7 @@ Info << ", min(|deltaH|) : " << min(mag(dispVals));
 Info << ", max(|deltaH|) : " << max(mag(dispVals)) << endl;
 Info << ", mean(deltaH) : " << average(deltaH.internalFieldRef()) << endl;
 
-/*pointField newPoints = mesh.points();
+pointField newPoints = mesh.points();
 
 labelList bedPointsLabels = mesh.boundaryMesh()[patchName].meshPoints();
 
@@ -57,13 +54,4 @@ forAll(bedPointsLabels, i)
     newPoints[pointPatch] += dispVals[i];
 }
 
-mesh.movePoints(newPoints);*/
-
-pointDisplacement.boundaryFieldRef()[aPatchID] == dispVals;
-
-bool meshChanged = mesh.update();
-
-if (meshChanged)
-{
-    Info << "mesh has been updated" << endl;
-}
+mesh.movePoints(newPoints);
