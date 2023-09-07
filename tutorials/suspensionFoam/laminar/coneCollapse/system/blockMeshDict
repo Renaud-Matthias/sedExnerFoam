@@ -1,0 +1,135 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale           1;
+
+// domain dimensions
+length          1;
+width           0.1;
+height          0.5;
+
+// cone dimensions
+coneLength      0.5;
+coneHeight      0.3;
+
+// number of cells and grading values
+nxOut           10;
+nxCone          10;
+nz              10;
+
+// 
+linner          #eval{ 0.5*$coneLength };
+louter          #eval{ 0.5*($length-$coneLength) };
+xb1             #eval{ $louter };
+xb2             #eval{ $xb1+$linner };
+xb3             #eval{ $xb2+$linner };
+xb4             #eval{ $xb3+$louter };
+
+vertices        
+(
+    // block 1
+    (0 0 0) // 0
+    ($xb1 0 0) // 1
+    ($xb1 $width 0) // 2
+    (0 $width 0) // 3
+    (0 0 $height) // 4
+    ($xb1 0 $height) // 5
+    ($xb1 $width $height) // 6
+    (0 $width $height) // 7
+    // block 2
+    ($xb2 0 $coneHeight) // 8
+    ($xb2 $width $coneHeight) // 9
+    ($xb2 0 $height) // 10
+    ($xb2 $width $height) // 11
+    // block 3
+    ($xb3 0 0) // 12
+    ($xb3 $width 0) // 13
+    ($xb3 0 $height) // 14
+    ($xb3 $width $height) // 15
+    // block 4
+    ($xb4 0 0) // 16
+    ($xb4 $width 0) // 17
+    ($xb4 0 $height) // 18
+    ($xb4 $width $height) // 19
+);
+
+blocks          
+(
+    hex (0 1 2 3 4 5 6 7) ($nxOut 1 $nz) simpleGrading (1 1 1)
+    hex (1 8 9 2 5 10 11 6) ($nxCone 1 $nz) simpleGrading (1 1 1)
+    hex (8 12 13 9 10 14 15 11) ($nxCone 1 $nz) simpleGrading (1 1 1)
+    hex (12 16 17 13 14 18 19 15) ($nxOut 1 $nz) simpleGrading (1 1 1)
+);
+
+edges           
+(
+);
+
+boundary         
+(
+    top
+    {
+        type wall;
+        faces
+            (
+                (4 5 6 7)
+                (5 10 11 6)
+                (10 14 15 11)
+                (14 18 19 15)
+            );
+    }
+    bed
+    {
+        type wall;
+        faces
+            (
+                (3 2 1 0)
+                (2 9 8 1)
+                (9 13 12 8)
+                (13 17 16 12)
+            );
+    }
+    extremities
+    {
+        type patch;
+        faces
+            (
+                (0 4 7 3)
+                (16 17 19 18)
+            );
+    }
+    sides
+    {
+        type empty;
+        faces
+            (
+                (0 1 5 4)
+                (3 7 6 2)
+                (1 8 10 5)
+                (2 6 11 9)
+                (8 12 14 10)
+                (9 11 15 13)
+                (12 16 18 14)
+                (13 15 19 17)
+            );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
