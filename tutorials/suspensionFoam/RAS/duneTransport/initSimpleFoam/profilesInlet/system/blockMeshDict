@@ -17,34 +17,44 @@ FoamFile
 scale 1e-3;
 
 
-height       90;
-dx           1;
-dy           6.03;
+height           90;
+dx               1;
+dy               6.03;
 
-nz           64;
-gz           15;
+nzlo             20;
+nzup             20;
+gzlo             5;
+gzup             0.2;
+
+h2               #eval{ 0.5 * $height };
 
 vertices        
 (
-
     (0 0 0)  // 0
     ($dx 0 0)  // 1
     ($dx $dy 0)  // 2
     (0 $dy 0)  // 3
 
-    (0 0 $height)  // 4
-    ($dx 0 $height)  // 5
-    ($dx $dy $height)  // 6
-    (0 $dy $height)  // 7
+    (0 0 $h2)  // 4
+    ($dx 0 $h2)  // 5
+    ($dx $dy $h2)  // 6
+    (0 $dy $h2)  // 7
 
+    (0 0 $height)  // 8
+    ($dx 0 $height)  // 9
+    ($dx $dy $height)  // 10
+    (0 $dy $height)  // 11
 );
 
 blocks          
 (
-    hex (0 1 2 3 4 5 6 7) (1 1 $nz) simpleGrading (1 1 $gz)
+    // lower block
+    hex (0 1 2 3 4 5 6 7) (1 1 $nzlo) simpleGrading (1 1 $gzlo)
+    // upper block
+    hex (4 5 6 7 8 9 10 11) (1 1 $nzup) simpleGrading (1 1 $gzup)
 );
 
-edges           
+edges
 (
 );
 
@@ -57,6 +67,7 @@ boundary
      faces
          (
              (0 4 7 3)
+             (4 7 11 8)
          );
     }
     outlet
@@ -66,6 +77,7 @@ boundary
      faces
          (
              (1 2 6 5)
+             (5 6 10 9)
          );
     }
     top
@@ -73,7 +85,7 @@ boundary
         type    wall;
         faces
             (
-                (4 5 6 7)
+                (8 9 10 11)
             );
     }
     bed
@@ -91,6 +103,8 @@ boundary
         (
             (0 1 5 4)
             (3 7 6 2)
+            (4 5 9 8)
+            (7 11 10 6)
         );
     }
 );

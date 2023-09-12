@@ -25,7 +25,7 @@ boundaryField
     {
         type            fixedJump;
         patchType       cyclic;
-        jump            uniform -1e-4;
+        jump            uniform -0.4e-4;
         value           $internalField;
     }
     outlet

@@ -16,7 +16,7 @@ FoamFile
 
 // ************************** sediment properties ************************** //
 
-sedimentBed            on;  // on or off
+sedimentBed            off;  // on or off
 
 sedimentBedPatches     (bed);
 
