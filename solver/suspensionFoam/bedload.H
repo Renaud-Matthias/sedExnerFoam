@@ -48,29 +48,32 @@ faBed.shields.ref().primitiveFieldRef() =
 
 // compute bedload with Meyer Peter Muller law
 // no threshold at the moment
+Info << "compute qb using MPM law" << endl;
+dimensionedScalar smallVal(dimless, SMALL);
 dimensionedScalar mpmE(dimless, 8);
 
-Info << "compute qb using MPM law" << endl;
-
-dimensionedScalar smallVal(dimless, SMALL);
 faBed.qb.ref() =
     mpmE * (faBed.shields.ref() / (smallVal + mag(faBed.shields.ref())))
     * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
     * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
     * (mag(faBed.shields.ref()) - critShields), 1.5);
 
+// compute bed slope angle
 const vectorField& nFaces =
     faBed.aMesh.ref().faceAreaNormals().internalField();
 vector gUnit = (g / mag(g)).value();
-
-
-// compute bed slope angle
+Info << "compute slope angle" << endl;
 faBed.thetaBed.ref().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
 
 if (faBed.isAvalanche())
 {
     #include "sedimAvalanche.H"
 }
+
+// slope correction
+scalarField slopeCorrec = faBed.aMesh.ref().faceAreaNormals()
+    & (g / mag(g));
+faBed.qb.ref().primitiveFieldRef() /= slopeCorrec;
 
 // compute qb flux through fa mesh edges
 Info << "combute flux of qb through faces edges" << endl;
@@ -79,7 +82,7 @@ faBed.phib.ref() =
 
 // solve exner explicitly (euler explicit)
 Info << "explicit exner solve" << endl;
-faBed.zb.ref() = faBed.zb.ref() + runTime.time().deltaT()
+faBed.zb.ref() = faBed.zb.ref().oldTime() + runTime.time().deltaT()
     * (-g/mag(g)).value() * ( -fac::edgeIntegrate(faBed.phib.ref()));
 
 // compute faces displacements
