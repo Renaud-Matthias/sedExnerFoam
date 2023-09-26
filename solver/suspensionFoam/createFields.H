@@ -86,6 +86,7 @@ dimensionedScalar nuF("nu", transportProperties);
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 dimensionedScalar dS("dS", dimLength, transportProperties);
 dimensionedScalar Cmax("Cmax", dimless, transportProperties);
+dimensionedScalar porosity(dimless, 1/Cmax.value());
 dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
 if (transportProperties.found("Sc"))
 {

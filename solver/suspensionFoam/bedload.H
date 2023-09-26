@@ -70,11 +70,6 @@ if (faBed.isAvalanche())
     #include "sedimAvalanche.H"
 }
 
-// slope correction
-scalarField slopeCorrec = faBed.aMesh.ref().faceAreaNormals()
-    & (g / mag(g));
-faBed.qb.ref().primitiveFieldRef() /= slopeCorrec;
-
 // compute qb flux through fa mesh edges
 Info << "combute flux of qb through faces edges" << endl;
 faBed.phib.ref() =
@@ -83,7 +78,9 @@ faBed.phib.ref() =
 // solve exner explicitly (euler explicit)
 Info << "explicit exner solve" << endl;
 faBed.zb.ref() = faBed.zb.ref().oldTime() + runTime.time().deltaT()
-    * (-g/mag(g)).value() * ( -fac::edgeIntegrate(faBed.phib.ref()));
+    * (-g/mag(g)).value() * (1/porosity)
+    * (1/(faBed.aMesh.ref().faceAreaNormals() & (g / mag(g))))  // slope correction
+    * ( -fac::edgeIntegrate(faBed.phib.ref()));
 
 // compute faces displacements
 Info << "compute faces displacements" << endl;
@@ -93,8 +90,6 @@ forAll(faBed.aMesh.ref().areaCentres(), facei)
         faBed.zb.ref()[facei] - faBed.aMesh.ref().areaCentres()[facei];
     faBed.deltaH.ref()[facei] = dh;
 }
-
-Info << "faBed mesh motion : " << faBed.meshMotion() << endl;
 
 if (faBed.meshMotion())
 {
