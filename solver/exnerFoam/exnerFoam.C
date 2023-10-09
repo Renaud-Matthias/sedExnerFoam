@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
                     Foam::pow(
                         Qwater.value().x() / (Hwater.value() - Zb[i]), beta);
                 Qb[i] = vector(qb, 0, 0);
-                Ub[i] = Qb[i] / (Zb[i] + SMALL);
             }
         }
         
@@ -137,6 +136,9 @@ int main(int argc, char *argv[])
         }
         Qb.correctBoundaryConditions();
 
+        dimensionedScalar smallLength(dimLength, SMALL);
+        Ub = Qb / (Zb + smallLength);
+        
         // flux of qb through edges
         phiqb = linearEdgeInterpolate(Qb) & aMesh.Le();
         
@@ -151,8 +153,8 @@ int main(int argc, char *argv[])
             faScalarMatrix ZbEqn
                 (
                     fam::ddt(Zb)
-                    + fac::div(Qb) // explicit
-                    - fac::laplacian(Da, Zb)
+                    + fac::div(Qb)  // explicit
+                    - fam::laplacian(Da, Zb)
                 );
             ZbEqn.solve();
         }
@@ -172,6 +174,15 @@ int main(int argc, char *argv[])
         Zb.correctBoundaryConditions();
         Qb.correctBoundaryConditions();
 
+        if (filterType=="laplacian")
+        {
+            #include "filterDiff.H"
+        }
+        else if (filterType=="direct")
+        {
+            #include "filterDirect.H"
+        }
+        
         Info<< "bed elevation = "
             << Zb.weightedAverage(aMesh.S()).value()
             << "  Min(Zb) = " << gMin(Zb)
@@ -187,6 +198,7 @@ int main(int argc, char *argv[])
         {
             vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
             vsm.mapToVolume(Qb, Qbvf.boundaryFieldRef());
+            vsm.mapToVolume(deltaH, deltaHvf.boundaryFieldRef());
 
             runTime.write();
         }

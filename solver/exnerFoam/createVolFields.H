@@ -56,7 +56,23 @@ volVectorField Qbvf
     dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
 );
 
+volVectorField deltaHvf
+(
+    IOobject
+    (
+        "deltaHvf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 1, 0, 0, 0, 0, 0), Zero)
+);
+
 vsm.mapToVolume(Zb, Zbvf.boundaryFieldRef());
 Zbvf.write();
 vsm.mapToVolume(Qb, Qbvf.boundaryFieldRef());
 Qbvf.write();
+vsm.mapToVolume(deltaH, deltaHvf.boundaryFieldRef());
+deltaHvf.write();

@@ -181,7 +181,7 @@ areaScalarField theta
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     aMesh,
     dimensionedScalar(dimless, Zero)
@@ -203,9 +203,18 @@ areaScalarField rhsExnerEq
 
 /* ---- fields for filtering exner equation ---- */
 
+word filter(setupProperties.lookup("filter"));
+word filterType;
+
+if (filter=="on")
+{
+    filterType = word(setupProperties.lookup("filterType"));
+}
+
 // number of loop for bed shape corrector
-const label Nouter(readLabel(setupProperties.lookup("Nouter")));
-const label Ninner(readLabel(setupProperties.lookup("Ninner")));
+scalar alphaFilter = readScalar(setupProperties.lookup("alphaFilter"));
+dimensionedScalar diffFilter(dimensionSet(0, 2, 0, 0, 0, 0, 0), 0);
+const label Ncorr(readLabel(setupProperties.lookup("Ncorrection")));
 
 areaScalarField Zbpred
 (
@@ -234,22 +243,5 @@ areaScalarField dzCorr
     ),
     aMesh,
     dimensionedScalar(dimLength, Zero),
-    "zeroGradient"
-);
-
-scalar alphaFilter = readScalar(setupProperties.lookup("alphaFilter"));
-
-areaScalarField diffFilter
-(
-    IOobject
-    (
-        "diffFilter",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    aMesh,
-    dimensionedScalar(dimArea, Zero),
     "zeroGradient"
 );

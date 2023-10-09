@@ -21,50 +21,30 @@ License
 \*---------------------------------------------------------------------------*/
 
 // predictor step
-Zbedges = linearEdgeInterpolate(Zb);
-//patchInterpolator.faceToEdgeInterpolate(Zb);
-//scalarField Zbpred(Zb.clone());
-
-// filter zb
-// compute face displacements
-diffFilter.primitiveFieldRef() = alphaFilter * aMesh.S();
-
-for (label iout=0; iout<Nouter; iout++)
+forAll(aMesh.areaCentres(), facei)
 {
-    Zbpred = Zb + fac::laplacian(diffFilter, Zb);
-    dzCorr = Zb - Zbpred;
-    for (label iin=0; iin<Ninner; iin++)
+    if (facei!=0 and facei!=aMesh.nFaces()-1)
     {
-        dzCorr = dzCorr + fac::laplacian(diffFilter, dzCorr);
+        Zbpred[facei] = (1-2*alphaFilter) * Zb[facei]
+            + alphaFilter * (Zb[facei-1] + Zb[facei+1]);
     }
-    Zb = Zbpred + dzCorr;
-    Zb.correctBoundaryConditions();
+    else
+    {
+        Zbpred[facei] = Zb[facei];
+    }
 }
-
-/*
-for (label iout=0; iout<Nouter; iout++)
+for (label icorr=0; icorr<Ncorr; icorr++)
 {
-    // predictor step
-    forAll(aMesh.areaCentres(), i)
-    {
-        if (i!=0 and i!=aMesh.nFaces()-1)
-        {
-            Zbpred[i] = 0.5 * Zbpred[i] + 0.25 * (Zbpred[i-1] + Zbpred[i+1]);
-        }
-    }
     scalarField dzbCorr = Zb - Zbpred;
-    for (label iin=0; iin<Ninner; iin++)
+    forAll(aMesh.areaCentres(), facei)
     {
-        forAll(aMesh.areaCentres(), i)
+        if (facei!=0 and facei!=aMesh.nFaces()-1)
         {
-            if (i!=0 and i!=aMesh.nFaces()-1)
-            {
-                dzbCorr = 0.5 * dzbCorr[i]
-                    + 0.25 * (dzbCorr[i-1] + dzbCorr[i+1]);
-            }
+            dzbCorr = (1-2*alphaFilter) * dzbCorr[facei]
+                + alphaFilter * (dzbCorr[facei-1] + dzbCorr[facei+1]);
+            Zb[facei] = Zbpred[facei] + dzbCorr[facei];
         }
     }
-    Zbpred += dzbCorr;
 }
 
-    Zb.primitiveFieldRef() = Zbpred;*/
+Zb.correctBoundaryConditions();
