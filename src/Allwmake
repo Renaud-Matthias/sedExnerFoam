@@ -22,5 +22,6 @@ set -x
 
 wmake libso settlingModels
 wmake libso sedbedManager
+wmake libso faMeshProjection
 
 #------------------------------------------------------------------------------
