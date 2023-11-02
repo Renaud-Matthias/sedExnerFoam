@@ -108,7 +108,7 @@ public:
     //- Return projected faces area
     //const scalarField& S();
 };
-    
+
 }  // End namespace Foam
 
 #endif
