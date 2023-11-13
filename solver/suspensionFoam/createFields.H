@@ -67,6 +67,8 @@ volVectorField U
 
 #include "readGravitationalAcceleration.H"
 
+vector gUnit = (g / mag(g)).value();
+
 Info<< "Reading transportProperties\n" << endl;
 
 IOdictionary transportProperties
@@ -88,6 +90,7 @@ dimensionedScalar dS("dS", dimLength, transportProperties);
 dimensionedScalar Cmax("Cmax", dimless, transportProperties);
 dimensionedScalar porosity(dimless, 1/Cmax.value());
 dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
+
 if (transportProperties.found("Sc"))
 {
     Sc.value() = readScalar(transportProperties.lookup("Sc"));
@@ -170,7 +173,7 @@ volVectorField shieldsVf
 (
     IOobject
     (
-        "shieldsvf",
+        "shieldsVf",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -194,20 +197,6 @@ volVectorField qbVf
     ),
     mesh,
     dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
-);
-
-volScalarField thetaVf
-(
-    IOobject
-    (
-        "thetaVf",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar(dimless, Zero)
 );
 
 #include "createMRF.H"
