@@ -28,18 +28,18 @@ pointVectorField& pointDisplacement = const_cast<pointVectorField&>
     )
 );
 
+vectorField& dispVals = dispValsPtr.ref();
+
 // get vertices displacement through interpolation for each bed patch
-Info << "compute vertices displacement for mesh motion" << endl;
-for (const label patchID : faBed.bedPatchesID())
+for (const label patchID : bed.bedPatchesID())
 {
     primitivePatchInterpolation patchInterp(mesh.boundaryMesh()[patchID]);
-    vectorField dispVals =
-        patchInterp.faceToPointInterpolate(faBed.deltaH.ref());
-    Info << "dispValls, max:" << max(mag(dispVals));
+
+    // interpolate displacement on points, vertical orientation
+    dispVals -= patchInterp.faceToPointInterpolate(dH) * gUnit;
+    
+    Info << "mesh vertices motion, max:" << max(mag(dispVals));
     Info << " , min:" << min(mag(dispVals));
     Info << " , mean:" << average(mag(dispVals)) << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
 }
-
-// update mesh
-mesh.update();

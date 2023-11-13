@@ -67,8 +67,6 @@ volVectorField U
 
 #include "readGravitationalAcceleration.H"
 
-vector gUnit = (g / mag(g)).value();
-
 Info<< "Reading transportProperties\n" << endl;
 
 IOdictionary transportProperties

@@ -20,21 +20,28 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// compute bed slope angle
+const vectorField& nFaces =
+    bed.aMesh().faceAreaNormals().internalField();
+
+//bed.angleBedSlope().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
+
 // slope direction
 vectorField slopeDir = (nFaces & gUnit) * gUnit - nFaces;
 slopeDir /= (mag(slopeDir) + SMALL);
 
 // reposeAngle
-dimensionedScalar thetaRep(dimless, degToRad(32));
+dimensionedScalar betaRep(dimless, degToRad(32));
 dimensionedScalar Qav(dimensionSet(0, 2, -1, 0, 0, 0, 0), 0.01);
+
 // Vinent law (2019)
-forAll(faBed.aMesh.ref().areaCentres(), i)
+forAll(bed.aMesh().areaCentres(), facei)
 {
-    scalar theta = faBed.thetaBed.ref()[i];
-    vector qav = Qav.value() * slopeDir[i]
-        * pos(theta - thetaRep.value())
+    scalar beta = Foam::acos(nFaces[facei] & gUnit);
+    vector qav = Qav.value() * slopeDir[facei]
+        * pos(beta - betaRep.value())
         * (
-            Foam::tanh(Foam::tan(theta))
-            - Foam::tanh(Foam::tan(thetaRep.value())));
-    faBed.qb.ref()[i] += qav;
+            Foam::tanh(Foam::tan(beta))
+            - Foam::tanh(Foam::tan(betaRep.value())));
+    qb[facei] += qav;
 }

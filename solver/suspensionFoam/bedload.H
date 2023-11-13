@@ -20,10 +20,17 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// Access to bed variables
+areaVectorField& shields = shieldsPtr.ref();
+areaVectorField& qb = qbPtr.ref();
+areaScalarField& dH = dHptr.ref();
+edgeScalarField& phiqb = phiqbPtr.ref();
+
+vector gUnit = (g / mag(g)).value();  // unit vector gravity oriented
+    
 // compute wallShearStress on each patch belonging to sediment bed
-for (const label patchID : faBed.bedPatchesID())
+for (const label patchID : bed.bedPatchesID())
 {
-    Info << "patch ID : " << patchID << endl;
     // compute wall shear stress on patch
     vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
     const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
@@ -40,58 +47,40 @@ for (const label patchID : faBed.bedPatchesID())
 }
 
 // map volumic shields number to area shields number
-faBed.shields.ref().primitiveFieldRef() =
-    faBed.vsm.ref().mapToSurface<vector>
+shields.primitiveFieldRef() =
+    bed.vsm.ref().mapToSurface<vector>
     (
         shieldsVf.boundaryFieldRef()
     );
 
 // compute bedload with Meyer Peter Muller law
-// no threshold at the moment
-Info << "compute qb using MPM law" << endl;
-dimensionedScalar smallVal(dimless, SMALL);
+
 dimensionedScalar mpmE(dimless, 8);
+dimensionedScalar smallVal(dimless, SMALL);
 
-faBed.qb.ref() =
-    mpmE * (faBed.shields.ref() / (smallVal + mag(faBed.shields.ref())))
+qb =
+    mpmE * (shields / (smallVal + mag(shields)))
     * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
-    * Foam::pow(pos(mag(faBed.shields.ref()) - critShields)
-    * (mag(faBed.shields.ref()) - critShields), 1.5);
+    * Foam::pow(
+        pos(mag(shields) - critShields)
+        * (mag(shields) - critShields), 1.5);
 
-// compute bed slope angle
-const vectorField& nFaces =
-    faBed.aMesh.ref().faceAreaNormals().internalField();
-vector gUnit = (g / mag(g)).value();
-Info << "compute slope angle" << endl;
-faBed.thetaBed.ref().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
-
-if (faBed.isAvalanche())
+if (bed.isAvalanche())
 {
     #include "sedimAvalanche.H"
 }
 
 // compute qb flux through fa mesh edges
-Info << "combute flux of qb through faces edges" << endl;
-faBed.phib.ref() =
-    linearEdgeInterpolate(faBed.qb.ref()) & faBed.aMesh.ref().Le();
+phiqb =
+    linearEdgeInterpolate(qb) & bed.aMesh().Le();
 
 // solve exner explicitly (euler explicit)
-Info << "explicit exner solve" << endl;
-faBed.zb.ref() = faBed.zb.ref().oldTime() + runTime.time().deltaT()
-    * (-g/mag(g)).value() * (1/porosity)
-    * (1/(faBed.aMesh.ref().faceAreaNormals() & (g / mag(g))))  // slope correction
-    * ( -fac::edgeIntegrate(faBed.phib.ref()));
+dH = - runTime.time().deltaT()
+    * (1/Cmax)
+    * (1/(bed.aMesh().faceAreaNormals() & (-g / mag(g))))  // slope correction
+    * ( -fac::edgeIntegrate(phiqb));
 
-// compute faces displacements
-Info << "compute faces displacements" << endl;
-forAll(faBed.aMesh.ref().areaCentres(), facei)
+if (bed.meshMotion())
 {
-    vector dh =
-        faBed.zb.ref()[facei] - faBed.aMesh.ref().areaCentres()[facei];
-    faBed.deltaH.ref()[facei] = dh;
-}
-
-if (faBed.meshMotion())
-{
-        #include "meshMove.H"
+    #include "meshMove.H"
 }

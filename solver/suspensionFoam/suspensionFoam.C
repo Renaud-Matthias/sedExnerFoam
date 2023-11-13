@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
                 mesh.controlledUpdate();
 
                 if (mesh.changing())
-                {
+                {                    
                     MRF.update();
 
                     if (correctPhi)
@@ -180,30 +180,28 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (faBed.exist())
+        if (bed.exist())
         {
             #include "bedload.H"
         }
 
         if (runTime.writeTime())
         {
-            if (faBed.exist())
+            if (bed.exist())
             {
-                // map area<>Fields to vol<>Fields
-                faBed.vsm.ref().mapToVolume
+                areaVectorField& shields = shieldsPtr.ref();
+                areaVectorField& qb = qbPtr.ref();
+                
+                // map areaFields to volFields for vizualisation
+                bed.vsm.ref().mapToVolume
                     (
-                        faBed.shields.ref(),
+                        shields,
                         shieldsVf.boundaryFieldRef()
                     );
-                faBed.vsm.ref().mapToVolume
+                bed.vsm.ref().mapToVolume
                     (
-                        faBed.qb.ref(),
+                        qb,
                         qbVf.boundaryFieldRef()
-                    );
-                faBed.vsm.ref().mapToVolume
-                    (
-                        faBed.thetaBed.ref(),
-                        thetaVf.boundaryFieldRef()
                     );
             }
             runTime.write();

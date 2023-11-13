@@ -36,15 +36,31 @@ IOdictionary bedloadProperties
 
 // Instantiate sedbedManager object
 Info << "Instantiate sedbedManager" << endl;
-sedbedManager faBed(bedloadProperties, mesh, g);
+sedbedManager bed(bedloadProperties, mesh, g);
 
-//Info << "check sediment bed existence" << endl;
+autoPtr<vectorField> dispValsPtr;
 
-if (faBed.exist())
+// fields for bedload and morphology
+autoPtr<areaVectorField> shieldsPtr;
+autoPtr<areaVectorField> qbPtr;
+autoPtr<areaScalarField> dHptr;
+autoPtr<edgeScalarField> phiqbPtr;
+
+// create fa fields if morphology on
+if (bed.exist())
 {
     Info << "Instantiate finite area fields" << endl;
+
+    dispValsPtr.reset(new vectorField(bed.aMesh().nPoints()));
     
-    faBed.shields.reset
+    vectorField& dispVals = dispValsPtr.ref();
+
+    for (label pointi = 0; pointi < bed.aMesh().nPoints(); pointi++)
+    {
+        dispVals[pointi] = vector(0, 0, 0);
+    }
+    
+    shieldsPtr.reset
         (
             new areaVectorField
             (
@@ -56,12 +72,12 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh.ref(),
+                bed.aMesh(),
                 dimensionedVector(dimless, Zero)
             )
         );
 
-    faBed.qb.reset
+    qbPtr.reset
         (
             new areaVectorField
             (
@@ -70,40 +86,16 @@ if (faBed.exist())
                     "qb",
                     runTime.timeName(),
                     mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                faBed.aMesh.ref(),
-                dimensionedVector(dimVelocity * dimLength, Zero)
-            )
-        );
-
-    faBed.zb.reset
-        (
-            new areaVectorField
-            (
-                IOobject
-                (
-                    "zb",
-                    runTime.timeName(),
-                    mesh,
                     IOobject::MUST_READ,
-                    IOobject::NO_WRITE
+                    IOobject::AUTO_WRITE
                 ),
-                faBed.aMesh.ref(),
-                dimensionedVector(dimLength, Zero)
+                bed.aMesh()
             )
         );
 
-    // initiate zb value with fa mesh bottom boundary faces coordinates
-    forAll(faBed.aMesh.ref().areaCentres(), facei)
-    {
-        faBed.zb.ref()[facei] = faBed.aMesh.ref().areaCentres()[facei];
-    }
-
-    faBed.deltaH.reset
+    dHptr.reset
         (
-            new areaVectorField
+            new areaScalarField
             (
                 IOobject
                 (
@@ -113,43 +105,25 @@ if (faBed.exist())
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh.ref(),
-                dimensionedVector(dimLength, Zero)
+                bed.aMesh(),
+                dimensionedScalar(dimLength, Zero)
             )
         );
 
-
-    faBed.phib.reset
+    phiqbPtr.reset
         (
             new edgeScalarField
             (
                 IOobject
                 (
-                    "phib",
+                    "phiqb",
                     runTime.timeName(),
                     mesh,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                faBed.aMesh.ref(),
+                bed.aMesh(),
                 dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
-            )
-        );
-
-    faBed.thetaBed.reset
-        (
-            new areaScalarField
-            (
-                IOobject
-                (
-                    "thetaBed",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                faBed.aMesh.ref(),
-                dimensionedScalar(dimless, Zero)
             )
         );
 }
