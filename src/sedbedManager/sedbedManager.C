@@ -42,17 +42,15 @@ Foam::sedbedManager::sedbedManager
     avalanche_(false),
     dict_(dict),
     mesh_(mesh),
-    g_(g),
-    diffFilter_(dimensionSet(0, 2, 0, 0, 0, 0, 0), 0)
+    g_(g)
 {
     checkBedExistence_();
     if (bedExist_)
     {
         aMesh_.reset(new faMesh(mesh_));
-        vsm.reset(new volSurfaceMapping(aMesh()));
+        vsm.reset(new volSurfaceMapping(aMesh_));
         getPatchesID();
         checkFaMeshOrientation_();
-        checkExnerFilter_();
         
         Info << "faMesh patches ID : " << bedPatchesID_ << endl;
         Info << "faMesh patches names : " << bedPatchesNames_ << endl;
@@ -68,39 +66,9 @@ Foam::sedbedManager::~sedbedManager()
 
 // public member functions
 
-faMesh& Foam::sedbedManager::aMesh()
+const faMesh& Foam::sedbedManager::aMesh()
 {
     return aMesh_.ref();
-}
-
-areaVectorField& Foam::sedbedManager::qb()
-{
-    return qb_.ref();
-}
-
-areaVectorField& Foam::sedbedManager::shields()
-{
-    return shields_.ref();
-}
-
-areaVectorField& Foam::sedbedManager::zb()
-{
-    return zb_.ref();
-}
-
-areaVectorField& Foam::sedbedManager::dH()
-{
-    return dH_.ref();
-}
-
-edgeScalarField& Foam::sedbedManager::phiqb()
-{
-    return phiqb_.ref();
-}
-
-areaScalarField& Foam::sedbedManager::angleBedSlope()
-{
-    return beta_.ref();
 }
 
 bool Foam::sedbedManager::isAvalanche()
@@ -144,38 +112,7 @@ bool Foam::sedbedManager::meshMotion() const
     }
 }
 
-void Foam::sedbedManager::filterExner()
-{
-    if (filterExner_)
-    {
-        // inverse distance bewteen faces centers
-        edgeScalarField deltaCoeff =
-            aMesh().edgeInterpolation::deltaCoeffs();
-
-        // project zb along vertical direction
-        areaScalarField zbProj = zb() & (-g_/ mag(g_));
-        zb() = zb() - zbProj * (-g_/ mag(g_));
-        // compute diffusivity for laplacian operator
-        diffFilter_ = alphaFilter_ * max(1/pow(deltaCoeff, 2));
-        
-        // predictor step
-        zbPred.ref() = zbProj
-            + fac::laplacian(diffFilter_, zbProj);
-
-        // corrector step
-        for (label icorr=0; icorr<Ncorr_; icorr++)
-        {
-            dzCorr.ref() = zbProj - zbPred.ref();
-            dzCorr.ref() = dzCorr.ref()
-                + fac::laplacian(diffFilter_, dzCorr.ref());
-            zbProj = zbPred.ref() + dzCorr.ref();
-        }
-        zb() = zb() + zbProj * (-g_/ mag(g_));
-        zb().correctBoundaryConditions();
-    }
-}
-
-//- Protected member functions
+// Protected member functions
 
 void Foam::sedbedManager::checkBedExistence_()
 {
@@ -228,36 +165,19 @@ void Foam::sedbedManager::checkAvalancheModel_()
     }
 }
 
-void Foam::sedbedManager::checkExnerFilter_()
-{
-    word switchFilter(dict_.lookup("filterExner"));
-    if (switchFilter=="on")
-    {
-        filterExner_ = true;
-        alphaFilter_ = readScalar(dict_.lookup("alphaFilter"));
-        Ncorr_ = readLabel(dict_.lookup("Ncorrection"));
-    }
-    else if (switchFilter=="off")
-    {
-        filterExner_ = false;
-    }
-    else
-    {
-        FatalError << "wrong keyword for entry filterExner,"
-            << " possible options are: on off" << endl;
-        Info << abort(FatalError) << endl;
-    }
-}
-
 void Foam::sedbedManager::checkFaMeshOrientation_() const
 {
     if (not bedExist_)
     {
         return;
     }
-    forAll(aMesh_->faceLabels(), i)
+    Info << "g : " << g_.value() << endl;
+    forAll(aMesh_->faceLabels(), facei)
     {
-        double res = g_.value() & aMesh_->faceAreaNormals()[i];
+        double res = g_.value() & aMesh_->faceAreaNormals()[facei];
+        Info << "face label: " << facei;
+        Info << ", face normal: " << aMesh_->faceAreaNormals()[facei];
+        Info << ", face surface: " << aMesh_->S()[facei];
         if (res <= 0)
         {
             FatalError

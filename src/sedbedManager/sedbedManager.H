@@ -52,15 +52,9 @@ class sedbedManager
 {
 public:
 
-    autoPtr<faMesh> aMesh;
-    autoPtr<areaVectorField> shields;  // shields number
-    autoPtr<areaVectorField> qb;  // bedload transport
-    autoPtr<areaVectorField> zb;  // bed elevation
-    autoPtr<areaVectorField> deltaH;  // bed level increment
-    autoPtr<edgeScalarField> phib;  // qb flux through fa mesh edges
-    autoPtr<areaScalarField> thetaBed;  // angle of bed slope
-    autoPtr<pointVectorField> pointDisp; // point displacement for mesh motion
+    autoPtr<faMesh> aMesh_;
     autoPtr<volSurfaceMapping> vsm;  // to read faFields with paraview
+    // variable for exner filterering
 
      //- Constructor
     sedbedManager
@@ -74,18 +68,21 @@ public:
     //- Destructor
     virtual ~sedbedManager();
 
-    //- Public member functions
+    // Public member functions
 
-    // avalanche module activated or not
+    //- Return const reference to faMesh
+    const faMesh& aMesh();
+    
+    //- Avalanche module activated or not
     bool isAvalanche();
 
-    // Return copy of patches ID labelList
+    //- Return copy of patches ID labelList
     labelList bedPatchesID();
 
-    // Existence of sediment bed
+    //- Existence of sediment bed
     bool exist() const;
 
-    // Mesh motion activated or not
+    //- Mesh motion activated or not
     bool meshMotion() const;
     
 protected:
