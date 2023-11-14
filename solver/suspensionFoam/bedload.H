@@ -27,7 +27,7 @@ areaScalarField& dH = dHptr.ref();
 edgeScalarField& phiqb = phiqbPtr.ref();
 
 vector gUnit = (g / mag(g)).value();  // unit vector gravity oriented
-    
+
 // compute wallShearStress on each patch belonging to sediment bed
 for (const label patchID : bed.bedPatchesID())
 {

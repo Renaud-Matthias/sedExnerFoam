@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
                 mesh.controlledUpdate();
 
                 if (mesh.changing())
-                {                    
+                {
                     MRF.update();
 
                     if (correctPhi)
