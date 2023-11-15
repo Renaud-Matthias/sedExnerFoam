@@ -20,23 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-Info<< "Reading field C\n" << endl;
-
-volScalarField C
-(
-    IOobject
-    (
-        "C",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
-
-#include "createRDeltaT.H"
-
 Info<< "Reading field p\n" << endl;
 volScalarField p
 (
@@ -65,10 +48,16 @@ volVectorField U
     mesh
 );
 
+Info << "Reading/calculating face flux field phi\n" << endl;
+
+#include "createPhi.H"
+
+
+#include "createRDeltaT.H"
+
 #include "readGravitationalAcceleration.H"
 
 Info<< "Reading transportProperties\n" << endl;
-
 IOdictionary transportProperties
 (
     IOobject
@@ -94,13 +83,16 @@ if (transportProperties.found("Sc"))
     Sc.value() = readScalar(transportProperties.lookup("Sc"));
 }
 
-Info<< "Reading settlingProperties\n" << endl;
+// water density, should be changed and read in case
+dimensionedScalar rhoF(dimDensity, 1000);
 
-IOdictionary settlingProperties
+
+Info<< "Reading suspensionProperties\n" << endl;
+IOdictionary suspensionProperties
 (
     IOobject
     (
-        "settlingProperties",
+        "suspensionProperties",
         runTime.constant(),
         mesh,
         IOobject::MUST_READ_IF_MODIFIED,
@@ -108,52 +100,90 @@ IOdictionary settlingProperties
     )
 );
 
-// water density, should be changed and read in case
-dimensionedScalar rhoF(dimDensity, 1000);
+// Check if suspension is on or off
+const word switchSuspension(suspensionProperties.lookup("suspension"));
+if (switchSuspension!="on" and switchSuspension!="off")
+{
+    FatalError << switchSuspension
+        << " is not a valid entry for suspension"
+        << ", valid options are: on off" << endl;
+    Info << abort(FatalError) << endl;
+}
 
-// Initialize Settling Model
-Info << "Initialize settling Model\n" << endl;
-SettlingModel settlingModel(settlingProperties);
+// Instantiate pointers to fields associated with suspension
+autoPtr<volScalarField> CPtr;  // suspended load concentration
+autoPtr<volVectorField> WsPtr;  // sediment settling velocity
+autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
+autoPtr<SettlingModel> settlingModelPtr;
 
-Info<< "Reading field settling velocity Ws\n" << endl;
-volVectorField Ws
-(
-    IOobject
+if (switchSuspension=="on")
+{
+    Info<< "Reading field C\n" << endl;
+    CPtr.reset
     (
-        "Ws",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+        new volScalarField
+        (
+            IOobject
+            (
+                "C",
+                runTime.timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        )
+    );
 
-Info<< "Initialize sediment settling velocity\n" << endl;
-
-Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
-Ws.correctBoundaryConditions();
-
-Info << "Reading/calculating face flux field phi\n" << endl;
-
-#include "createPhi.H"
-
-Info<< "Reading/calculating face flux field phi\n" << endl;
-
-surfaceScalarField phip
-(
-    IOobject
+    Info<< "Reading field Ws\n" << endl;
+    WsPtr.reset
     (
-        "phip",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    fvc::interpolate(U+Ws) & mesh.Sf()
-);
+        new volVectorField
+        (
+            IOobject
+            (
+                "Ws",
+                runTime.timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        )
+    );
 
-phip = fvc::flux(U+Ws);
+    volScalarField& C = CPtr.ref();
+    volVectorField& Ws = WsPtr.ref();
+
+    Info << "Reading/calculating face flux field phi\n" << endl;
+    phipPtr.reset
+    (
+        new surfaceScalarField
+        (
+            IOobject
+            (
+                "phip",
+                runTime.timeName(),
+                mesh,
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::flux(U+Ws)
+            //fvc::interpolate(U+Ws) & mesh.Sf()
+        )
+    );
+    
+    // Initialize Settling Model
+    Info << "Initialize settling Model\n" << endl;
+    settlingModelPtr.reset(new SettlingModel(suspensionProperties));
+
+    Info<< "Initialize sediment settling velocity\n" << endl;
+    Ws = settlingModelPtr->Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+    Ws.correctBoundaryConditions();
+}
+
+
+//phip = fvc::flux(U+Ws);
 
 singlePhaseTransportModel laminarTransport(U, phi);
 

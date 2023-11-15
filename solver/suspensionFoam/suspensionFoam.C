@@ -135,7 +135,10 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            #include "CEqn.H"
+            if (switchSuspension=="on")
+            {
+                    #include "CEqn.H"
+            }
             
             if (pimple.firstIter() || moveMeshOuterCorrectors)
             {

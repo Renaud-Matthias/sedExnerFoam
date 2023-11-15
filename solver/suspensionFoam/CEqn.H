@@ -19,68 +19,75 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-{
-    volScalarField epsEff("epsEff", turbulence->nut()/Sc);
-    word scheme("div(phi,C)");
-    word schemer("div(phir,C)");
-    surfaceScalarField phiC
-    (
-        fvc::flux
-        (
-            phi,
-            C,
-            scheme
-        )
-      + fvc::flux
-        (
-            fvc::flux(Ws),
-            C,
-            schemer
-        )
-    );
-
-    MULES::explicitSolve
-    (
-        geometricOneField(),
-        C,
-        phi,
-        phiC,
-        zeroField(),
-        zeroField(),
-        UniformField<scalar>(0.99*0.7),
-        zeroField()
-    );
-
-
-    // Apply the diffusion term separately to allow implicit solution
-    // and boundedness of the explicit advection
-    {
-        fvScalarMatrix CEqn
-        (
-            fvm::ddt(C) - fvc::ddt(C)
-          - fvm::laplacian(epsEff, C)
-          ==
-            fvOptions(C)
-        );
-
-        fvOptions.constrain(CEqn);
-
-        CEqn.solve(mesh.solver("CDiffusion"));
-
-        phiC += CEqn.flux();
-    }
-
-    C.correctBoundaryConditions();
     
-    fvOptions.correct(C);
+volScalarField& C = CPtr.ref();
+volVectorField& Ws = WsPtr.ref();
+surfaceScalarField& phip = phipPtr.ref();
 
-    Ws = settlingModel.Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+Info << " - flag variables called by reference" << endl;
+    
+volScalarField epsEff("epsEff", turbulence->nut()/Sc);
+word scheme("div(phi,C)");
+word schemer("div(phir,C)");
+surfaceScalarField phiC
+(
+    fvc::flux
+    (
+        phi,
+        C,
+        scheme
+    )
+  + fvc::flux
+    (
+        fvc::flux(Ws),
+        C,
+        schemer
+    )
+);
 
-    Ws.correctBoundaryConditions();
+MULES::explicitSolve
+(
+    geometricOneField(),
+    C,
+    phi,
+    phiC,
+    zeroField(),
+    zeroField(),
+    UniformField<scalar>(0.99*0.7),
+    zeroField()
+);
 
-    Info<< "sediment phase volume fraction = "
-            << C.weightedAverage(mesh.V()).value()
-            << "  Min(C) = " << gMin(C)
-            << "  Max(C) = " << gMax(C)
-            << endl;
-}
+
+// Apply the diffusion term separately to allow implicit solution
+// and boundedness of the explicit advection
+
+fvScalarMatrix CEqn
+(
+    fvm::ddt(C) - fvc::ddt(C)
+  - fvm::laplacian(epsEff, C)
+  ==
+    fvOptions(C)
+);
+
+fvOptions.constrain(CEqn);
+
+CEqn.solve(mesh.solver("CDiffusion"));
+
+phiC += CEqn.flux();
+
+C.correctBoundaryConditions();
+    
+fvOptions.correct(C);
+
+Ws = settlingModelPtr->Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+
+Ws.correctBoundaryConditions();
+
+// Update flux
+phip = fvc::flux(U+Ws);
+
+Info << "sediment phase volume fraction = "
+        << C.weightedAverage(mesh.V()).value()
+        << "  Min(C) = " << gMin(C)
+        << "  Max(C) = " << gMax(C)
+        << endl;

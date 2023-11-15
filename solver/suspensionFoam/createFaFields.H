@@ -94,36 +94,36 @@ if (bed.exist())
         );
 
     dHptr.reset
+    (
+        new areaScalarField
         (
-            new areaScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "deltaH",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                bed.aMesh(),
-                dimensionedScalar(dimLength, Zero)
-            )
-        );
+                "deltaH",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedScalar(dimLength, Zero)
+        )
+    );
 
     phiqbPtr.reset
+    (
+        new edgeScalarField
         (
-            new edgeScalarField
+            IOobject
             (
-                IOobject
-                (
-                    "phiqb",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                bed.aMesh(),
-                dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
-            )
-        );
+                "phiqb",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
+        )
+    );
 }
