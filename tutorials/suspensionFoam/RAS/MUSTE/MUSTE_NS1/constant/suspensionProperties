@@ -14,15 +14,17 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
 
+suspension     on;
+
 fallModel
 {
-	type   Stokes;
+	type   Deigaard;
 }
 
 hindranceModel
 {
 	type   Zaki;
-	n      1.2;
+	n      4.65;
 }
 
 // ************************************************************************* //
