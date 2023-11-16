@@ -45,6 +45,7 @@ autoPtr<areaVectorField> shieldsPtr;
 autoPtr<areaVectorField> qbPtr;
 autoPtr<areaScalarField> dHptr;
 autoPtr<edgeScalarField> phiqbPtr;
+autoPtr<areaScalarField> depositionPtr;
 
 // create fa fields if morphology on
 if (bed.exist())
@@ -124,6 +125,23 @@ if (bed.exist())
             ),
             bed.aMesh(),
             dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+
+    depositionPtr.reset
+    (
+        new areaScalarField
+        (
+            IOobject
+            (
+                "deposition",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedScalar(dimVelocity, Zero)
         )
     );
 }

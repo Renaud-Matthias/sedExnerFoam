@@ -19,13 +19,11 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-    
-volScalarField& C = CPtr.ref();
-volVectorField& Ws = WsPtr.ref();
-surfaceScalarField& phip = phipPtr.ref();
 
-Info << " - flag variables called by reference" << endl;
-    
+volScalarField& C = CPtr.ref();  // suspended load volumic fraction
+volVectorField& Ws = WsPtr.ref();  // settling velocity
+surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
+
 volScalarField epsEff("epsEff", turbulence->nut()/Sc);
 word scheme("div(phi,C)");
 word schemer("div(phir,C)");
@@ -76,7 +74,7 @@ CEqn.solve(mesh.solver("CDiffusion"));
 phiC += CEqn.flux();
 
 C.correctBoundaryConditions();
-    
+
 fvOptions.correct(C);
 
 Ws = settlingModelPtr->Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);

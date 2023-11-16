@@ -65,6 +65,8 @@ qb =
         pos(mag(shields) - critShields)
         * (mag(shields) - critShields), 1.5);
 
+qb.correctBoundaryConditions();
+
 if (bed.isAvalanche())
 {
     #include "sedimAvalanche.H"
@@ -75,10 +77,16 @@ phiqb =
     linearEdgeInterpolate(qb) & bed.aMesh().Le();
 
 // solve exner explicitly (euler explicit)
+// bedload contribution
 dH = - runTime.time().deltaT()
     * (1/Cmax)
-    * (1/(bed.aMesh().faceAreaNormals() & (-g / mag(g))))  // slope correction
-    * ( -fac::edgeIntegrate(phiqb));
+    * (1/(bed.aMesh().faceAreaNormals() & (gUnit)))  // slope correction
+    * fac::edgeIntegrate(phiqb);
+
+if (switchSuspension=="on")
+{
+    #include "erosionDeposition.H"
+}
 
 if (bed.meshMotion())
 {
