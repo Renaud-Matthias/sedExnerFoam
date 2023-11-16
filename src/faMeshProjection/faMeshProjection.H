@@ -58,6 +58,12 @@ private:
     //- Total number of faces
     const label nFaces_;
 
+    //- Edge owner adressing
+    const labelList edgeOwner_;
+
+    //- Edge neighbour adressing
+    const labelList edgeNeighbour_;
+
     // Geometric data
 
     //- Unit vector normal to projected faMesh
@@ -66,10 +72,16 @@ private:
     //- Face centres
     mutable vectorField* faceCentresPtr_;
 
+    //- Edge centres
+    mutable vectorField* edgeCentresPtr_;
+
     // Private member functionsfor demand driven data
 
     //- Calculate face centres coordinates
     void calcFaceCentres() const;
+
+    //- Calculate edge centres coordinates
+    void calcEdgeCentres() const;
 
     //- Clear geometry
     void clearGeom() const;
@@ -100,10 +112,27 @@ public:
     //- Return number of faces
     label nFaces() const;
 
+    //- Edge owner adressing
+    // ith element is label of face owning edge i
+    const labelList edgeOwner();
+
+    //- Edge neighbour adressing
+    // ith element is label of face neighbour to  edge i
+    const labelList edgeNeigbour();
+
     // Demand driven data
 
-    //-
+    //- Return edge lengths
+    //const scalarField& magLe();
+
+    //- Return projected face centers coordinates
     const vectorField& faceCentres();
+
+    //- Return projected edge centers coordinates
+    const vectorField& edgeCentres();
+
+    //- Return edge normals vectors, oriented from owner to neighbour
+    //const vectorField& edgeNormals()
 
     //- Return projected faces area
     //const scalarField& S();

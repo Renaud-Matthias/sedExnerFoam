@@ -22,11 +22,30 @@ License
 
 #include "faMeshProjection.H"
 
+// * * * * * * * * * * * * * * * Local Functions * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+// vector a is projected on a plane normal to vector b
+vector projectNormalPlane
+(
+    const vector& a,
+    const vector& planeNormal
+)
+{
+    vector aProj = a - (a & planeNormal) * (planeNormal / mag(planeNormal));
+    return aProj;
+}
+
+}  // End of namespace Foam
+
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 void Foam::faMeshProjection::calcFaceCentres() const
 {
-    if ( faceCentresPtr_)
+    if (faceCentresPtr_)
     {
         FatalError
             << "faceCentresPtr_ already allocated" << endl;
@@ -35,13 +54,38 @@ void Foam::faMeshProjection::calcFaceCentres() const
     
     faceCentresPtr_ = new vectorField(nFaces_);
     // face centers coordinates on curved faMesh
-    vectorField& faceCentres = mesh_.areaCentres().internalField().ref();
+    const vectorField& faceCentres =
+        mesh_.areaCentres().internalField();
 
-    vectorField& faceCentresProj = faceCentresPtr_.ref();
+    vectorField& faceCentresProj = *faceCentresPtr_;
 
     forAll(faceCentres, facei)
     {
-        faceCentresProj[facei] = faceCentres[facei];
+        faceCentresProj[facei] =
+            projectNormalPlane(faceCentres[facei], projectNormal_);
+    }
+}
+
+void Foam::faMeshProjection::calcEdgeCentres() const
+{
+    if (edgeCentresPtr_==nullptr)
+    {
+        FatalError
+            << "edgeCentresPtr_ already allocated" << endl;
+        Info << abort(FatalError);
+    }
+
+    edgeCentresPtr_ = new vectorField(nEdges_);
+    // face centers coordinates on curved faMesh
+    const vectorField& edgeCentres =
+        mesh_.edgeCentres().internalField();
+
+    vectorField& edgeCentresProj = *edgeCentresPtr_;
+
+    forAll(edgeCentres, edgei)
+    {
+        edgeCentresProj[edgei] =
+            projectNormalPlane(edgeCentres[edgei], projectNormal_);
     }
 }
 

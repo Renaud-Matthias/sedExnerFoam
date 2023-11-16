@@ -76,12 +76,22 @@ label Foam::faMeshProjection::nFaces() const
 
 const vectorField& Foam::faMeshProjection::faceCentres()
 {
-    if (!faceCentresPtr_)
+    if (faceCentresPtr_==nullptr)
     {
         calcFaceCentres();
     }
 
     return *faceCentresPtr_;
+}
+
+const vectorField& Foam::faMeshProjection::edgeCentres()
+{
+    if (edgeCentresPtr_==nullptr)
+    {
+        calcEdgeCentres();
+    }
+
+    return *edgeCentresPtr_;
 }
 
 
