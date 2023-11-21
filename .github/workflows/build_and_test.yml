@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: opencfd/openfoam2112-dev
+    container: opencfd/openfoam2306-dev
     defaults:
       run:
         shell: bash
@@ -15,6 +15,9 @@ jobs:
           #cd ${{ github.workspace }} && source /openfoam/bash.rc && 
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           ./Allwmake
+      - name: Build sedFoam
+        run: |
+	  shopt -s expand_aliases && source /openfoam/bash.rc && 
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
