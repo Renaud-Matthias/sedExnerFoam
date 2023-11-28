@@ -43,32 +43,53 @@ vector projectNormalPlane
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::faMeshProjection::calcFaceCentres() const
+void Foam::faMeshProjection::calcLe() const
 {
-    if (faceCentresPtr_)
+    if (LePtr_)
+    {
+        FatalError
+            << "LePtr_ already allocated" << endl;
+        Info << abort(FatalError);
+    }
+
+    LePtr_ = new vectorField(nEdges_);
+
+    const vectorField& Le = mesh_.Le();
+
+    vectorField& LeProj = *LePtr_;
+
+    forAll(Le, edgei)
+    {
+        LeProj[edgei] = projectNormalPlane(Le[edgei], projectNormal_);
+    }
+}
+
+void Foam::faMeshProjection::calcAreaCentres() const
+{
+    if (areaCentresPtr_)
     {
         FatalError
             << "faceCentresPtr_ already allocated" << endl;
         Info << abort(FatalError);
     }
     
-    faceCentresPtr_ = new vectorField(nFaces_);
+    areaCentresPtr_ = new vectorField(nFaces_);
     // face centers coordinates on curved faMesh
-    const vectorField& faceCentres =
+    const vectorField& areaCentres =
         mesh_.areaCentres().internalField();
 
-    vectorField& faceCentresProj = *faceCentresPtr_;
+    vectorField& areaCentresProj = *areaCentresPtr_;
 
-    forAll(faceCentres, facei)
+    forAll(areaCentres, facei)
     {
-        faceCentresProj[facei] =
-            projectNormalPlane(faceCentres[facei], projectNormal_);
+        areaCentresProj[facei] =
+            projectNormalPlane(areaCentres[facei], projectNormal_);
     }
 }
 
 void Foam::faMeshProjection::calcEdgeCentres() const
 {
-    if (edgeCentresPtr_==nullptr)
+    if (edgeCentresPtr_)
     {
         FatalError
             << "edgeCentresPtr_ already allocated" << endl;

@@ -55,6 +55,9 @@ private:
     //- Total number of edges
     const label nEdges_;
 
+    //- Number of internal edges
+    const label nInternalEdges_;
+
     //- Total number of faces
     const label nFaces_;
 
@@ -69,16 +72,25 @@ private:
     //- Unit vector normal to projected faMesh
     const vector projectNormal_;
 
+    //- Edge length vector oriented from owner to neighbour face
+    mutable vectorField* LePtr_;
+    
+    //- Edge length magnitude
+    mutable scalarField* magLePtr_;
+
     //- Face centres
-    mutable vectorField* faceCentresPtr_;
+    mutable vectorField* areaCentresPtr_;
 
     //- Edge centres
     mutable vectorField* edgeCentresPtr_;
 
-    // Private member functionsfor demand driven data
+    // Private member functions for demand driven data
+
+    //- Calculate edge length vectors
+    void calcLe() const;
 
     //- Calculate face centres coordinates
-    void calcFaceCentres() const;
+    void calcAreaCentres() const;
 
     //- Calculate edge centres coordinates
     void calcEdgeCentres() const;
@@ -109,24 +121,30 @@ public:
     //- Return number of edges, internal + boundary
     label nEdges() const;
 
+    //- Return number of internal edges
+    label nInternalEdges() const;
+
     //- Return number of faces
     label nFaces() const;
 
     //- Edge owner adressing
     // ith element is label of face owning edge i
-    const labelList edgeOwner();
+    const labelList edgeOwner() const;
 
     //- Edge neighbour adressing
     // ith element is label of face neighbour to  edge i
-    const labelList edgeNeigbour();
+    const labelList edgeNeighbour() const;
 
     // Demand driven data
 
-    //- Return edge lengths
+    //- Return edge length vectors oriented from owner to neighbour faces
+    const vectorField& Le();
+    
+    //- Return edge length magnitude
     //const scalarField& magLe();
 
     //- Return projected face centers coordinates
-    const vectorField& faceCentres();
+    const vectorField& areaCentres();
 
     //- Return projected edge centers coordinates
     const vectorField& edgeCentres();

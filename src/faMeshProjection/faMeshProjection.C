@@ -26,7 +26,8 @@ License
 
 void Foam::faMeshProjection::clearGeom() const
 {
-    deleteDemandDrivenData(faceCentresPtr_);
+    deleteDemandDrivenData(areaCentresPtr_);
+    deleteDemandDrivenData(edgeCentresPtr_);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -40,9 +41,13 @@ Foam::faMeshProjection::faMeshProjection
     mesh_(aMesh),
     nPoints_(aMesh.nPoints()),
     nEdges_(aMesh.nEdges()),
+    nInternalEdges_(aMesh.nInternalEdges()),
     nFaces_(aMesh.nFaces()),
+    edgeOwner_(aMesh.edgeOwner()),
+    edgeNeighbour_(aMesh.edgeNeighbour()),
     projectNormal_(projectNormal/mag(projectNormal)),
-    faceCentresPtr_(nullptr)
+    areaCentresPtr_(nullptr),
+    edgeCentresPtr_(nullptr)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -69,19 +74,44 @@ label Foam::faMeshProjection::nEdges() const
     return nEdges_;
 }
 
+label Foam::faMeshProjection::nInternalEdges() const
+{
+    return nInternalEdges_;
+}
+
 label Foam::faMeshProjection::nFaces() const
 {
     return nFaces_;
 }
 
-const vectorField& Foam::faMeshProjection::faceCentres()
+const labelList Foam::faMeshProjection::edgeOwner() const
 {
-    if (faceCentresPtr_==nullptr)
+    return edgeOwner_;
+}
+
+const labelList Foam::faMeshProjection::edgeNeighbour() const
+{
+    return edgeNeighbour_;
+}
+
+const vectorField& Foam::faMeshProjection::Le()
+{
+    if (LePtr_==nullptr)
     {
-        calcFaceCentres();
+        calcLe();
     }
 
-    return *faceCentresPtr_;
+    return *LePtr_;
+}
+
+const vectorField& Foam::faMeshProjection::areaCentres()
+{
+    if (areaCentresPtr_==nullptr)
+    {
+        calcAreaCentres();
+    }
+
+    return *areaCentresPtr_;
 }
 
 const vectorField& Foam::faMeshProjection::edgeCentres()
