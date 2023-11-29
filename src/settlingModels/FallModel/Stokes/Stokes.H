@@ -34,6 +34,19 @@ class Stokes
     public FallModel
 {
 
+protected:
+    // Protected Member functions
+
+    //- Get settling velocity of a lone particle in a fluid
+    dimensionedScalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
+
 public:
 
     //- Runtime type information
@@ -48,17 +61,7 @@ public:
 
     //- Destructor
     virtual ~Stokes();
-
-
-    // Member functions
-    dimensionedScalar Ufall0
-    (
-        const dimensionedScalar& dS,
-        const dimensionedScalar& rhoS,
-        const dimensionedScalar& rhoF,
-        const dimensionedScalar& nuF,
-        const dimensionedScalar& g
-    ) const;
+    
 };
 
 } // End namespace settlingModels

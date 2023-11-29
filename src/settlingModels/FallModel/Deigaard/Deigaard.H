@@ -34,23 +34,11 @@ class Deigaard
     public FallModel
 {
 
-public:
+    protected:
 
-    //- Runtime type information
-    TypeName("Deigaard");
+    // Protected member functions
 
-
-    // Constructors
-
-        //- Construct from components
-    Deigaard(const dictionary& dict);
-
-
-    //- Destructor
-    virtual ~Deigaard();
-
-
-    // Member functions
+    //- Get settling velocity of a lone particle in a fluid
     dimensionedScalar Ufall0
     (
         const dimensionedScalar& dS,
@@ -60,8 +48,7 @@ public:
         const dimensionedScalar& g
     ) const;
 
-private:
-
+    //- Solve the Deigaard model to compute th fall velocity
     dimensionedScalar solveUfall0
     (
         const dimensionedScalar& dS,
@@ -70,6 +57,7 @@ private:
         const dimensionedScalar& g
     ) const;
 
+    //- Next value in search for solution
     dimensionedScalar nextValue
     (
         const dimensionedScalar& WsOld,
@@ -78,7 +66,22 @@ private:
         const dimensionedScalar& nuF,
         const dimensionedScalar& g
     ) const;
-    
+
+public:
+
+    //- Runtime type information
+    TypeName("Deigaard");
+
+
+    // Constructors
+
+    //- Construct from components
+    Deigaard(const dictionary& dict);
+
+
+    //- Destructor
+    virtual ~Deigaard();
+
 };
 
 } // End namespace settlingModels

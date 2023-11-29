@@ -34,6 +34,20 @@ class FixedValue
     public FallModel
 {
 
+protected:
+
+    // Protected member functions
+
+    //- Get settling velocity of a lone particle in a fluid
+    dimensionedScalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
+    
 public:
 
     //- Runtime type information
@@ -49,16 +63,6 @@ public:
     //- Destructor
     virtual ~FixedValue();
 
-
-    // Member functions
-    dimensionedScalar Ufall0
-    (
-        const dimensionedScalar& dS,
-        const dimensionedScalar& rhoS,
-        const dimensionedScalar& rhoF,
-        const dimensionedScalar& nuF,
-        const dimensionedScalar& g
-    ) const;
 };
 
 } // End namespace settlingModels

@@ -35,7 +35,24 @@ namespace settlingModels
 class FallModel
 {
 protected:
+
+    //- Dictionary containing parameters for FallModel
     const dictionary& dict_;
+
+    //- Pointer falling velocity of a lone particle
+    mutable dimensionedScalar* ufallPtr_;
+
+    // Protected member functions
+    
+    //- Settling velocity of a lone particle in a fluid
+    virtual dimensionedScalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const = 0;
     
     public:
     
@@ -54,28 +71,35 @@ protected:
         (dict)
     );
     
-    // Constructor
+    // Constructors
+
+    //- Construct from dictionary
     FallModel(const dictionary& dict);
 
     // Selectors
+    
     static autoPtr<FallModel> New
     (
         const dictionary& dict
     );
 
-    //- Destructor
+    // Destructors
+    
     virtual ~FallModel();
 
     // Member functions
-    virtual dimensionedScalar Ufall0
+
+    //- Get settling velocity of a lone particle in a fluid
+    dimensionedScalar getUfall0
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
         const dimensionedScalar& rhoF,
         const dimensionedScalar& nuF,
         const dimensionedScalar& g
-    ) const = 0;
+    ) const;
 };
+    
 } // End namespace SettlingModels
 } // End namespace Foam
 

@@ -38,7 +38,8 @@ Foam::settlingModels::FallModel::FallModel
     const dictionary& dict
 )
 :
-    dict_(dict)
+    dict_(dict),
+    ufallPtr_(nullptr)
 {}
 
 
@@ -76,4 +77,27 @@ Foam::settlingModels::FallModel::New
     }
 
     return autoPtr<FallModel>(cstrIter()(dict));
+}
+
+// Member functions
+
+Foam::dimensionedScalar Foam::settlingModels::FallModel::getUfall0
+(
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
+) const
+{
+    if (ufallPtr_==nullptr)
+    {
+        ufallPtr_ = new dimensionedScalar(Ufall0(dS, rhoS, rhoF, nuF, g));
+        
+        dimensionedScalar& ufall = *ufallPtr_;
+        Info << "falling velocity of a lone particle: "
+            << ufall.value() << " m/s" << endl;
+    }
+
+    return *ufallPtr_;
 }

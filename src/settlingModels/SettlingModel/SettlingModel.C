@@ -19,7 +19,6 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "SettlingModel.H"
 
@@ -60,8 +59,6 @@ Foam::tmp<Foam::volScalarField> Foam::SettlingModel::Ufall
     const dimensionedScalar& g
 ) const
 {
-    dimensionedScalar ufall0(FallModel_->Ufall0(dS, rhoS, rhoF, nuF, g));
-    Info << "Settling velocity : " << ufall0.value();
-    Info << "m/s" << endl;
+    dimensionedScalar ufall0(FallModel_->getUfall0(dS, rhoS, rhoF, nuF, g));
     return ufall0*HindranceModel_->hindrance(C, Cmax);
 }

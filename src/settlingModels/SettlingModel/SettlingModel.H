@@ -48,17 +48,22 @@ protected:
     
 public:
 
-    //- Constructor
+    //  Constructors
+
+    //- Construct from dictionary
     SettlingModel
     (
         const dictionary& dict
     );
 
 
-    //- Destructor
+    // Destructor
+    
     virtual ~SettlingModel();
 
-    //- Member functions
+    // Member functions
+
+    //- Return the field of settling velocity
     tmp<Foam::volScalarField> Ufall
     (
         const volScalarField& C,
