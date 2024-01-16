@@ -20,7 +20,7 @@ rhoS    [1 -3 0 0 0 0 0] 2650; // sediment density
 
 dS      [0 1 0 0 0 0 0] 760e-6; // sediment diameter
 
-Cmax    [0 0 0 0 0 0 0] 0.57; // max volumic sediment concentration
+CsMax    [0 0 0 0 0 0 0] 0.57; // max volumic sediment concentration
 
 // ************************************************************************* //
 
