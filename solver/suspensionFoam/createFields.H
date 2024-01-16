@@ -74,8 +74,8 @@ IOdictionary transportProperties
 dimensionedScalar nuF("nu", transportProperties);
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 dimensionedScalar dS("dS", dimLength, transportProperties);
-dimensionedScalar Cmax("Cmax", dimless, transportProperties);
-dimensionedScalar porosity(dimless, 1/Cmax.value());
+dimensionedScalar CsMax("CsMax", dimless, transportProperties);
+dimensionedScalar porosity(dimless, 1/CsMax.value());
 dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
 
 if (transportProperties.found("Sc"))
@@ -110,22 +110,35 @@ if (switchSuspension!="on" and switchSuspension!="off")
     Info << abort(FatalError) << endl;
 }
 
+word switchMULES = "off";
+if (suspensionProperties.found("MULESformulation"))
+{
+    switchMULES = word(suspensionProperties.lookup("MULESformulation"));
+}
+if (switchMULES!="on" and switchMULES!="off")
+{
+    FatalError << switchMULES
+        << " is not a valid entry for suspension"
+        << ", valid options are: on off" << endl;
+    Info << abort(FatalError) << endl;
+}
+
 // Instantiate pointers to fields associated with suspension
-autoPtr<volScalarField> CPtr;  // suspended load concentration
+autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
 autoPtr<SettlingModel> settlingModelPtr;
 
 if (switchSuspension=="on")
 {
-    Info<< "Reading field C\n" << endl;
-    CPtr.reset
+    Info<< "Reading field Cs\n" << endl;
+    CsPtr.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "C",
+                "Cs",
                 runTime.timeName(),
                 mesh,
                 IOobject::MUST_READ,
@@ -152,7 +165,7 @@ if (switchSuspension=="on")
         )
     );
 
-    volScalarField& C = CPtr.ref();
+    volScalarField& Cs = CsPtr.ref();
     volVectorField& Ws = WsPtr.ref();
 
     Info << "Reading/calculating face flux field phi\n" << endl;
@@ -178,7 +191,7 @@ if (switchSuspension=="on")
     settlingModelPtr.reset(new SettlingModel(suspensionProperties));
 
     Info<< "Initialize sediment settling velocity\n" << endl;
-    Ws = settlingModelPtr->Ufall(C, Cmax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+    Ws = settlingModelPtr->Ufall(Cs, CsMax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
     Ws.correctBoundaryConditions();
 }
 

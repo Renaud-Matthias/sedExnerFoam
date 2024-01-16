@@ -20,21 +20,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 // depositon source term
-volScalarField& C = CPtr.ref();  // suspended load
+volScalarField& Cs = CsPtr.ref();  // suspended load
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
-areaScalarField& depC = depositionPtr.ref();
+areaScalarField& depCs = depositionPtr.ref();
 // rate of deposition in m/s
-depC.primitiveFieldRef() =
+depCs.primitiveFieldRef() =
     bed.vsm.ref().mapToSurface(phip)
-    * bed.vsm.ref().mapToSurface(C.boundaryField());
+    * bed.vsm.ref().mapToSurface(Cs.boundaryField());
 
-depC.primitiveFieldRef() =
-    depC.primitiveFieldRef()
+depCs.primitiveFieldRef() =
+    depCs.primitiveFieldRef()
     / (bed.aMesh().S() * (bed.aMesh().faceAreaNormals() & (gUnit)));
 
 // solve exner explicitly
 // deposition contribution
 dH.primitiveFieldRef() +=
-    runTime.time().deltaT() * (1/Cmax) * depC;
+    runTime.time().deltaT() * (1/CsMax) * depCs;

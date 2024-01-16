@@ -42,7 +42,7 @@ Description
 
     Where:
     \vartable
-        C          | Volumic fraction
+        Cs         | Volumic fraction
         \vec{U}    | Velocity
         \vec{R}    | Stress tensor
         p          | Pressure
@@ -51,7 +51,7 @@ Description
 
     \heading Required fields
     \plaintable
-        C       | Passive scalar
+        Cs      | Passive scalar
         U       | Velocity [m/s]
         p       | Kinematic pressure, p/rho [m2/s2]
         \<turbulence fields\> | As required by user selection
@@ -135,11 +135,6 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            if (switchSuspension=="on")
-            {
-                    #include "CEqn.H"
-            }
-            
             if (pimple.firstIter() || moveMeshOuterCorrectors)
             {
                 // Do any mesh changes
@@ -151,6 +146,7 @@ int main(int argc, char *argv[])
 
                     if (correctPhi)
                     {
+                        Info << "correct phi" << endl;
                         // Calculate absolute flux
                         // from the mapped surface velocity
                         phi = mesh.Sf() & Uf();
@@ -159,6 +155,11 @@ int main(int argc, char *argv[])
 
                         // Make the flux relative to the mesh motion
                         fvc::makeRelative(phi, U);
+                        if (switchSuspension=="on")
+                        {
+                            surfaceScalarField& phip = phipPtr.ref();
+                            fvc::makeRelative(phip, U);
+                        }
                     }
 
                     if (checkMeshCourantNo)
@@ -186,6 +187,11 @@ int main(int argc, char *argv[])
         if (bed.exist())
         {
             #include "bedload.H"
+        }
+
+        if (switchSuspension=="on")
+        {
+            #include "CsEqn.H"
         }
 
         if (runTime.writeTime())
