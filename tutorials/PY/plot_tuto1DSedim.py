@@ -14,16 +14,23 @@ t_plot_list = [0, 540, 900, 1380]
 # 1140.0 ; 1200.0 ; 1260.0 ; 1320.0 ; 1380.0 ; 1440.0 ; 1500.0 ; 1560.0
 # 1620.0 ; 1680.0 ; 1740.0
 
+def C0(Y):
+    Cout = 0.5 * (1+np.tanh(10*(Y-0.054)/(0.049-Y)))
+    return np.where(Y>0.049, 0.5*Cout, 0.5)
+
 # --- READ NUMERICAL RESULTS --- #
 
 Ynum = rdf.readmesh(path_tuto)[1] - 0.1
 
 Cnum = []
 for t in t_plot_list:
-    Cnum.append(rdf.readscalar(path_tuto, time_name=str(t), name="C"))
+    if t!=0:
+        Cnum.append(rdf.readscalar(path_tuto, time_name=str(t), name="Cs"))
+    else:
+        Y0 = rdf.readmesh(path_tuto, time_name="0")[1]
+        Cnum.append(C0(Y0))
 
 # --- READ EXPERIMENTAL RESULTS --- #
-
 
 def read_exp(path_file):
     time_list = []
@@ -130,7 +137,7 @@ Yinter_inf = np.zeros(len(time_list))
 Yinter_sup = np.zeros(len(time_list))
 
 for i, t in enumerate(time_list):
-    Ctemp = rdf.readscalar(path_tuto, time_name=str(round(t)), name="C")
+    Ctemp = rdf.readscalar(path_tuto, time_name=str(round(t)), name="Cs")
     Yinter_inf[i] = find_pos_inter_inf(Ctemp, Ynum)
     Yinter_sup[i] = find_pos_inter_sup(Ctemp, Ynum)
 
@@ -172,7 +179,7 @@ col_up, col_lo = "#1984c5", "#a57c1b"
 
 ax = fig2.add_subplot()
 ax.plot(t_int, y_int_sup * 100 + 10,
-        marker="o", ls="None", c=col_up)
+        marker="o", ls="None", c =col_up)
 ax.plot(t_int, y_int_inf * 100 + 10,
         marker="o", ls="None", c=col_lo)
 ax.plot(time_list, Yinter_sup * 100 + 10,
