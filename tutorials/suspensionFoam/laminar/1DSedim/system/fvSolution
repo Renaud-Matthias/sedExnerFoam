@@ -40,7 +40,7 @@ solvers
         relTol          0;
     }
 
-    C
+    Cs
     {
         nAlphaCorr      2;
         nAlphaSubCycles 1;
@@ -60,9 +60,9 @@ solvers
      //   tolerance       1e-9;
     //    relTol          0;
    // }
-    CFinal
+    CsFinal
     {
-        $C;
+        $Cs;
 	    //solver          PBiCG;
         //preconditioner  DILU;
        // solver          smoothSolver;
@@ -71,7 +71,7 @@ solvers
         //relTol          0;
     }
 
-    "C.*Diffusion"
+    "Cs.*Diffusion"
     {
         solver          PCG;
         preconditioner  DIC;

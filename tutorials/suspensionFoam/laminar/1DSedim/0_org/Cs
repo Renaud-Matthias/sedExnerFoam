@@ -11,13 +11,51 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      C;
+    object      Cs;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.5;
+internalField   #codeStream
+{
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    codeOptions
+    #{
+        -I$(LIB_SRC)/finiteVolume/lnInclude \
+        -I$(LIB_SRC)/meshTools/lnInclude
+    #};
+
+    codeLibs
+    #{
+        -lmeshTools \
+        -lfiniteVolume
+    #};
+
+    code
+    #{
+        const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+        const fvMesh& mesh = refCast<const fvMesh>(d.db());
+
+        scalarField Cs(mesh.nCells(), 0.5);
+
+        forAll(mesh.C(), celli)
+        {
+            const scalar y = mesh.C()[celli][1];
+
+            if (y>0.049)
+            {
+                Cs[celli] =
+                    0.5 * 0.5 * (1 + Foam::tanh(10*(y-0.054)/(0.049-y)));
+            }
+        }
+        Cs.writeEntry("", os);
+    #};
+};
 
 boundaryField
 {
