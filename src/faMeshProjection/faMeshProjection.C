@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------* \
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
 
@@ -94,7 +94,7 @@ const labelList Foam::faMeshProjection::edgeNeighbour() const
     return edgeNeighbour_;
 }
 
-const vectorField& Foam::faMeshProjection::Le()
+const vectorField& Foam::faMeshProjection::Le() const
 {
     if (LePtr_==nullptr)
     {
@@ -104,7 +104,17 @@ const vectorField& Foam::faMeshProjection::Le()
     return *LePtr_;
 }
 
-const vectorField& Foam::faMeshProjection::areaCentres()
+const scalarField& Foam::faMeshProjection::magLe() const
+{
+    if (magLePtr_==nullptr)
+    {
+        calcMagLe();
+    }
+
+    return *magLePtr_;
+}
+
+const vectorField& Foam::faMeshProjection::areaCentres() const
 {
     if (areaCentresPtr_==nullptr)
     {
@@ -114,7 +124,7 @@ const vectorField& Foam::faMeshProjection::areaCentres()
     return *areaCentresPtr_;
 }
 
-const vectorField& Foam::faMeshProjection::edgeCentres()
+const vectorField& Foam::faMeshProjection::edgeCentres() const
 {
     if (edgeCentresPtr_==nullptr)
     {
@@ -124,5 +134,41 @@ const vectorField& Foam::faMeshProjection::edgeCentres()
     return *edgeCentresPtr_;
 }
 
+const vectorField& Foam::faMeshProjection::pointCoords() const
+{
+    if (pointCoordsPtr_==nullptr)
+    {
+        calcPointCoords();
+    }
+
+    return *pointCoordsPtr_;
+}
+
+
+const scalarField& Foam::faMeshProjection::S() const
+{
+    if (SPtr_==nullptr)
+    {
+        calcS();
+    }
+
+    return *SPtr_;
+}
+
+vectorField Foam::faMeshProjection::project
+(
+    vectorField field
+) const
+{
+    return field - (field & projectNormal_) * projectNormal_;
+}
+
+vector Foam::faMeshProjection::project
+(
+    vector vec
+) const
+{
+    return vec - (vec & projectNormal_) * projectNormal_;
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

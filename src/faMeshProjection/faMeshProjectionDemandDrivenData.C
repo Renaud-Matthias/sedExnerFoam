@@ -27,8 +27,8 @@ License
 namespace Foam
 {
 
-// vector a is projected on a plane normal to vector b
-vector projectNormalPlane
+// vector a is projected on a plane with vector b normal to the plane
+vector projectHPlane
 (
     const vector& a,
     const vector& planeNormal
@@ -56,11 +56,45 @@ void Foam::faMeshProjection::calcLe() const
 
     const vectorField& Le = mesh_.Le();
 
+    const edgeList& edges = mesh_.edges();
+
+    const pointField& points = mesh_.points();
+
     vectorField& LeProj = *LePtr_;
 
     forAll(Le, edgei)
     {
-        LeProj[edgei] = projectNormalPlane(Le[edgei], projectNormal_);
+        const edge& e = edges[edgei];
+        // normal vector oriented from owner to neighbour face
+        vector edgeNormal =
+            projectHPlane(Le[edgei], projectNormal_).normalise();
+        // vertex delimiting the edge
+        const point& x1 = points[e.start()];
+        const point& x2 = points[e.end()];
+        // length of projected edge on horizontal plane
+        scalar le = mag(projectHPlane(x1 - x2, projectNormal_));
+        LeProj[edgei] = le * edgeNormal;
+    }
+}
+
+void Foam::faMeshProjection::calcMagLe() const
+{
+    if (magLePtr_)
+    {
+        FatalError
+            << "LePtr_ already allocated" << endl;
+        Info << abort(FatalError);
+    }
+
+    magLePtr_ = new scalarField(nEdges_);
+    // reference to edge length vector
+    const vectorField& Le = this->Le();
+    
+    scalarField& magLe = *magLePtr_;
+    
+    forAll(Le, edgei)
+    {
+        magLe[edgei] = Foam::mag(Le[edgei]);
     }
 }
 
@@ -83,7 +117,7 @@ void Foam::faMeshProjection::calcAreaCentres() const
     forAll(areaCentres, facei)
     {
         areaCentresProj[facei] =
-            projectNormalPlane(areaCentres[facei], projectNormal_);
+            projectHPlane(areaCentres[facei], projectNormal_);
     }
 }
 
@@ -106,7 +140,52 @@ void Foam::faMeshProjection::calcEdgeCentres() const
     forAll(edgeCentres, edgei)
     {
         edgeCentresProj[edgei] =
-            projectNormalPlane(edgeCentres[edgei], projectNormal_);
+            projectHPlane(edgeCentres[edgei], projectNormal_);
+    }
+}
+
+void Foam::faMeshProjection::calcPointCoords() const
+{
+    if (pointCoordsPtr_)
+    {
+        FatalError
+            << "pointCoordsPtr_ already allocated" << endl;
+        Info << abort(FatalError);
+    }
+
+    pointCoordsPtr_ = new vectorField(nPoints_);
+
+    vectorField& pointCoords = *pointCoordsPtr_;
+    // faMesh points
+    const pointField& faPoints = mesh_.points();
+
+    forAll(faPoints, pointi)
+    {
+        const point& point = faPoints[pointi];
+
+        pointCoords[pointi] =
+            projectHPlane(point, projectNormal_);
+    }
+}
+
+void Foam::faMeshProjection::calcS() const
+{
+    if (SPtr_)
+    {
+        FatalError
+            << "edgeCentresPtr_ already allocated" << endl;
+        Info << abort(FatalError);
+    }
+    SPtr_ = new scalarField(nFaces_);
+
+    const scalarField& S = mesh_.S();
+    const vectorField& faceNormals = mesh_.faceAreaNormals();
+    scalarField& Sproj = *SPtr_;
+
+    forAll(S, facei)
+    {
+        Sproj[facei] =
+            S[facei] * (faceNormals[facei] & projectNormal_);
     }
 }
 

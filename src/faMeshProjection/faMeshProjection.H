@@ -72,7 +72,7 @@ private:
     //- Unit vector normal to projected faMesh
     const vector projectNormal_;
 
-    //- Edge length vector oriented from owner to neighbour face
+    //- Edge length vector oriented from owner to neighbourface
     mutable vectorField* LePtr_;
     
     //- Edge length magnitude
@@ -84,16 +84,31 @@ private:
     //- Edge centres
     mutable vectorField* edgeCentresPtr_;
 
+    //- Points coordinates
+    mutable vectorField* pointCoordsPtr_;
+
+    //- Projected face areas
+    mutable scalarField* SPtr_;
+
     // Private member functions for demand driven data
 
     //- Calculate edge length vectors
     void calcLe() const;
+
+    //- Calculate edge length
+    void calcMagLe() const;
 
     //- Calculate face centres coordinates
     void calcAreaCentres() const;
 
     //- Calculate edge centres coordinates
     void calcEdgeCentres() const;
+
+    //- Calculate point coordinates
+    void calcPointCoords() const;
+
+    //- Calculate projected face areas
+    void calcS() const;
 
     //- Clear geometry
     void clearGeom() const;
@@ -138,22 +153,31 @@ public:
     // Demand driven data
 
     //- Return edge length vectors oriented from owner to neighbour faces
-    const vectorField& Le();
+    const vectorField& Le() const;
     
-    //- Return edge length magnitude
-    //const scalarField& magLe();
+    //- Return edge length
+    const scalarField& magLe() const;
 
     //- Return projected face centers coordinates
-    const vectorField& areaCentres();
+    const vectorField& areaCentres() const;
 
     //- Return projected edge centers coordinates
-    const vectorField& edgeCentres();
+    const vectorField& edgeCentres() const;
+
+    //- Return projected mesh points coordinates
+    const vectorField& pointCoords() const;
+
+    //- Return projected face areas
+    const scalarField& S() const;
 
     //- Return edge normals vectors, oriented from owner to neighbour
     //const vectorField& edgeNormals()
 
-    //- Return projected faces area
-    //const scalarField& S();
+    //- Project vector field on plane
+    vectorField project(vectorField field) const;
+
+    //- Project vector on plane
+    vector project(vector vec) const;
 };
 
 }  // End namespace Foam
