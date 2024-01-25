@@ -27,6 +27,8 @@ License
 #define bedloadModel_H
 
 #include "dictionary.H"
+#include "dimensionedTypes.H"
+
 
 namespace Foam
 {
@@ -46,13 +48,18 @@ protected:
 
     scalar bExp_;
 
-    scalar critShields_;
+    dimensionedScalar critShields_;
+
+    void setCoefs(scalar alpha, scalar aExp, scalar bExp);
+
+    void setCoefs(const word& modelName);
     
 public:
 
-    //const static List<word> modelNames = {"Nielsen"};
-
     // Constructors
+
+    //- Default constructor
+    bedloadModel();
 
     //- Construct from name of model
     bedloadModel
@@ -64,42 +71,61 @@ public:
     bedloadModel
     (
         const word& modelName,
-        scalar critShields
+        dimensionedScalar critShields
     );
 
     //- Construct from coefficients
     bedloadModel
     (
         scalar alpha,
-        scalar a,
-        scalar b,
-        scalar critShields
+        scalar aExp,
+        scalar bExp,
+        const dimensionedScalar& critShields
     );
 
+    //- Construct from dictionary
+    bedloadModel
+    (
+        const dictionary& dict
+    );
+
+
     // Destructor
+    
     virtual ~bedloadModel();
+
 
     // Member functions
 
-    //- Return bedload value associated to shields values
+    //- Compute bedload from shields and sediment properties
     template<class Type>
     Type qb
     (
         const Type& shields,
-        const scalar& rhoS,
-        const scalar& rhoF,
-        const scalar& g,
-        const scalar& dS
-    )
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& g,
+        const dimensionedScalar& dS
+    ) const
     {
-        scalar einsteinNumber =
+        dimensionedScalar einsteinNumber =
             Foam::sqrt(((rhoS/rhoF) - 1) * g * Foam::pow(dS, 3));
 
-        Type relShields = shields - critShields_;
+        // in case qb is a vector, is direction is needed
+        dimensionedScalar smallVal(dimless, SMALL);
+        Type qbDirection =
+            shields / (mag(shields) + smallVal);
 
-        return alpha_ * einsteinNumber
-            * Foam::pow(shields, aExp_)
-            * Foam::pow(pos(relShields) * (relShields), bExp_);
+        Type qbOut = alpha_ * einsteinNumber
+            * qbDirection
+            * Foam::pow(Foam::mag(shields), aExp_)
+            * Foam::pow
+            (
+                pos(Foam::mag(shields) - critShields_)
+                * (Foam::mag(shields) - critShields_), bExp_
+            );
+
+        return qbOut;
     }
 
     //- Write bedloadModel to Ostream
