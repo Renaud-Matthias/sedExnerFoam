@@ -99,7 +99,7 @@ protected:
         const dimensionedScalar& g
     ) const;
 };
-    
+
 } // End namespace SettlingModels
 } // End namespace Foam
 
