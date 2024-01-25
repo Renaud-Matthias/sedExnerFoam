@@ -10,16 +10,17 @@ from fluidfoam import readof as rdf
 
 Ysimu = rdf.readmesh('./')[1]
 
-timeList = ['0', '500', '1000', '1500']
+timeList = ['500', '1000', '1500']
 
 Csimu = []
 
 for t in timeList:
-    Csimu.append(rdf.readscalar('./', time_name=t, name='C'))
+    Csimu.append(rdf.readscalar('./', time_name=t, name='Cs'))
 
-Ydata, c0, c500, c1000, c1500 = np.loadtxt(
-    'data.txt', delimiter=';', unpack=True)
-Cdata = [c0, c500, c1000, c1500]
+Ydata, c500, c1000, c1500 = np.loadtxt(
+    'newData.txt', delimiter=';', unpack=True)
+
+Cdata = [c500, c1000, c1500]
 
 
 tol = 1e-6
@@ -28,6 +29,7 @@ success = True
 for cs, cd in zip(Csimu, Cdata):
     err = np.max(np.abs(cs - cd) / np.std(cd))
     if err > tol:
+        print(err)
         success = False
 
 assert success

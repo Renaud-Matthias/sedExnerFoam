@@ -40,7 +40,7 @@ solvers
         relTol          0;
     }
 
-    C
+    Cs
     {
         nAlphaCorr      2;
         nAlphaSubCycles 1;
@@ -55,12 +55,12 @@ solvers
         relTol          0;
         minIter         1;
     }
-    CFinal
+    CsFinal
     {
-        $C;
+        $Cs;
     }
 
-    "C.*Diffusion"
+    "Cs.*Diffusion"
     {
         solver          PCG;
         preconditioner  DIC;

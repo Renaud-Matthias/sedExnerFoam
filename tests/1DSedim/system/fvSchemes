@@ -31,8 +31,9 @@ divSchemes
 // UEqn
     div(phi,U)     Gauss upwind phi;
 // CEqn
-    div(phi,C)    Gauss vanLeer; //Gamma 1;
-    div(phir,C)    Gauss linear; //Gamma 1;
+    div(phip,Cs)    Gauss upwind;
+    div(phi,Cs)     Gauss vanLeer; //Gamma 1;
+    div(phir,Cs)    Gauss linear; //Gamma 1;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 
@@ -66,7 +67,7 @@ fluxRequired
 {
     default         no;
     p                 ;
-    C                 ;
+    Cs                ;
 }
 
 

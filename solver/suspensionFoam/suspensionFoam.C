@@ -77,6 +77,7 @@ Description
 #include "pointPatchField.H"
 
 #include "SettlingModel.H"
+#include "bedloadModel.H"
 #include "sedbedManager.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -146,7 +147,6 @@ int main(int argc, char *argv[])
 
                     if (correctPhi)
                     {
-                        Info << "correct phi" << endl;
                         // Calculate absolute flux
                         // from the mapped surface velocity
                         phi = mesh.Sf() & Uf();

@@ -86,7 +86,6 @@ if (transportProperties.found("Sc"))
 // water density, should be changed and read in case
 dimensionedScalar rhoF(dimDensity, 1000);
 
-
 Info<< "Reading suspensionProperties\n" << endl;
 IOdictionary suspensionProperties
 (
@@ -191,7 +190,17 @@ if (switchSuspension=="on")
     settlingModelPtr.reset(new SettlingModel(suspensionProperties));
 
     Info<< "Initialize sediment settling velocity\n" << endl;
-    Ws = settlingModelPtr->Ufall(Cs, CsMax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+    Ws = settlingModelPtr->Ufall
+        (
+            Cs,
+            CsMax,
+            dS,
+            rhoS,
+            rhoF,
+            nuF,
+            mag(g)
+        ) *g/mag(g);
+
     Ws.correctBoundaryConditions();
 }
 

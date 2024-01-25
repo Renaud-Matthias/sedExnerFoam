@@ -41,11 +41,12 @@ sedbedManager bed(bedloadProperties, mesh, g);
 autoPtr<vectorField> dispValsPtr;
 
 // fields for bedload and morphology
-autoPtr<areaVectorField> shieldsPtr;
-autoPtr<areaVectorField> qbPtr;
-autoPtr<areaScalarField> dHptr;
-autoPtr<edgeScalarField> phiqbPtr;
-autoPtr<areaScalarField> depositionPtr;
+autoPtr<areaVectorField> shieldsPtr;  // shields number, dimless shear stress
+autoPtr<areaVectorField> qbPtr;  // bedload
+autoPtr<areaScalarField> dHptr;  // bed elevation increment
+autoPtr<areaScalarField> depositionPtr;  // deposition flux
+autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
+autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
 
 // create fa fields if morphology on
 if (bed.exist())
@@ -144,4 +145,25 @@ if (bed.exist())
             dimensionedScalar(dimVelocity, Zero)
         )
     );
+
+    if (bedloadProperties.found("bedloadModel"))
+    {
+        dictionary bedloadModelDict =
+            bedloadProperties.subDict("bedloadModel");
+
+        bedloadModelPtr.reset
+            (
+                new bedloadModel
+                (
+                    bedloadModelDict
+                )
+            );
+    }
+    else
+    {
+        bedloadModelPtr.reset(new bedloadModel());
+    }
+
+    Info << "\nbedload Model: " << endl
+        << bedloadModelPtr.ref() << endl;
 }

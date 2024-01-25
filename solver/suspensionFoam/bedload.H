@@ -55,15 +55,34 @@ shields.primitiveFieldRef() =
 
 // compute bedload with Meyer Peter Muller law
 
-dimensionedScalar mpmE(dimless, 8);
+//dimensionedScalar mpmE(dimless, 8);
 dimensionedScalar smallVal(dimless, SMALL);
 
-qb =
+// compute bedload from Shields number
+const bedloadModel& bedloadMod = bedloadModelPtr.ref();
+
+qb = bedloadMod.qb(shields, rhoS, rhoF, mag(g), dS);
+
+/*forAll(bed.aMesh().areaCentres(), facei)
+{
+    dimensionedScalar shieldsFacei(dimless, shields[facei]);
+    qb[facei] = (shields[facei] / (smallVal + Foam::mag(shields[facei])))
+        * bedloadMod.qb
+        (
+            mag(shieldsFacei),
+            rhoS,
+            rhoF,
+            Foam::mag(g),
+            dS
+        ).value();
+}*/
+
+/*qb =
     mpmE * (shields / (smallVal + mag(shields)))
     * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
     * Foam::pow(
         pos(mag(shields) - critShields)
-        * (mag(shields) - critShields), 1.5);
+    * (mag(shields) - critShields), 1.5);*/
 
 qb.correctBoundaryConditions();
 
