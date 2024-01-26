@@ -31,8 +31,8 @@ vectorField slopeDir = (nFaces & gUnit) * gUnit - nFaces;
 slopeDir /= (mag(slopeDir) + SMALL);
 
 // reposeAngle
-dimensionedScalar betaRep(dimless, degToRad(32));
-dimensionedScalar Qav(dimensionSet(0, 2, -1, 0, 0, 0, 0), 0.01);
+//dimensionedScalar betaRep(dimless, degToRad(32));
+//dimensionedScalar Qav(dimensionSet(0, 2, -1, 0, 0, 0, 0), 0.01);
 
 // Vinent law (2019)
 forAll(bed.aMesh().areaCentres(), facei)

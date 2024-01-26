@@ -48,6 +48,17 @@ autoPtr<areaScalarField> depositionPtr;  // deposition flux
 autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
 autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
 
+// repose angle of granular material (in rad)
+dimensionedScalar betaRep(dimless, 0.5585);
+betaRep.value() = degToRad
+    (
+        bedloadProperties.lookupOrDefault<scalar>("reposeAngle", 32)
+    );
+
+// coefficient for avalanche additional bedload
+dimensionedScalar Qav(dimVelocity * dimLength, 0.01);
+Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);
+
 // create fa fields if morphology on
 if (bed.exist())
 {
