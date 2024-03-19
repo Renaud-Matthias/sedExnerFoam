@@ -39,7 +39,7 @@ for (const label patchID : bed.bedPatchesID())
     dispVals -= patchInterp.faceToPointInterpolate(dH) * gUnit;
     
     Info << "mesh vertices motion, max:" << max(mag(dispVals));
-    Info << " , min:" << min(mag(dispVals));
-    Info << " , mean:" << average(mag(dispVals)) << endl;
+    Info << " m , min:" << min(mag(dispVals));
+    Info << " m , mean:" << average(mag(dispVals)) << " m" << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
 }

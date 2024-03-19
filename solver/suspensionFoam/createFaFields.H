@@ -55,6 +55,13 @@ betaRep.value() = degToRad
         bedloadProperties.lookupOrDefault<scalar>("reposeAngle", 32)
     );
 
+// morphological acceleration factor, default is 1
+scalar morphoAccFactor = 1;
+morphoAccFactor =
+    bedloadProperties.lookupOrDefault<scalar>("morphoAccFactor", 1);
+Info << "morphological acceleration factor is set to: "
+<< morphoAccFactor << endl;;
+
 // coefficient for avalanche additional bedload
 dimensionedScalar Qav(dimVelocity * dimLength, 0.01);
 Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);

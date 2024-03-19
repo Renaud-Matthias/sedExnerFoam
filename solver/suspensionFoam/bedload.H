@@ -97,7 +97,8 @@ phiqb =
 
 // solve exner explicitly (euler explicit)
 // bedload contribution
-dH = - runTime.time().deltaT()
+dH = -runTime.time().deltaT()
+    * morphoAccFactor
     * (1/CsMax)
     * (1/(bed.aMesh().faceAreaNormals() & (gUnit)))  // slope correction
     * fac::edgeIntegrate(phiqb);
