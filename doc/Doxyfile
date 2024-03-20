@@ -864,7 +864,9 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../src \
+INPUT                  = manual/index.dox \
+                         manual/governingEq.dox \
+                         ../src \
                          ../solver/suspensionFoam
 
 # This tag can be used to specify the character encoding of the source files
@@ -1086,7 +1088,7 @@ SOURCE_TOOLTIPS        = YES
 # To use it do the following:
 # - Install the latest version of global
 # - Enable SOURCE_BROWSER and USE_HTAGS in the configuration file
-# - Make sure the INPUT  points to the root of the source tree
+# - Make sure the INPUT \00points to the root of the source tree
 # - Run doxygen as normal
 #
 # Doxygen will invoke htags (and that will in turn invoke gtags), so these

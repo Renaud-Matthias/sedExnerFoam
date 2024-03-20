@@ -1,0 +1,27 @@
+/**
+
+\page governingEq Governing equation
+
+An inherent difficulty of sediment transport models is the tracking of the interface between the fluid and the granular material over time. SedExnerFoam made use of the arbitrary Lagrangian Eulerian. With this approach, bottom boundary condition of the mesh act as the interface and the whole mesh get distorted to match the morphology evolution. The filtered Navier-Stokes equations are solved and the pressure velocity coupling is handled with the PIMPLE algorithm. The suspended sediment is transported in the flow and the the shear stress exerced b by the fluid on the bed puts into motion a layer of sediment on the bed. Those sediment transport lead to morphological evolution.
+
+The flow is solved using the pimple algorithm.
+
+\f[
+\frac{\partial u}{\partial t} + \nabla.(u u^T) = -\frac{1}{\rho_f}\nabla p + g + \nabla.(2 \nu \nabla S + \tau_f)
+\f]
+
+\f[
+\frac{\partial C_s}{\partial t} + \nabla.[(U+W_s)C_s] = \nabla.(\epsilon_f \nabla C_s)
+\f]
+
+where ???
+
+The morphology evolution is described by the exner equation:
+
+\f[
+\frac{\partial z_b}{\partial t} + \nabla.q_b = D - E
+\f]
+
+where \f$q_b\f$ is the bedload, and \f$D\f$ and \f$E\f$ are respectively deposition and erosion terms.
+
+*/

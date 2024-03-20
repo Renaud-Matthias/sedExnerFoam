@@ -1,0 +1,9 @@
+/**
+
+\mainpage sedExnerFoam Manual
+
+This documentation describes the solver sedExnerFoam for sediment transport applications. It is developed within the open source CFD software <a href="https://www.openfoam.com/">OpenFOAM</a>. The initial development is based on the incompressible transient flow solver pimpleFoam.
+
+Different benchmarks and tutorials are available in tutorials/ to illustrate the model capabilities.
+
+*/
