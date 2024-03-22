@@ -97,6 +97,9 @@ public:
 
     // Member functions
 
+    //- Return constant reference to critical Shields number
+    const dimensionedScalar& criticalShields() const;
+
     //- Compute bedload from shields and sediment properties
     template<class Type>
     Type qb

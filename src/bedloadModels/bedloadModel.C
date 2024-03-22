@@ -140,6 +140,11 @@ void Foam::bedloadModel::setCoefs(const word& modelName)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+const Foam::dimensionedScalar& Foam::bedloadModel::criticalShields() const
+{
+    return critShields_;
+}
+
 void Foam::bedloadModel::output(Ostream& os) const
 {
     os << "bedload model type: " << modelName_ << endl
