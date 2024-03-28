@@ -20,12 +20,83 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// Access variables relative to suspension
 volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
+// term corresponding to, erosion - deposition
+volScalarField& ED = erosionDepositionPtr.ref();
 
 // turbulent sediment diffusivity
 volScalarField epsEff("epsEff", turbulence->nut()/Sc);
+
+// handle erosion and deposition if bedload and suspension are switched on
+if (bed.exist())
+{
+    // reference to faMesh
+    const faMesh& aMesh = bed.aMesh();
+    // Access variables relative to bedload
+    areaVectorField& shields = shieldsPtr.ref();
+
+    for (const label patchID : bed.bedPatchesID())
+    {
+        // boundary field of erosion-deposition field
+        scalarField& EDp = ED.boundaryFieldRef()[patchID];
+        // Cs boundary field
+        //const scalarField& Csp = Cs.boundaryFieldRef()[patchID];
+        // reference to bed fvPatch
+        const fvPatch& bedPatch = mesh.boundary()[patchID];
+
+        // reference level
+        scalar zbRef = 2.5 * dS.value();
+        // dimensionless sediment diameter
+        scalar sRatio = rhoS.value() / rhoF.value();  // density ratio
+        scalar Dstar = dS.value() * Foam::pow
+            (
+                (sRatio - 1) * mag(g).value() / Foam::pow(nuF.value(), 2),
+                1/3
+            );
+
+        forAll(EDp, facei)
+        {
+            // shear friction dimension less parameter
+            scalar Tshear = Foam::mag(shields[facei])/critShields.value() - 1;
+            // compute reference concentration, Van Rijn 1984
+            scalar cbRef = min(
+                0.015 * (dS.value()/zbRef)
+                * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
+                * Foam::pow(Dstar, -0.3),
+                CsMax.value());
+            // label of neighbour cell
+            label idNCell = bedPatch.faceCells()[facei];
+            // coordinates of cell centers located above bed
+            const vector xCell = mesh.C()[idNCell];
+            // face coordinates
+            const vector xFace = aMesh.areaCentres()[facei];
+            const vector nFace = aMesh.faceAreaNormals()[facei];
+            scalar z1 = -(xCell - xFace) & nFace;
+            scalar c1 = Cs[idNCell];
+            scalar ws1 = Foam::mag(Ws[idNCell]);
+            scalar Ro1 = ws1 / Foam::max(epsEff[idNCell], 1e-8);
+            scalar cb = c1 + cbRef * (
+                1 - Foam::exp(-Ro1 * (Foam::mag(z1-zbRef))));
+            // explicit, fixedValue 0, needed as BC on bed for ws and Cs
+            //ED[idNCell] = ws1 * (cbRef - cb) * aMesh.S()[idNCell];
+            // implicit, zeroGradient bc for Ws and Cs on bed needed
+            ED[idNCell] = ws1 * aMesh.S()[idNCell]
+                * cbRef * Foam::exp(-Ro1 * (Foam::mag(z1-zbRef)));
+            Info << "dz = " << z1 - zbRef
+                << ", ws = " << ws1
+                << ", epsEff = " << epsEff[idNCell]
+                << ", Ro = " << Ro1
+                << ", c1 = " << c1
+                << ", cbRef = " << cbRef
+                << ", cb = " << cb
+                << ", E-D = " << ED[idNCell] << endl;
+        }
+    }
+}
+
 
 // MULES FORMULATION FOR SUSPENTION TRANSPORT
 if (switchMULES=="on")
@@ -92,6 +163,7 @@ else if (switchMULES=="off")
       - fvm::laplacian(epsEff, Cs)
         ==
         fvOptions(Cs)
+      + ED
     );
 
     fvOptions.constrain(CsEqn);
