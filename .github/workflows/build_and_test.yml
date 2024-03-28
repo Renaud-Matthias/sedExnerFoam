@@ -1,4 +1,4 @@
-name: build
+name: build_and_test
 on: [push, pull_request]
 jobs:
   build:
@@ -8,6 +8,10 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: install python3 packages
+        run: |
+	  apt-get -y install python3-pip &&
+	  pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Build and install
@@ -21,7 +25,13 @@ jobs:
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
-          cd tests/1DSedim && ./Allrun && ./Allclean
+          cd tests/1DSedim &&
+	  ./Allrun && python3 test.py
+      - name: Test 1DSedim
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc && 
+          cd tests/equilibriumChannel &&
+	  ./Allrun && python3 test.py
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
