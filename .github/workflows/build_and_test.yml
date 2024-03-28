@@ -26,12 +26,12 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           cd tests/1DSedim &&
-	  ./Allrun && python3 test.py
+         ./Allrun && python3 test.py
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           cd tests/equilibriumChannel &&
-	  ./Allrun && python3 test.py
+         ./Allrun && python3 test.py
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
