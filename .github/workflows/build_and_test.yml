@@ -16,16 +16,16 @@ jobs:
         uses: actions/checkout@v3
       - name: Build and install
         run: |
-          shopt -s expand_aliases && source /openfoam/bash.rc && 
-          ./Allwmake
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
+          export FOAM_USER_LIBBIN=$FOAM_SITE_LIBBIN && ./Allwmake
       - name: Test 1DSedim
         run: |
-          shopt -s expand_aliases && source /openfoam/bash.rc && 
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/1DSedim &&
          ./Allrun && python3 test.py
       - name: Test 1DSedim
         run: |
-          shopt -s expand_aliases && source /openfoam/bash.rc && 
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/equilibriumChannel &&
          ./Allrun && python3 test.py
   checkstyle:
