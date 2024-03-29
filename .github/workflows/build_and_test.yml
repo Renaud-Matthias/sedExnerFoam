@@ -19,9 +19,6 @@ jobs:
           #cd ${{ github.workspace }} && source /openfoam/bash.rc && 
           shopt -s expand_aliases && source /openfoam/bash.rc && 
           ./Allwmake
-      - name: Build sedExnerFoam
-        run: |
-          shopt -s expand_aliases && source /openfoam/bash.rc && 
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc && 
