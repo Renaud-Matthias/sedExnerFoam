@@ -1,3 +1,8 @@
+"""
+Plot results from 1DSedim tutorial and compare with eperimental results
+from Pham Van Bang (2006)
+"""
+
 import numpy as np
 from fluidfoam import readof as rdf
 import matplotlib.pyplot as plt
@@ -14,9 +19,11 @@ t_plot_list = [0, 540, 900, 1380]
 # 1140.0 ; 1200.0 ; 1260.0 ; 1320.0 ; 1380.0 ; 1440.0 ; 1500.0 ; 1560.0
 # 1620.0 ; 1680.0 ; 1740.0
 
+
 def C0(Y):
     Cout = 0.5 * (1+np.tanh(10*(Y-0.054)/(0.049-Y)))
-    return np.where(Y>0.049, 0.5*Cout, 0.5)
+    return np.where(Y > 0.049, 0.5*Cout, 0.5)
+
 
 # --- READ NUMERICAL RESULTS --- #
 
@@ -24,13 +31,14 @@ Ynum = rdf.readmesh(path_tuto)[1] - 0.1
 
 Cnum = []
 for t in t_plot_list:
-    if t!=0:
+    if t != 0:
         Cnum.append(rdf.readscalar(path_tuto, time_name=str(t), name="Cs"))
     else:
         Y0 = rdf.readmesh(path_tuto, time_name="0")[1]
         Cnum.append(C0(Y0))
 
 # --- READ EXPERIMENTAL RESULTS --- #
+
 
 def read_exp(path_file):
     time_list = []
@@ -179,7 +187,7 @@ col_up, col_lo = "#1984c5", "#a57c1b"
 
 ax = fig2.add_subplot()
 ax.plot(t_int, y_int_sup * 100 + 10,
-        marker="o", ls="None", c =col_up)
+        marker="o", ls="None", c=col_up)
 ax.plot(t_int, y_int_inf * 100 + 10,
         marker="o", ls="None", c=col_lo)
 ax.plot(time_list, Yinter_sup * 100 + 10,
