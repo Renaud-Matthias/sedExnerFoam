@@ -6,5 +6,6 @@ set -x
 wclean libso settlingModels
 wclean libso sedbedManager
 wclean libso faMeshProjection
+wclean libso bedloadModels
 
 #------------------------------------------------------------------------------
