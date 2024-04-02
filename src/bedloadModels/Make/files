@@ -1,5 +1,3 @@
 bedloadModel.C
-criticalShieldsModel.C
-Soulsby/Soulsby.C
 
 LIB = $(FOAM_USER_LIBBIN)/libbedloadModels
