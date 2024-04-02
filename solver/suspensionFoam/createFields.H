@@ -56,6 +56,7 @@ Info << "Reading/calculating face flux field phi\n" << endl;
 #include "createRDeltaT.H"
 
 #include "readGravitationalAcceleration.H"
+vector gUnit = (g / mag(g)).value();  // unit vector gravity oriented
 
 Info<< "Reading transportProperties\n" << endl;
 IOdictionary transportProperties
@@ -125,6 +126,7 @@ if (switchMULES!="on" and switchMULES!="off")
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
+autoPtr<volScalarField> erosionDepositionPtr;  // erosion deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
 autoPtr<SettlingModel> settlingModelPtr;
 
@@ -161,6 +163,23 @@ if (switchSuspension=="on")
                 IOobject::AUTO_WRITE
             ),
             mesh
+        )
+    );
+
+    erosionDepositionPtr.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "ED",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar(dimensionSet(0, 0, -1, 0, 0, 0, 0), Zero)
         )
     );
 

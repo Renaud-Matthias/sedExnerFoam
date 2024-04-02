@@ -28,7 +28,7 @@ surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
 volScalarField& ED = erosionDepositionPtr.ref();
 
 // turbulent sediment diffusivity
-volScalarField epsEff("epsEff", turbulence->nut()/Sc);
+volScalarField epsEff("epsEff", turbulence->nuEff()/Sc);
 
 // handle erosion and deposition if bedload and suspension are switched on
 if (bed.exist())
@@ -62,7 +62,7 @@ if (bed.exist())
             // shear friction dimension less parameter
             scalar Tshear = Foam::mag(shields[facei])/critShields.value() - 1;
             // compute reference concentration, Van Rijn 1984
-            scalar cbRef = min(
+            scalar cbRef = Foam::min(
                 0.015 * (dS.value()/zbRef)
                 * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
                 * Foam::pow(Dstar, -0.3),
@@ -77,14 +77,16 @@ if (bed.exist())
             scalar z1 = -(xCell - xFace) & nFace;
             scalar c1 = Cs[idNCell];
             scalar ws1 = Foam::mag(Ws[idNCell]);
-            scalar Ro1 = ws1 / Foam::max(epsEff[idNCell], 1e-8);
+            scalar Ro1 = ws1 / Foam::max(epsEff[idNCell], 1e-6);
             scalar cb = c1 + cbRef * (
                 1 - Foam::exp(-Ro1 * (Foam::mag(z1-zbRef))));
             // explicit, fixedValue 0, needed as BC on bed for ws and Cs
             //ED[idNCell] = ws1 * (cbRef - cb) * aMesh.S()[idNCell];
             // implicit, zeroGradient bc for Ws and Cs on bed needed
-            ED[idNCell] = ws1 * aMesh.S()[idNCell]
-                * cbRef * Foam::exp(-Ro1 * (Foam::mag(z1-zbRef)));
+            ED[idNCell] = Foam::min(
+                ws1 * aMesh.S()[idNCell]
+                * cbRef * Foam::exp(-Ro1 * (z1-zbRef)),
+                CsMax.value());
             Info << "dz = " << z1 - zbRef
                 << ", ws = " << ws1
                 << ", epsEff = " << epsEff[idNCell]

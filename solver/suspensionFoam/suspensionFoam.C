@@ -194,6 +194,11 @@ int main(int argc, char *argv[])
             #include "CsEqn.H"
         }
 
+        if (bed.exist())
+        {
+            #include "exnerEqn.H"
+        }
+
         if (runTime.writeTime())
         {
             if (bed.exist())

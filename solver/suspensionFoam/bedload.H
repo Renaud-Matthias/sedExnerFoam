@@ -20,13 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to bed variables
+// Access to variables relative to bedload
 areaVectorField& shields = shieldsPtr.ref();
 areaVectorField& qb = qbPtr.ref();
-areaScalarField& dH = dHptr.ref();
-edgeScalarField& phiqb = phiqbPtr.ref();
-
-vector gUnit = (g / mag(g)).value();  // unit vector gravity oriented
 
 // compute wallShearStress on each patch belonging to sediment bed
 for (const label patchID : bed.bedPatchesID())
@@ -63,52 +59,10 @@ const bedloadModel& bedloadMod = bedloadModelPtr.ref();
 
 qb = bedloadMod.qb(shields, rhoS, rhoF, mag(g), dS);
 
-/*forAll(bed.aMesh().areaCentres(), facei)
-{
-    dimensionedScalar shieldsFacei(dimless, shields[facei]);
-    qb[facei] = (shields[facei] / (smallVal + Foam::mag(shields[facei])))
-        * bedloadMod.qb
-        (
-            mag(shieldsFacei),
-            rhoS,
-            rhoF,
-            Foam::mag(g),
-            dS
-        ).value();
-}*/
-
-/*qb =
-    mpmE * (shields / (smallVal + mag(shields)))
-    * Foam::sqrt((((rhoS / rhoF) - 1) * mag(g) * Foam::pow(dS, 3)))
-    * Foam::pow(
-        pos(mag(shields) - critShields)
-    * (mag(shields) - critShields), 1.5);*/
-
 qb.correctBoundaryConditions();
 
+// additional bedload due to avalanche
 if (bed.isAvalanche())
 {
     #include "sedimAvalanche.H"
-}
-
-// compute qb flux through fa mesh edges
-phiqb =
-    linearEdgeInterpolate(qb) & bed.aMesh().Le();
-
-// solve exner explicitly (euler explicit)
-// bedload contribution
-dH = -runTime.time().deltaT()
-    * morphoAccFactor
-    * (1/CsMax)
-    * (1/(bed.aMesh().faceAreaNormals() & (gUnit)))  // slope correction
-    * fac::edgeIntegrate(phiqb);
-
-if (switchSuspension=="on")
-{
-    #include "erosionDeposition.H"
-}
-
-if (bed.meshMotion())
-{
-    #include "meshMove.H"
 }
