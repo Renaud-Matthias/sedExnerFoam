@@ -26,17 +26,31 @@ boundaryField
         type            fixedValue;
         value           uniform 0;
     }
+    
     bed
     {
-        type            zeroGradient;
+        type            fixedFluxPressure;
+	gradient        uniform 0;
     }
-    extremities
+
+    outlet
     {
         type            zeroGradient;
     }
-    sides
+
+    front
     {
-        type            empty;
+        type           wedge;
+    }
+
+    back
+    {
+        type           wedge;
+    }
+
+    axis
+    {
+        type           empty;
     }
 }
 

@@ -10,6 +10,8 @@ log*
 *.foam
 *.o
 *~
+*.pvsm
 postProcessing
 dynamicCode
 tutorials/PY/Figures
+MUSTE_NS?_*

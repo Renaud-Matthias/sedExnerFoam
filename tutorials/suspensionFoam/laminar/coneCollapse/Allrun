@@ -3,6 +3,9 @@
 # create vol mesh
 blockMesh
 
+# create cone geometry
+python makeInitialCone.py
+
 # create fa mesh
 makeFaMesh
 

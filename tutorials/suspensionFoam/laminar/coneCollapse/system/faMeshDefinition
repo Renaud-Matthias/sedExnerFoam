@@ -18,15 +18,25 @@ polyMeshPatches ( "bed" );
 
 boundary
 {
-    extremitiesFa
-    {
-        type patch;
-        neighbourPolyPatch extremities;
-    }
-    sidesFa
+    axisFa
     {
         type empty;
-        neighbourPolyPatch sides;
+        neighbourPolyPatch axis;
+    }
+    frontFa
+    {
+        type wedge;
+        neighbourPolyPatch front;
+    }
+    backFa
+    {
+	type wedge;
+	neighbourPolyPatch back;
+    }
+    outletFa
+    {
+	type patch;
+	neighbourPolyPatch outlet;
     }
 }
 

@@ -25,19 +25,31 @@ boundaryField
         type            fixedValue;
         value           uniform (0 0 0);
     }
+    
     bed
     {
         type            fixedValue;
         value           uniform (0 0 0);
     }
-    extremities
+
+    outlet
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            zeroGradient;
     }
-    sides
+
+    front
     {
-        type            empty;
+        type           wedge;
+    }
+
+    back
+    {
+        type           wedge;
+    }
+
+    axis
+    {
+        type           empty;
     }
 }
 

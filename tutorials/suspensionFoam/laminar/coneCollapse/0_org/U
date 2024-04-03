@@ -20,23 +20,36 @@ dimensions      [0 1 -1 0 0 0 0];
 internalField   uniform (0 0 0);
 
 boundaryField
-{
+{    
     top
     {
         type            zeroGradient;
     }
+    
     bed
     {
         type            movingWallVelocity;
         value           uniform (0 0 0);
     }
-    extremities
+    
+    outlet
     {
         type            zeroGradient;
     }
-    sides
+
+    front
     {
-        type            empty;
+        type           wedge;
+    }
+
+    back
+    {
+        type           wedge;
+    }
+
+    axis
+    {
+        type           empty;
     }
 }
 

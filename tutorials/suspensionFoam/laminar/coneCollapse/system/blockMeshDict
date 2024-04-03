@@ -17,115 +17,93 @@ FoamFile
 scale           1;
 
 // domain dimensions
-length          1;
-width           0.1;
+radius          1;
 height          0.5;
+cosAngle        0.99966;
+sinAngle        0.02618;
 
-// cone dimensions
-coneLength      0.5;
-coneHeight      0.3;
+trueRad         #eval{ $cosAngle * $radius };
+halfW           #eval{ $sinAngle * $radius};
 
 // number of cells and grading values
-nxOut           10;
-nxCone          10;
-nz              10;
+nr              100;
+nz              30;           
 
-// 
-linner          #eval{ 0.5*$coneLength };
-louter          #eval{ 0.5*($length-$coneLength) };
-xb1             #eval{ $louter };
-xb2             #eval{ $xb1+$linner };
-xb3             #eval{ $xb2+$linner };
-xb4             #eval{ $xb3+$louter };
 
-vertices        
+vertices
 (
-    // block 1
-    (0 0 0) // 0
-    ($xb1 0 0) // 1
-    ($xb1 $width 0) // 2
-    (0 $width 0) // 3
-    (0 0 $height) // 4
-    ($xb1 0 $height) // 5
-    ($xb1 $width $height) // 6
-    (0 $width $height) // 7
-    // block 2
-    ($xb2 0 $coneHeight) // 8
-    ($xb2 $width $coneHeight) // 9
-    ($xb2 0 $height) // 10
-    ($xb2 $width $height) // 11
-    // block 3
-    ($xb3 0 0) // 12
-    ($xb3 $width 0) // 13
-    ($xb3 0 $height) // 14
-    ($xb3 $width $height) // 15
-    // block 4
-    ($xb4 0 0) // 16
-    ($xb4 $width 0) // 17
-    ($xb4 0 $height) // 18
-    ($xb4 $width $height) // 19
+    (0 0 0)  // 0
+    ($trueRad -$halfW 0)  // 1
+    ($trueRad $halfW 0)  // 2
+    (0 0 $height)  // 3
+    ($trueRad -$halfW $height)  // 4
+    ($trueRad $halfW $height)  // 5
 );
-
-blocks          
+ 
+blocks
 (
-    hex (0 1 2 3 4 5 6 7) ($nxOut 1 $nz) simpleGrading (1 1 1)
-    hex (1 8 9 2 5 10 11 6) ($nxCone 1 $nz) simpleGrading (1 1 1)
-    hex (8 12 13 9 10 14 15 11) ($nxCone 1 $nz) simpleGrading (1 1 1)
-    hex (12 16 17 13 14 18 19 15) ($nxOut 1 $nz) simpleGrading (1 1 1)
+    hex (0 1 2 0 3 4 5 3) ($nr 1 $nz) simpleGrading (1 1 1)
 );
-
-edges           
+ 
+edges
 (
 );
-
-boundary         
+ 
+boundary
 (
-    top
-    {
-        type wall;
-        faces
-            (
-                (4 5 6 7)
-                (5 10 11 6)
-                (10 14 15 11)
-                (14 18 19 15)
-            );
-    }
-    bed
-    {
-        type wall;
-        faces
-            (
-                (3 2 1 0)
-                (2 9 8 1)
-                (9 13 12 8)
-                (13 17 16 12)
-            );
-    }
-    extremities
-    {
-        type patch;
-        faces
-            (
-                (0 4 7 3)
-                (16 17 19 18)
-            );
-    }
-    sides
-    {
-        type empty;
-        faces
-            (
-                (0 1 5 4)
-                (3 7 6 2)
-                (1 8 10 5)
-                (2 6 11 9)
-                (8 12 14 10)
-                (9 11 15 13)
-                (12 16 18 14)
-                (13 15 19 17)
-            );
-    }
+     front
+     { 
+           type wedge;
+           faces  
+           (
+               (0 1 4 3)
+           );
+     }
+     
+     back
+     { 
+           type wedge;
+           faces  
+           (
+               (0 3 5 2)
+           );
+     }
+
+     top
+     { 
+           type wall;
+           faces  
+           (
+               (3 4 5 3)
+           );
+     }
+     
+     bed
+     { 
+           type patch;
+           faces  
+           (
+               (0 2 1 0)
+           );
+     }
+     
+     outlet
+     { 
+           type patch;
+           faces  
+           (
+               (1 2 5 4)
+           );
+     }
+     
+     axis
+     { 
+           type empty;
+           faces  
+           (
+               (0 3 3 0)
+           );
+      }
 );
 
 mergePatchPairs
