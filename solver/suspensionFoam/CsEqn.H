@@ -28,7 +28,11 @@ surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
 volScalarField& ED = erosionDepositionPtr.ref();
 
 // turbulent sediment diffusivity
-volScalarField epsEff("epsEff", turbulence->nuEff()/Sc);
+volScalarField epsEff("epsEff", turbulence->nut()/Sc);
+if (CsDiffusivity == "effective")
+{
+    volScalarField epsEff("epsEff", turbulence->nuEff()/Sc);
+}
 
 // handle erosion and deposition if bedload and suspension are switched on
 if (bed.exist())

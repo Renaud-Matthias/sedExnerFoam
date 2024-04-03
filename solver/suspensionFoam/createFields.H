@@ -123,6 +123,21 @@ if (switchMULES!="on" and switchMULES!="off")
     Info << abort(FatalError) << endl;
 }
 
+// use nut/Sc or nu + nut/Sc for diffusivity, options are effective/turbulent
+const word CsDiffusivity =
+    suspensionProperties.lookupOrDefault<word>
+    (
+        "diffusivity",
+        "turbulent"
+    );
+if (CsDiffusivity != "turbulent" and CsDiffusivity != "effective")
+{
+    FatalError << CsDiffusivity
+        << " is not a valid entry for diffusivity"
+        << ", valid options are: turbulent effective" << endl;
+    Info << abort(FatalError) << endl;
+}
+
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
