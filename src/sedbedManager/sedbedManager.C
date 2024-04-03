@@ -175,9 +175,6 @@ void Foam::sedbedManager::checkFaMeshOrientation_() const
     forAll(aMesh_->faceLabels(), facei)
     {
         double res = g_.value() & aMesh_->faceAreaNormals()[facei];
-        Info << "face label: " << facei;
-        Info << ", face normal: " << aMesh_->faceAreaNormals()[facei];
-        Info << ", face surface: " << aMesh_->S()[facei];
         if (res <= 0)
         {
             FatalError

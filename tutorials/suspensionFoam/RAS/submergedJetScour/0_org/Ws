@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2212                                 |
+|  \\    /   O peration     | Version:  v2312                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -29,17 +29,25 @@ boundaryField
     {
         type            zeroGradient;
     }
+    rigidWalls
+    {
+        type            fixedValue;
+	value           uniform (0 0 0);
+    }
     top
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            zeroGradient;
     }
-    bed
+    sedimentBed
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            movingWallVelocity;
+	value           uniform (0 0 0);
     }
-    sides
+    sidesApron
+    {
+        type            empty;
+    }
+    sidesBed
     {
         type            empty;
     }
