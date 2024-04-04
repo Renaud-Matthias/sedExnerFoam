@@ -20,20 +20,51 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// depositon source term
+// reference to erosion and deposition terms
+volScalarField& Ero = erosionPtr.ref();
+volScalarField& Dep = depositionPtr.ref();
+
 volScalarField& Cs = CsPtr.ref();  // suspended load
-surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
-areaScalarField& depCs = depositionPtr.ref();
-// rate of deposition in m/s
-depCs.primitiveFieldRef() =
-    bed.vsm.ref().mapToSurface(phip)
-    * bed.vsm.ref().mapToSurface(Cs.boundaryField());
+volVectorField& Ws = WsPtr.ref();  // settling velocity
 
-depCs.primitiveFieldRef() =
-    depCs.primitiveFieldRef()
-    / (bed.aMesh().S() * (bed.aMesh().faceAreaNormals() & (gUnit)));
+areaScalarField& DE = DEptr.ref();  // deposition - erosion
 
-// solve exner explicitly
-// deposition contribution
+const faMesh& aMesh = bed.aMesh();
+
+for (const label patchID : bed.bedPatchesID())
+{
+    // deposition boundary field
+    scalarField& DepPatch = Dep.boundaryFieldRef()[patchID];
+    // reference to bed fvPatch
+    const fvPatch& bedPatch = mesh.boundary()[patchID];
+    // mesh flux boundaryField
+    const scalarField& bedPhi = mesh.setPhi().ref().boundaryFieldRef()[patchID];
+
+    forAll(bedPatch, facei)
+    {
+        label idNCell = bedPatch.faceCells()[facei];
+        // coordinates of cell centers located above bed
+        scalar ci = Cs[idNCell];
+        vector wsi = Ws[idNCell];
+        scalar Sface = aMesh.S()[facei];
+        const vector nFace = aMesh.faceAreaNormals()[facei];
+        DepPatch[facei] = ci * ((wsi & nFace) - bedPhi[facei]/Sface);
+    }
+}
+
+DE.primitiveFieldRef() =
+    bed.vsm.ref().mapToSurface<scalar>
+    (
+        Dep.boundaryFieldRef()
+    )
+  - bed.vsm.ref().mapToSurface<scalar>
+    (
+        Ero.boundaryFieldRef()
+    );
+
+// deposition and erosion contribution in Exner equation
 dH.primitiveFieldRef() +=
-    runTime.time().deltaT() * (1/CsMax) * depCs;
+    runTime.time().deltaT()
+  * morphoAccFactor
+  * (1/CsMax)
+  * DE;

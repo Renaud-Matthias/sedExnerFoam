@@ -79,6 +79,7 @@ Description
 #include "SettlingModel.H"
 #include "bedloadModel.H"
 #include "sedbedManager.H"
+#include "faMeshProjection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -38,13 +38,17 @@ IOdictionary bedloadProperties
 Info << "Instantiate sedbedManager" << endl;
 sedbedManager bed(bedloadProperties, mesh, g);
 
+// horizontal projection of faMesh
+
+//faMeshProjection aMeshProj(bed.aMesh(), (g / mag(g)).value());
+
 autoPtr<vectorField> dispValsPtr;
 
 // fields for bedload and morphology
-autoPtr<areaVectorField> shieldsPtr;  // shields number, dimless shear stress
+autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaVectorField> qbPtr;  // bedload
 autoPtr<areaScalarField> dHptr;  // bed elevation increment
-autoPtr<areaScalarField> depositionPtr;  // deposition flux
+autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
 autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
 autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
 
@@ -147,13 +151,13 @@ if (bed.exist())
         )
     );
 
-    depositionPtr.reset
+    DEptr.reset
     (
         new areaScalarField
         (
             IOobject
             (
-                "deposition",
+                "DE",
                 runTime.timeName(),
                 mesh,
                 IOobject::NO_READ,

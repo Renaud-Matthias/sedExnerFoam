@@ -26,13 +26,15 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
     -I../../src/settlingModels/lnInclude \
     -I../../src/bedloadModels/lnInclude \
-    -I../../src/sedbedManager/lnInclude
+    -I../../src/sedbedManager/lnInclude \
+    -I../../src/faMeshProjection/lnInclude \
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lsettlingModels \
     -lbedloadModels \
     -lsedbedManager \
+    -lfaMeshProjection \
     -lfiniteVolume \
     -lfiniteArea \
     -lfvOptions \

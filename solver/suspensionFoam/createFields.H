@@ -141,7 +141,8 @@ if (CsDiffusivity != "turbulent" and CsDiffusivity != "effective")
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
-autoPtr<volScalarField> erosionDepositionPtr;  // erosion deposition flux
+autoPtr<volScalarField> erosionPtr;  // erosion flux
+autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
 autoPtr<SettlingModel> settlingModelPtr;
 
@@ -181,25 +182,42 @@ if (switchSuspension=="on")
         )
     );
 
-    erosionDepositionPtr.reset
+    erosionPtr.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "ED",
+                "Erosion",
                 runTime.timeName(),
                 mesh,
                 IOobject::NO_READ,
-                IOobject::AUTO_WRITE
+                IOobject::NO_WRITE
             ),
             mesh,
             dimensionedScalar(dimensionSet(0, 0, -1, 0, 0, 0, 0), Zero)
         )
     );
 
-    volScalarField& Cs = CsPtr.ref();
-    volVectorField& Ws = WsPtr.ref();
+    depositionPtr.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Deposition",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
+            dimensionedScalar(dimensionSet(0, 0, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+
+    volScalarField& Cs = CsPtr.ref();  // suspended load
+    volVectorField& Ws = WsPtr.ref();  // settling velocity
 
     Info << "Reading/calculating face flux field phi\n" << endl;
     phipPtr.reset

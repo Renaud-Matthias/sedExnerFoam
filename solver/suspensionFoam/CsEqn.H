@@ -24,8 +24,8 @@ License
 volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
-// term corresponding to, erosion - deposition
-volScalarField& ED = erosionDepositionPtr.ref();
+// reference to erosion terms
+volScalarField& Erosion = erosionPtr.ref();
 
 // turbulent sediment diffusivity
 volScalarField epsEff("epsEff", turbulence->nut()/Sc);
@@ -44,12 +44,13 @@ if (bed.exist())
 
     for (const label patchID : bed.bedPatchesID())
     {
-        // boundary field of erosion-deposition field
-        scalarField& EDp = ED.boundaryFieldRef()[patchID];
-        // Cs boundary field
-        //const scalarField& Csp = Cs.boundaryFieldRef()[patchID];
+        // erosion boundary field
+        scalarField& Ep = Erosion.boundaryFieldRef()[patchID];
         // reference to bed fvPatch
         const fvPatch& bedPatch = mesh.boundary()[patchID];
+        // mesh flux boundaryField
+        const scalarField& bedPhi =
+            mesh.setPhi().ref().boundaryFieldRef()[patchID];
 
         // reference level
         scalar zbRef = 2.5 * dS.value();
@@ -61,16 +62,19 @@ if (bed.exist())
                 1/3
             );
 
-        forAll(EDp, facei)
+        forAll(bedPatch, facei)
         {
             // shear friction dimension less parameter
-            scalar Tshear = Foam::mag(shields[facei])/critShields.value() - 1;
+            scalar Tshear =
+                Foam::mag(shields[facei])/critShields.value() - 1;
             // compute reference concentration, Van Rijn 1984
-            scalar cbRef = Foam::min(
-                0.015 * (dS.value()/zbRef)
-                * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
-                * Foam::pow(Dstar, -0.3),
-                CsMax.value());
+            scalar cbRef =
+                Foam::min(
+                    0.015 * (dS.value()/zbRef)
+                  * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
+                  * Foam::pow(Dstar, -0.3),
+                    CsMax.value()
+                );
             // label of neighbour cell
             label idNCell = bedPatch.faceCells()[facei];
             // coordinates of cell centers located above bed
@@ -78,27 +82,29 @@ if (bed.exist())
             // face coordinates
             const vector xFace = aMesh.areaCentres()[facei];
             const vector nFace = aMesh.faceAreaNormals()[facei];
-            scalar z1 = -(xCell - xFace) & nFace;
-            scalar c1 = Cs[idNCell];
-            scalar ws1 = Foam::mag(Ws[idNCell]);
-            scalar Ro1 = ws1 / Foam::max(epsEff[idNCell], 1e-6);
-            scalar cb = c1 + cbRef * (
-                1 - Foam::exp(-Ro1 * (Foam::mag(z1-zbRef))));
-            // explicit, fixedValue 0, needed as BC on bed for ws and Cs
-            //ED[idNCell] = ws1 * (cbRef - cb) * aMesh.S()[idNCell];
+            const scalar Sface = aMesh.S()[facei];
+            scalar zi = -(xCell - xFace) & nFace;
+            scalar ci = Cs[idNCell];
+            vector wsi = Ws[idNCell];
+            scalar Roi = Foam::mag(wsi) / Foam::max(epsEff[idNCell], 1e-6);
+            scalar cb = ci + cbRef * (
+                1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
             // implicit, zeroGradient bc for Ws and Cs on bed needed
-            ED[idNCell] = Foam::min(
-                ws1 * aMesh.S()[idNCell]
-                * cbRef * Foam::exp(-Ro1 * (z1-zbRef)),
-                CsMax.value());
-            Info << "dz = " << z1 - zbRef
-                << ", ws = " << ws1
+            Ep[facei] = ((wsi & nFace) * Sface - bedPhi[facei])
+              * Foam::min
+                (
+                    cbRef * Foam::exp(-Roi * (zi-zbRef)),
+                    CsMax.value()
+                );
+            
+            Erosion[idNCell] = Ep[facei];
+            Info << "dz = " << zi - zbRef
+                << ", ws = " << wsi
                 << ", epsEff = " << epsEff[idNCell]
-                << ", Ro = " << Ro1
-                << ", c1 = " << c1
+                << ", Ro = " << Roi
+                << ", c1 = " << ci
                 << ", cbRef = " << cbRef
-                << ", cb = " << cb
-                << ", E-D = " << ED[idNCell] << endl;
+                << ", cb = " << cb << endl;
         }
     }
 }
@@ -169,7 +175,7 @@ else if (switchMULES=="off")
       - fvm::laplacian(epsEff, Cs)
         ==
         fvOptions(Cs)
-      + ED
+        + Erosion
     );
 
     fvOptions.constrain(CsEqn);
