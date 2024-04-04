@@ -28,6 +28,7 @@ volScalarField& Cs = CsPtr.ref();  // suspended load
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 
 areaScalarField& DE = DEptr.ref();  // deposition - erosion
+surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 
 const faMesh& aMesh = bed.aMesh();
 
@@ -37,8 +38,7 @@ for (const label patchID : bed.bedPatchesID())
     scalarField& DepPatch = Dep.boundaryFieldRef()[patchID];
     // reference to bed fvPatch
     const fvPatch& bedPatch = mesh.boundary()[patchID];
-    // mesh flux boundaryField
-    const scalarField& bedPhi = mesh.setPhi().ref().boundaryFieldRef()[patchID];
+    const scalarField& bedPhiPatch = bedPhi.boundaryFieldRef()[patchID];
 
     forAll(bedPatch, facei)
     {
@@ -47,8 +47,9 @@ for (const label patchID : bed.bedPatchesID())
         scalar ci = Cs[idNCell];
         vector wsi = Ws[idNCell];
         scalar Sface = aMesh.S()[facei];
+        scalar bedPhiFace = bedPhiPatch[facei];
         const vector nFace = aMesh.faceAreaNormals()[facei];
-        DepPatch[facei] = ci * ((wsi & nFace) - bedPhi[facei]/Sface);
+        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);
     }
 }
 

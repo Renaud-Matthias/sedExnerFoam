@@ -44,7 +44,6 @@ if (switchSuspension=="on")
     #include "erosionDeposition.H"
 }
 
-
 if (bed.meshMotion())
 {
     #include "meshMove.H"

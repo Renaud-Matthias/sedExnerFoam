@@ -50,6 +50,7 @@ autoPtr<areaVectorField> qbPtr;  // bedload
 autoPtr<areaScalarField> dHptr;  // bed elevation increment
 autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
 autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
+autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
 autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
 
 // repose angle of granular material (in rad)
@@ -147,6 +148,23 @@ if (bed.exist())
                 IOobject::NO_WRITE
             ),
             bed.aMesh(),
+            dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+
+    bedPhiPtr.reset
+    (
+        new surfaceScalarField
+        (
+            IOobject
+            (
+                "bedPhi",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh,
             dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
         )
     );

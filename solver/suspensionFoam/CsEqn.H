@@ -24,6 +24,7 @@ License
 volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
+surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 // reference to erosion terms
 volScalarField& Erosion = erosionPtr.ref();
 
@@ -48,10 +49,14 @@ if (bed.exist())
         scalarField& Ep = Erosion.boundaryFieldRef()[patchID];
         // reference to bed fvPatch
         const fvPatch& bedPatch = mesh.boundary()[patchID];
-        // mesh flux boundaryField
-        const scalarField& bedPhi =
-            mesh.setPhi().ref().boundaryFieldRef()[patchID];
-
+        
+        if (mesh.changing())
+        {
+            // mesh flux boundaryField
+            bedPhi.boundaryFieldRef()[patchID] =
+                mesh.setPhi().ref().boundaryFieldRef()[patchID];
+        }
+        const scalarField& bedPhiPatch = bedPhi.boundaryFieldRef()[patchID];
         // reference level
         scalar zbRef = 2.5 * dS.value();
         // dimensionless sediment diameter
@@ -86,11 +91,12 @@ if (bed.exist())
             scalar zi = -(xCell - xFace) & nFace;
             scalar ci = Cs[idNCell];
             vector wsi = Ws[idNCell];
+            scalar bedPhiFace = bedPhiPatch[facei];
             scalar Roi = Foam::mag(wsi) / Foam::max(epsEff[idNCell], 1e-6);
             scalar cb = ci + cbRef * (
                 1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
             // implicit, zeroGradient bc for Ws and Cs on bed needed
-            Ep[facei] = ((wsi & nFace) * Sface - bedPhi[facei])
+            Ep[facei] = ((wsi & nFace) * Sface - bedPhiFace)
               * Foam::min
                 (
                     cbRef * Foam::exp(-Roi * (zi-zbRef)),
