@@ -49,10 +49,11 @@ if (bed.exist())
         scalarField& Ep = Erosion.boundaryFieldRef()[patchID];
         // reference to bed fvPatch
         const fvPatch& bedPatch = mesh.boundary()[patchID];
-        
+
+        // if dynamicMesh, meshPhi is needed for erosion flux correction
         if (mesh.changing())
         {
-            // mesh flux boundaryField
+            // get meshPhi on bed patch
             bedPhi.boundaryFieldRef()[patchID] =
                 mesh.setPhi().ref().boundaryFieldRef()[patchID];
         }
@@ -61,10 +62,10 @@ if (bed.exist())
         scalar zbRef = 2.5 * dS.value();
         // dimensionless sediment diameter
         scalar sRatio = rhoS.value() / rhoF.value();  // density ratio
-        scalar Dstar = dS.value() * Foam::pow
-            (
+        scalar Dstar = dS.value()
+            * Foam::pow(
                 (sRatio - 1) * mag(g).value() / Foam::pow(nuF.value(), 2),
-                1/3
+                1.0/3.0
             );
 
         forAll(bedPatch, facei)
@@ -88,6 +89,7 @@ if (bed.exist())
             const vector xFace = aMesh.areaCentres()[facei];
             const vector nFace = aMesh.faceAreaNormals()[facei];
             const scalar Sface = aMesh.S()[facei];
+            const scalar Vcell = mesh.V()[idNCell];
             scalar zi = -(xCell - xFace) & nFace;
             scalar ci = Cs[idNCell];
             vector wsi = Ws[idNCell];
@@ -96,21 +98,29 @@ if (bed.exist())
             scalar cb = ci + cbRef * (
                 1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
             // implicit, zeroGradient bc for Ws and Cs on bed needed
-            Ep[facei] = ((wsi & nFace) * Sface - bedPhiFace)
-              * Foam::min
+            // extrapolate cbRef at level
+            scalar cbRefZ1 = Foam::min
                 (
                     cbRef * Foam::exp(-Roi * (zi-zbRef)),
                     CsMax.value()
                 );
-            
+            Ep[facei] = (cbRefZ1 / Vcell)
+                * ((wsi & nFace) * Sface - bedPhiFace);
             Erosion[idNCell] = Ep[facei];
             Info << "dz = " << zi - zbRef
+                << ", nuF = " << nuF.value()
+                << ", s = " << sRatio
+                << ", g = " << mag(g).value()
+                << ", D* = " << Dstar
+                << ", T = " << Tshear
                 << ", ws = " << wsi
                 << ", epsEff = " << epsEff[idNCell]
                 << ", Ro = " << Roi
                 << ", c1 = " << ci
                 << ", cbRef = " << cbRef
-                << ", cb = " << cb << endl;
+                << ", cb = " << cb
+                << ", cbRefZ1 = " << cbRefZ1
+                << ", E = " << Ep[facei] << endl;
         }
     }
 }

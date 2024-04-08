@@ -10,6 +10,7 @@ print("- running sedimentation mass conservation")
 rhoS = 2650.  # sediment density
 porosity = 0.4
 
+
 def myReadMesh(path, t):
     Zcells = rdf.readmesh(path, time_name=t, verbose=False)[2]
     ncells = len(Zcells)
@@ -22,6 +23,7 @@ def myReadMesh(path, t):
     for i in range(1, ncells):
         Zfaces[i] = 1.5 * Zcells[i-1] - 0.5 * Zfaces[i-1]
     return Zcells, Zfaces
+
 
 Zc0, Zf0 = myReadMesh("./", "0")
 Zct, Zft = myReadMesh("./", "latestTime")
