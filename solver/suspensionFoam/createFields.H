@@ -56,7 +56,6 @@ Info << "Reading/calculating face flux field phi\n" << endl;
 #include "createRDeltaT.H"
 
 #include "readGravitationalAcceleration.H"
-vector gUnit = (g / mag(g)).value();  // unit vector gravity oriented
 
 Info<< "Reading transportProperties\n" << endl;
 IOdictionary transportProperties

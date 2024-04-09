@@ -20,6 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// projected area mesh
+faMeshProjection& meshProj = aMeshProjPtr.ref();
+
 pointVectorField& pointDisplacement = const_cast<pointVectorField&>
 (
     mesh.objectRegistry::lookupObject<pointVectorField>
@@ -29,17 +32,79 @@ pointVectorField& pointDisplacement = const_cast<pointVectorField&>
 );
 
 vectorField& dispVals = dispValsPtr.ref();
+scalarField& dHpoints = dHpointsPtr.ref();
+dHpoints = Zero;
 
 // get vertices displacement through interpolation for each bed patch
 for (const label patchID : bed.bedPatchesID())
 {
-    primitivePatchInterpolation patchInterp(mesh.boundaryMesh()[patchID]);
+    // Access to face centers in projected horizontal plane
+    const vectorField& xFacesProj = meshProj.areaCentres();
+
+    // Access to points coordinates in projected horizontal plane
+    const vectorField& xPointsProj = meshProj.pointCoords();
+
+    // normalise interpolation weight
+    scalarField normWeight(aMesh.nPoints());
+    normWeight = Zero;
+
+    // gravity oriented unit vector
+    vector eg = (g / Foam::mag(g)).value();
+
+    // loop over all faces
+    for (label facei=0; facei < aMesh.nFaces(); facei++)
+    {
+        const face& f = aMesh.faces()[facei];
+        const vector& xf = xFacesProj[facei];
+        // number of vertices defining face f
+        const label nVerts = f.size();
+        
+        // loop over points belonging to face
+        for(label pi=0; pi < nVerts; pi++)
+        {
+            // label of point pi
+            const label piGlob = f.thisLabel(pi);
+
+            scalar areaPF = 0;
+
+            // coordinates of vertices
+            const vector& xv = xPointsProj[piGlob];
+            const vector& xn = xPointsProj[f.nextLabel(pi)];
+            const vector& xp = xPointsProj[f.prevLabel(pi)];
+
+            // vector from vertice to face center
+            vector vp = xf - xv;
+            // vector from vertice to right edge center
+            vector vredg = 0.5 * (xn - xv);
+            // vector from vertice to left edge center
+            vector vledg = 0.5 * (xp - xv);
+
+            areaPF +=
+                0.5 * mag(vredg ^ vp)
+                + 0.5 * mag(vp ^ vledg);
+
+            dHpoints[piGlob] += areaPF * dH[facei];
+
+            normWeight[piGlob] += areaPF;
+        }
+    }
+    // Normalise weight of interpolation
+    dHpoints /= normWeight;
+
+    dispVals -= eg * dHpoints;
 
     // interpolate displacement on points, vertical orientation
-    dispVals -= patchInterp.faceToPointInterpolate(dH) * gUnit;
+    //dispVals -= patchInterp.faceToPointInterpolate(dH) * eg;
     
     Info << "mesh vertices motion, max:" << max(mag(dispVals));
     Info << " m , min:" << min(mag(dispVals));
     Info << " m , mean:" << average(mag(dispVals)) << " m" << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
+}
+
+// reset some fields to 0
+areaScalarField& dVsed = dVsedPtr.ref();
+forAll(bed.aMesh().areaCentres(), facei)
+{
+    dVsed[facei] = 0;
 }

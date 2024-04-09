@@ -38,19 +38,21 @@ IOdictionary bedloadProperties
 Info << "Instantiate sedbedManager" << endl;
 sedbedManager bed(bedloadProperties, mesh, g);
 
-// horizontal projection of faMesh
-
-//faMeshProjection aMeshProj(bed.aMesh(), (g / mag(g)).value());
-
+// points displacements values for mesh motion
 autoPtr<vectorField> dispValsPtr;
 
+// horizontal projection of faMesh
+autoPtr<faMeshProjection> aMeshProjPtr;
 // fields for bedload and morphology
 autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaVectorField> qbPtr;  // bedload
-autoPtr<areaScalarField> dHptr;  // bed elevation increment
+autoPtr<areaScalarField> dHptr;  // bed elevation increment on faces
+autoPtr<scalarField> dHpointsPtr; // bed elevation increment on points
 autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
 autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
+autoPtr<areaScalarField> dVsedPtr;  // volumic variation, face displacements
 autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
+// bedloadModel
 autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
 
 // repose angle of granular material (in rad)
@@ -65,7 +67,7 @@ scalar morphoAccFactor = 1;
 morphoAccFactor =
     bedloadProperties.lookupOrDefault<scalar>("morphoAccFactor", 1);
 Info << "morphological acceleration factor is set to: "
-<< morphoAccFactor << endl;;
+<< morphoAccFactor << endl;
 
 // coefficient for avalanche additional bedload
 dimensionedScalar Qav(dimVelocity * dimLength, 0.01);
@@ -74,11 +76,20 @@ Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);
 // create fa fields if morphology on
 if (bed.exist())
 {
+    Info << "bedload is on" << endl
+        << "Instantiate faMeshProjection" << endl;
+
+    aMeshProjPtr.reset
+    (
+        new faMeshProjection(bed.aMesh(), (g / mag(g)).value())
+    );
+    
     Info << "Instantiate finite area fields" << endl;
 
     dispValsPtr.reset(new vectorField(bed.aMesh().nPoints()));
-    
     vectorField& dispVals = dispValsPtr.ref();
+
+    dHpointsPtr.reset(new scalarField(bed.aMesh().nPoints()));
 
     for (label pointi = 0; pointi < bed.aMesh().nPoints(); pointi++)
     {
@@ -165,6 +176,23 @@ if (bed.exist())
                 IOobject::NO_WRITE
             ),
             mesh,
+            dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+
+    dVsedPtr.reset
+    (
+        new areaScalarField
+        (
+            IOobject
+            (
+                "dVsed",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
             dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
         )
     );

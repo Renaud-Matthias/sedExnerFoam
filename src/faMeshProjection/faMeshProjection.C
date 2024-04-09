@@ -34,7 +34,7 @@ void Foam::faMeshProjection::clearGeom() const
 
 Foam::faMeshProjection::faMeshProjection
 (
-    faMesh& aMesh,
+    const faMesh& aMesh,
     vector projectNormal
 )
 :

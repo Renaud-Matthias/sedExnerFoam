@@ -20,28 +20,99 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to variable relative to bedload
+// Access to variables relative to bedload
 areaVectorField& qb = qbPtr.ref();
 areaScalarField& dH = dHptr.ref();
-edgeScalarField& phiqb = phiqbPtr.ref();
+areaScalarField& dVsed = dVsedPtr.ref();
+const faMesh& aMesh = bed.aMesh();
 
+// Access to horizontaly projected variables
+faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
+// project Qb on horizontal plane
+vectorField qbProj = meshProj.project(qb);
+// area of faces projected on horizontal plane
+const scalarField& SfProj = meshProj.S();
+// projected edge centers coordinates
+const vectorField& xEdgesProj = meshProj.edgeCentres();
+// projected face centers coordinates
+const vectorField& xFacesProj = meshProj.areaCentres();
+// projected edge vectors, oriented toward owner face
+const vectorField& LeProj = meshProj.Le();
+// face owner list
+const labelList& owner = meshProj.edgeOwner();
+// face neighbour list
+const labelList& neighbour = meshProj.edgeNeighbour();
 
-// compute qb flux through fa mesh edges
-phiqb =
-    linearEdgeInterpolate(qb) & bed.aMesh().Le();
+// get qb on edges, linear interpolation
+for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+{
+    // distance between edgei center and owner face center
+    scalar distOwner =
+        Foam::mag(xFacesProj[owner[edgei]] - xEdgesProj[edgei]);
+        // distance between edgei center and neighbour center
+    scalar distNeighbour =
+        Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
+    // linear interpolate qb on edge i
+    vector qbEdgei =
+        (
+            distOwner * qbProj[owner[edgei]]
+            + distNeighbour * qbProj[neighbour[edgei]]
+        )
+        * (1 / (distOwner + distNeighbour));
 
-// solve exner equation explicitly (euler explicit)
-// bedload contribution
-dH = -runTime.time().deltaT()
-    * morphoAccFactor
-    * (1/CsMax)
-    * (1/(bed.aMesh().faceAreaNormals() & (gUnit)))  // slope correction
-    * fac::edgeIntegrate(phiqb);
+    scalar phiqbEdgei = qbEdgei & LeProj[edgei];
+    
+    dVsed[owner[edgei]] -= phiqbEdgei;
+    
+    dVsed[neighbour[edgei]] += phiqbEdgei;
+}
 
+// get qb value for edges on boundary patches
+forAll(aMesh.boundary(), patchi)
+{
+    const faPatchField<Vector<double>>& QbBound =
+        qb.boundaryField()[patchi];
+
+    if (aMesh.boundary()[patchi].type()!="empty")
+    {
+        // faMesh edge adressing
+        label edgei = aMesh.boundary()[patchi].start();
+            
+        forAll(aMesh.boundary()[patchi], patchEdgei)
+        {
+            
+            const vector edgeLeProj =
+                meshProj.project
+                (
+                    aMesh.Le().boundaryField()[patchi][patchEdgei]
+                );
+            
+            vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
+
+            scalar phiqbEdgei = qbEdgei & edgeLeProj;
+
+            // apply boundary condition to exner equation
+            dVsed[owner[edgei]] -= phiqbEdgei;
+                
+            edgei++;
+        }
+    }
+}
 
 if (switchSuspension=="on")
 {
     #include "erosionDeposition.H"
+}
+
+scalar deltaT = runTime.time().deltaT().value();
+
+// solve exner equation explicitly (euler explicit)
+forAll(aMesh.areaCentres(), facei)
+{
+    dH[facei] =
+        (deltaT / SfProj[facei])
+        * (1/CsMax.value())
+        * dVsed[facei];
 }
 
 if (bed.meshMotion())

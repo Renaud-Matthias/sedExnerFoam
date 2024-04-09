@@ -20,6 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// Access to horizontaly projected variables
+faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
+// area of faces projected on horizontal plane
+const scalarField& SfProj = meshProj.S();
+
 // reference to erosion and deposition terms
 volScalarField& Ero = erosionPtr.ref();
 volScalarField& Dep = depositionPtr.ref();
@@ -64,8 +69,7 @@ DE.primitiveFieldRef() =
     );
 
 // deposition and erosion contribution in Exner equation
-dH.primitiveFieldRef() +=
-    runTime.time().deltaT()
-  * morphoAccFactor
-  * (1/CsMax)
-  * DE;
+forAll(bed.aMesh().areaCentres(), facei)
+{
+    dVsed[facei] += DE[facei] * SfProj[facei];
+}

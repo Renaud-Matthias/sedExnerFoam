@@ -59,10 +59,10 @@ const bedloadModel& bedloadMod = bedloadModelPtr.ref();
 
 qb = bedloadMod.qb(shields, rhoS, rhoF, mag(g), dS);
 
-qb.correctBoundaryConditions();
-
 // additional bedload due to avalanche
 if (bed.isAvalanche())
 {
     #include "sedimAvalanche.H"
 }
+
+qb.correctBoundaryConditions();

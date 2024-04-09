@@ -119,7 +119,7 @@ public:
     // Constructors
 
     //- Construct from finite area mesh
-    faMeshProjection(faMesh& mesh, vector projector);
+    faMeshProjection(const faMesh& mesh, vector projector);
 
     // Destructors
     

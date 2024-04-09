@@ -20,6 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// unit vector gravity oriented
+vector eg = (g/mag(g)).value();
+
 // compute bed slope angle
 const vectorField& nFaces =
     bed.aMesh().faceAreaNormals().internalField();
@@ -27,7 +30,7 @@ const vectorField& nFaces =
 //bed.angleBedSlope().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
 
 // slope direction
-vectorField slopeDir = (nFaces & gUnit) * gUnit - nFaces;
+vectorField slopeDir = (nFaces & eg) * eg - nFaces;
 slopeDir /= (mag(slopeDir) + SMALL);
 
 // reposeAngle
@@ -37,7 +40,7 @@ slopeDir /= (mag(slopeDir) + SMALL);
 // Vinent law (2019)
 forAll(bed.aMesh().areaCentres(), facei)
 {
-    scalar beta = Foam::acos(nFaces[facei] & gUnit);
+    scalar beta = Foam::acos(nFaces[facei] & eg);
     vector qav = Qav.value() * slopeDir[facei]
         * pos(beta - betaRep.value())
         * (
