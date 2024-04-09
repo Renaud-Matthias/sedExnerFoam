@@ -31,12 +31,18 @@ jobs:
           cd tests/equilibriumChannel &&
           runuser -u sudofoam -- ./Allrun &&
           test.py
-       - name: Test massConservation
-         run: |
-         shopt -s expand_aliases && source /openfoam/bash.rc &&
-         cd tests/massConservation &&
-         runuser -u sudofoam -- ./Allrun > /dev/null &&
-         python3 test.py
+      - name: Test massConservation
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
+          cd tests/massConservation &&
+          runuser -u sudofoam -- ./Allrun > /dev/null &&
+          python3 test.py
+      - name: Test slopeAvalanche
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
+          cd tests/slopeAvalanche &&
+          runuser -u sudofoam -- ./Allrun > /dev/null &&
+          python3 test.py
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
