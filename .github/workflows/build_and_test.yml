@@ -22,7 +22,7 @@ jobs:
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
-          cd tests/1DSedim &&
+          sudo chmod -R a+rwX tests && cd tests/1DSedim &&
           runuser -u sudofoam -- ./Allrun &&
           python3 test.py
       - name: Test equilibriumChannel
@@ -30,7 +30,7 @@ jobs:
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/equilibriumChannel &&
           runuser -u sudofoam -- ./Allrun &&
-          test.py
+          python3 test.py
       - name: Test massConservation
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
