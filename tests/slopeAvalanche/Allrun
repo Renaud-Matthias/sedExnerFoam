@@ -9,5 +9,5 @@ python createInitialSlope.py
 # create the intial time folder
 cp -r 0_org 0
 
-# Run pimpleFoam
-sedExnerFoam > log
+# Run sedExnerFoam
+sedExnerFoam

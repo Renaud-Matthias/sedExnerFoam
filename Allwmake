@@ -29,6 +29,14 @@ echo
 src/Allwmake $targetType $*
 solver/Allwmake $targetType $*
 
+if [ -f wallFunctions/Allwmake ]
+then
+    wallFunctions/Allwmake
+else
+    echo "Missing: wallFunctions/Allwmake"
+fi
+
+
 
 # Some summary information
 echo

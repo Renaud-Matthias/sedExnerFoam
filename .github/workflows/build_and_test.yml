@@ -11,10 +11,12 @@ jobs:
       - name: install python3 packages
         run: |
           apt-get update &&
-          apt-get -y install python3-pip &&
+          apt-get -y install python3-pip git &&
           pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Build and install
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
@@ -22,7 +24,7 @@ jobs:
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
-          cd tests/1DSedim &&
+          sudo chmod -R a+rwX tests && cd tests/1DSedim &&
           runuser -u sudofoam -- ./Allrun &&
           python3 test.py
       - name: Test equilibriumChannel
@@ -30,7 +32,7 @@ jobs:
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/equilibriumChannel &&
           runuser -u sudofoam -- ./Allrun &&
-          test.py
+          python3 test.py
       - name: Test massConservation
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
