@@ -27,6 +27,7 @@ License
 #define bedloadModel_H
 
 #include "dictionary.H"
+#include "areaFields.H"
 #include "dimensionedTypes.H"
 
 
@@ -48,7 +49,7 @@ protected:
 
     scalar bExp_;
 
-    dimensionedScalar critShields_;
+    dimensionedScalar critShields0_;
 
     void setCoefs(scalar alpha, scalar aExp, scalar bExp);
 
@@ -67,11 +68,11 @@ public:
         const word& modelName
     );
 
-    //- Construct from name of model and critical shields number
+    //- Construct from name of model and base critical Shields number
     bedloadModel
     (
         const word& modelName,
-        dimensionedScalar critShields
+        dimensionedScalar critShields0
     );
 
     //- Construct from coefficients
@@ -80,7 +81,7 @@ public:
         scalar alpha,
         scalar aExp,
         scalar bExp,
-        const dimensionedScalar& critShields
+        const dimensionedScalar& critShields0
     );
 
     //- Construct from dictionary
@@ -97,10 +98,10 @@ public:
 
     // Member functions
 
-    //- Return constant reference to critical Shields number
-    const dimensionedScalar& criticalShields() const;
+    //- Return constant reference to base critical Shields number
+    const dimensionedScalar& criticalShields0() const;
 
-    //- Compute bedload from shields and sediment properties
+    //- Compute bedload from base Shields and sediment properties
     template<class Type>
     Type qb
     (
@@ -124,12 +125,23 @@ public:
             * Foam::pow(Foam::mag(shields), aExp_)
             * Foam::pow
             (
-                pos(Foam::mag(shields) - critShields_)
-                * (Foam::mag(shields) - critShields_), bExp_
+                pos(Foam::mag(shields) - critShields0_)
+                * (Foam::mag(shields) - critShields0_), bExp_
             );
 
         return qbOut;
     }
+
+    //- Compute bedload from Shields and sediment properties
+    tmp<areaVectorField> qb
+    (
+        const areaVectorField& shields,
+        const areaScalarField& critShields,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& g,
+        const dimensionedScalar& dS
+    ) const;
 
     //- Write bedloadModel to Ostream
     void output(Ostream& os) const;

@@ -34,7 +34,7 @@ Foam::bedloadModel::bedloadModel
     const word& modelName
 )
 :
-    critShields_(dimless, 0.047)
+    critShields0_(dimless, 0.047)
 {
     modelName_ = modelName;
     setCoefs(modelName_);
@@ -43,12 +43,12 @@ Foam::bedloadModel::bedloadModel
 Foam::bedloadModel::bedloadModel
 (
     const word& modelName,
-    const dimensionedScalar critShields
+    const dimensionedScalar critShields0
 )
 :
     bedloadModel(modelName)
 {
-    critShields_ = critShields;
+    critShields0_ = critShields0;
 }
 
 Foam::bedloadModel::bedloadModel
@@ -56,13 +56,13 @@ Foam::bedloadModel::bedloadModel
     scalar alpha,
     scalar aExp,
     scalar bExp,
-    const dimensionedScalar& critShields
+    const dimensionedScalar& critShields0
 )
 :
     bedloadModel()
 {
     modelName_ = "custom";
-    critShields_ = critShields;
+    critShields0_ = critShields0;
     setCoefs(alpha, aExp, bExp);
 }
 
@@ -91,7 +91,7 @@ Foam::bedloadModel::bedloadModel(const dictionary& dict)
     if (dict.found("criticalShields"))
     {
         scalar Shc = readScalar(dict.lookup("criticalShields"));
-        critShields_.value() = Shc;
+        critShields0_.value() = Shc;
     }
 }
 
@@ -132,7 +132,7 @@ void Foam::bedloadModel::setCoefs(const word& modelName)
     else
     {
         FatalError << "bedloadModel " << modelName
-            << " for transport formula not a valide entry" << endl
+            << " for transport formula not a valid entry" << endl
             << "possible names are: Meyer-Peter,  Nielsen" << endl;
         Info << abort(FatalError) << endl;
     }
@@ -140,9 +140,35 @@ void Foam::bedloadModel::setCoefs(const word& modelName)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::dimensionedScalar& Foam::bedloadModel::criticalShields() const
+const Foam::dimensionedScalar& Foam::bedloadModel::criticalShields0() const
 {
-    return critShields_;
+    return critShields0_;
+}
+
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModel::qb
+(
+    const areaVectorField& shields,
+    const areaScalarField& critShields,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& g,
+    const dimensionedScalar& dS
+) const
+{
+    dimensionedScalar einsteinNumber =
+        Foam::sqrt(((rhoS/rhoF) - 1) * g * Foam::pow(dS, 3));
+
+    // in case qb is a vector, is direction is needed
+    dimensionedScalar smallVal(dimless, SMALL);
+
+    return alpha_ * einsteinNumber
+        * (shields / (mag(shields) + smallVal))
+        * Foam::pow(Foam::mag(shields), aExp_)
+        * Foam::pow
+        (
+            pos(Foam::mag(shields) - critShields)
+            * (Foam::mag(shields) - critShields), bExp_
+        );
 }
 
 void Foam::bedloadModel::output(Ostream& os) const
@@ -152,7 +178,7 @@ void Foam::bedloadModel::output(Ostream& os) const
         << endl << "alpha: " << alpha_ << endl
         << "a: " << aExp_ << endl
         << "b: " << bExp_ << endl
-        << "critShields: " << critShields_.value() << endl;
+        << "critShields: " << critShields0_.value() << endl;
 }
 
 Foam::Ostream& Foam::operator<<(Ostream& os, const bedloadModel& model)
