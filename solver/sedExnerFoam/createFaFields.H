@@ -45,6 +45,7 @@ autoPtr<vectorField> dispValsPtr;
 autoPtr<faMeshProjection> aMeshProjPtr;
 // fields for bedload and morphology
 autoPtr<areaVectorField> shieldsPtr;  // shields number
+autoPtr<areaScalarField> critShieldsPtr;  // critical shields number
 autoPtr<areaVectorField> qbPtr;  // bedload
 autoPtr<areaScalarField> dHptr;  // bed elevation increment on faces
 autoPtr<scalarField> dHpointsPtr; // bed elevation increment on points
@@ -232,6 +233,25 @@ if (bed.exist())
         bedloadModelPtr.reset(new bedloadModel());
     }
 
+    const bedloadModel& bedloadMod = bedloadModelPtr.ref();
+
     Info << "\nbedload Model: " << endl
-        << bedloadModelPtr.ref() << endl;
+        << bedloadMod << endl;
+
+    critShieldsPtr.reset
+    (
+        new areaScalarField
+        (
+            IOobject
+            (
+                "critShields",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            bedloadMod.criticalShields0()
+        )
+    );
 }

@@ -49,15 +49,49 @@ shields.primitiveFieldRef() =
         shieldsVf.boundaryFieldRef()
     );
 
-// compute bedload with Meyer Peter Muller law
-
-//dimensionedScalar mpmE(dimless, 8);
 dimensionedScalar smallVal(dimless, SMALL);
+// unit vector gravity oriented
+vector eg = (g/mag(g)).value();
+
+// Access bedload model and critical Shields number
+const bedloadModel& bedloadMod = bedloadModelPtr.ref();
+areaScalarField& critShields = critShieldsPtr.ref();
+// base critical Shields number
+const dimensionedScalar& critShields0 = bedloadMod.criticalShields0();
+
+// shear stress direction
+vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
+// slope direction
+const vectorField& nFaces =
+    bed.aMesh().faceAreaNormals().internalField();
+vectorField slopeDir = (nFaces & eg) * eg - nFaces;
+slopeDir /= (Foam::mag(slopeDir) + SMALL);
+forAll(critShields, facei)
+{
+    scalar beta = Foam::acos(nFaces[facei] & eg);  // bed slope angle
+    // angle between shear stress and slope direction
+    scalar alpha = Foam::acos(slopeDir[facei] & stressDir[facei]);
+    // slope effect on critical Shields number
+    scalar betap = Foam::min(beta, betaRep.value());
+    critShields[facei] = critShields0.value()
+      * (
+          Foam::cos(betap)
+        * Foam::sqrt
+          (
+              1 - Foam::pow
+              (
+                  Foam::sin(alpha)
+                * Foam::tan(betap)
+                * (1/Foam::tan(betaRep.value())),
+                  2
+              )
+          )
+          - Foam::cos(alpha) * Foam::sin(betap) / Foam::tan(betaRep.value())
+      );
+}
 
 // compute bedload from Shields number
-const bedloadModel& bedloadMod = bedloadModelPtr.ref();
-
-qb = bedloadMod.qb(shields, rhoS, rhoF, mag(g), dS);
+qb = bedloadMod.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
 
 // additional bedload due to avalanche
 if (bed.isAvalanche())

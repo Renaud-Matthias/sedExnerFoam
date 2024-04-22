@@ -41,24 +41,28 @@ for (const label patchID : bed.bedPatchesID())
 {
     // deposition boundary field
     scalarField& DepPatch = Dep.boundaryFieldRef()[patchID];
+    // erosion boundary field
+    scalarField& EroPatch = Ero.boundaryFieldRef()[patchID];
     // reference to bed fvPatch
     const fvPatch& bedPatch = mesh.boundary()[patchID];
     const scalarField& bedPhiPatch = bedPhi.boundaryFieldRef()[patchID];
 
     forAll(bedPatch, facei)
     {
+        // label of owner cell of face
         label idNCell = bedPatch.faceCells()[facei];
-        // coordinates of cell centers located above bed
         scalar ci = Cs[idNCell];
         vector wsi = Ws[idNCell];
         scalar Sface = aMesh.S()[facei];
+        scalar Vcell = mesh.V()[idNCell];
         scalar bedPhiFace = bedPhiPatch[facei];
-        const vector nFace = aMesh.faceAreaNormals()[facei];
+        const vector& nFace = aMesh.faceAreaNormals()[facei];
         DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);
+        DE[facei] = DepPatch[facei] - EroPatch[facei] * (Vcell/Sface);
     }
 }
 
-DE.primitiveFieldRef() =
+/*DE.primitiveFieldRef() =
     bed.vsm.ref().mapToSurface<scalar>
     (
         Dep.boundaryFieldRef()
@@ -66,7 +70,7 @@ DE.primitiveFieldRef() =
   - bed.vsm.ref().mapToSurface<scalar>
     (
         Ero.boundaryFieldRef()
-    );
+    );*/
 
 // deposition and erosion contribution in Exner equation
 forAll(bed.aMesh().areaCentres(), facei)

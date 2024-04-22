@@ -284,7 +284,19 @@ volVectorField shieldsVf
     dimensionedVector(dimless, Zero)
 );
 
-dimensionedScalar critShields(dimless, 0.047);
+volScalarField critShieldsVf
+(
+    IOobject
+    (
+        "critShieldsVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero)
+);
 
 volVectorField qbVf
 (

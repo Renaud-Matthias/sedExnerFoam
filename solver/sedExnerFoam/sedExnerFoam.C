@@ -205,6 +205,7 @@ int main(int argc, char *argv[])
             if (bed.exist())
             {
                 areaVectorField& shields = shieldsPtr.ref();
+                areaScalarField& critShields = critShieldsPtr.ref();
                 areaVectorField& qb = qbPtr.ref();
                 
                 // map areaFields to volFields for vizualisation
@@ -212,6 +213,11 @@ int main(int argc, char *argv[])
                     (
                         shields,
                         shieldsVf.boundaryFieldRef()
+                    );
+                bed.vsm.ref().mapToVolume
+                    (
+                        critShields,
+                        critShieldsVf.boundaryFieldRef()
                     );
                 bed.vsm.ref().mapToVolume
                     (

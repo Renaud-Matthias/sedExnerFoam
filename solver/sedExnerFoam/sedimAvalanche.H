@@ -40,7 +40,7 @@ slopeDir /= (mag(slopeDir) + SMALL);
 // Vinent law (2019)
 forAll(bed.aMesh().areaCentres(), facei)
 {
-    scalar beta = Foam::acos(nFaces[facei] & eg);
+    scalar beta = Foam::acos(nFaces[facei] & eg);  // bed slope angle
     vector qav = Qav.value() * slopeDir[facei]
         * pos(beta - betaRep.value())
         * (

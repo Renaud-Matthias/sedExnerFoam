@@ -40,8 +40,11 @@ if (bed.exist())
 {
     // reference to faMesh
     const faMesh& aMesh = bed.aMesh();
-    // Access variables relative to bedload
+    // Shields number
     areaVectorField& shields = shieldsPtr.ref();
+    // critical Shields stress
+    areaScalarField& critShields = critShieldsPtr.ref();
+    
 
     for (const label patchID : bed.bedPatchesID())
     {
@@ -72,7 +75,7 @@ if (bed.exist())
         {
             // shear friction dimension less parameter
             scalar Tshear =
-                Foam::mag(shields[facei])/critShields.value() - 1;
+                Foam::mag(shields[facei])/critShields[facei] - 1;
             // compute reference concentration, Van Rijn 1984
             scalar cbRef =
                 Foam::min(
@@ -91,12 +94,12 @@ if (bed.exist())
             const scalar Sface = aMesh.S()[facei];
             const scalar Vcell = mesh.V()[idNCell];
             scalar zi = -(xCell - xFace) & nFace;
-            scalar ci = Cs[idNCell];
+            //scalar ci = Cs[idNCell];
             vector wsi = Ws[idNCell];
             scalar bedPhiFace = bedPhiPatch[facei];
             scalar Roi = Foam::mag(wsi) / Foam::max(epsEff[idNCell], 1e-6);
-            scalar cb = ci + cbRef * (
-                1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
+            //scalar cb = ci + cbRef * (
+            //    1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
             // implicit, zeroGradient bc for Ws and Cs on bed needed
             // extrapolate cbRef at level
             scalar cbRefZ1 = Foam::min
