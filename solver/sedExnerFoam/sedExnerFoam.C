@@ -75,10 +75,12 @@ Description
 #include "primitivePatchInterpolation.H"
 #include "pointMesh.H"
 #include "pointPatchField.H"
+#include "wallDist.H"
 
-#include "SettlingModel.H"
+#include "settlingModel.H"
+#include "criticalShieldsModel.H"
 #include "bedloadModel.H"
-#include "sedbedManager.H"
+#include "sedimentBed.H"
 #include "faMeshProjection.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -35,7 +35,7 @@ if (CsDiffusivity == "effective")
     volScalarField epsEff("epsEff", turbulence->nuEff()/Sc);
 }
 
-// handle erosion and deposition if bedload and suspension are switched on
+
 if (bed.exist())
 {
     // reference to faMesh
@@ -44,8 +44,19 @@ if (bed.exist())
     areaVectorField& shields = shieldsPtr.ref();
     // critical Shields stress
     areaScalarField& critShields = critShieldsPtr.ref();
-    
 
+    if (isWallDiff)
+    {
+        // additional near bed patches turbulent diffusivity for suspension
+        // access wallDist object for distance to bed patches
+        wallDist& bedDist = bedDistPtr.ref();
+        epsEff += epsWall0 * 0.5
+           *(
+                1 - Foam::tanh(betaWall * (bedDist.y() - ks) / ks)
+            );
+    }
+
+    // handle erosion and deposition if bedload and suspension are switched on
     for (const label patchID : bed.bedPatchesID())
     {
         // erosion boundary field

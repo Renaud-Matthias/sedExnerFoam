@@ -71,13 +71,20 @@ IOdictionary transportProperties
 );
 
 // fluid and sediment properties
+// fluid kinematic viscosity
 dimensionedScalar nuF("nu", transportProperties);
+// sediment density (kg.m-3)
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
+// sediment diameter (m)
 dimensionedScalar dS("dS", dimLength, transportProperties);
+// maximum sediment volumic fraction (1 - porosity)
 dimensionedScalar CsMax("CsMax", dimless, transportProperties);
+// porosity of granular material
 dimensionedScalar porosity(dimless, 1/CsMax.value());
+// Nikuradse equivalent roughness height, skin friction
+dimensionedScalar ks =  2.5 * dS;
+// Schmidt number
 dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
-
 if (transportProperties.found("Sc"))
 {
     Sc.value() = readScalar(transportProperties.lookup("Sc"));
@@ -137,13 +144,36 @@ if (CsDiffusivity != "turbulent" and CsDiffusivity != "effective")
     Info << abort(FatalError) << endl;
 }
 
+// add wall diffusivity for cells close to bed patches
+bool isWallDiff = false;
+dimensionedScalar epsWall0(dimViscosity, 0);
+dimensionedScalar betaWall(dimless, 0);
+if (suspensionProperties.found("wallDiffusivity"))
+{
+    isWallDiff = true;
+    const dictionary& wallDiffDict
+        (
+            suspensionProperties.subDict("wallDiffusivity")
+        );
+    epsWall0.value() = wallDiffDict.lookupOrDefault<scalar>("alpha", 0);
+    betaWall.value() = wallDiffDict.lookupOrDefault<scalar>("beta", 5);
+}
+if (isWallDiff)
+{
+    Info << "wall diffusivity (saltation) enabled, "
+        << "alpha = " << epsWall0.value()
+        << ", beta = " << betaWall.value() << endl;
+}
+
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
 autoPtr<volScalarField> erosionPtr;  // erosion flux
 autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
-autoPtr<SettlingModel> settlingModelPtr;
+autoPtr<wallDist> bedDistPtr;  // wallDist for bed patches
+
+autoPtr<settlingModel> settlingModelPtr;
 
 if (switchSuspension=="on")
 {
@@ -238,7 +268,7 @@ if (switchSuspension=="on")
     
     // Initialize Settling Model
     Info << "Initialize settling Model\n" << endl;
-    settlingModelPtr.reset(new SettlingModel(suspensionProperties));
+    settlingModelPtr.reset(new settlingModel(suspensionProperties));
 
     Info<< "Initialize sediment settling velocity\n" << endl;
     Ws = settlingModelPtr->Ufall

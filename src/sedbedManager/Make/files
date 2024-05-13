@@ -1,3 +1,0 @@
-sedbedManager.C
-
-LIB = $(FOAM_USER_LIBBIN)/libsedbedManager

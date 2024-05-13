@@ -2,7 +2,7 @@
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2312                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -10,20 +10,25 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      bedloadProperties;
+    object      sedimentProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+
+suspension         on;
+
+MULESformulation   off;
+
+diffusivity        effective;
+
+fallModel
+{
+	type   fixedValue;
+	value  0.023;
 }
 
-// ************************** sediment properties ************************** //
-
-bedload                on;
-
-bedMotion              on;
-
-sedimentBedPatches     (bed);
-
-avalanche              on;
-
-reposeAngle            32;
+hindranceModel
+{
+	type   none;
+}
 
 // ************************************************************************* //

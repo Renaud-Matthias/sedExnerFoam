@@ -114,7 +114,7 @@ forAll(aMesh.areaCentres(), facei)
         * dVsed[facei];
 }
 
-if (bed.meshMotion())
+if (bed.bedMotion())
 {
     #include "meshMove.H"
 }

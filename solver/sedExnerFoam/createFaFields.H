@@ -34,16 +34,26 @@ IOdictionary bedloadProperties
     )
 );
 
-// Instantiate sedbedManager object
-Info << "Instantiate sedbedManager" << endl;
-sedbedManager bed(bedloadProperties, mesh, g);
+// Check if bedload is on or off
+const word switchBedload(bedloadProperties.lookup("bedload"));
+if (switchBedload!="on" and switchBedload!="off")
+{
+    FatalError << switchBedload
+        << " is not a valid entry for bedload"
+        << ", valid options are: on off" << endl;
+    Info << abort(FatalError) << endl;
+}
+
+// Instantiate sedimentBed object
+Info << "Instantiate sedimentBed" << endl;
+sedimentBed bed(bedloadProperties, mesh, g);
 
 // points displacements values for mesh motion
 autoPtr<vectorField> dispValsPtr;
 
 // horizontal projection of faMesh
 autoPtr<faMeshProjection> aMeshProjPtr;
-// fields for bedload and morphology
+// fields, variables for bedload and morphology
 autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaScalarField> critShieldsPtr;  // critical shields number
 autoPtr<areaVectorField> qbPtr;  // bedload
@@ -53,8 +63,11 @@ autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
 autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
 autoPtr<areaScalarField> dVsedPtr;  // volumic variation, face displacements
 autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
-// bedloadModel
+// models relative to bedload and morphology
 autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
+// critical Shields
+autoPtr<criticalShieldsModels::criticalShieldsModel>
+critShieldsModelPtr;
 
 // repose angle of granular material (in rad)
 dimensionedScalar betaRep(dimless, 0.5585);
@@ -84,51 +97,91 @@ if (bed.exist())
     (
         new faMeshProjection(bed.aMesh(), (g / mag(g)).value())
     );
-    
-    Info << "Instantiate finite area fields" << endl;
 
+    // vertices displacements for mesh motion
     dispValsPtr.reset(new vectorField(bed.aMesh().nPoints()));
     vectorField& dispVals = dispValsPtr.ref();
-
+    // bed vertices vertical displacements, Exner equation
     dHpointsPtr.reset(new scalarField(bed.aMesh().nPoints()));
-
     for (label pointi = 0; pointi < bed.aMesh().nPoints(); pointi++)
     {
         dispVals[pointi] = vector(0, 0, 0);
     }
-    
-    shieldsPtr.reset
+
+
+    // model for critical Shields number
+    if (bedloadProperties.found("criticalShieldsModel"))
+    {
+        const dictionary critShieldsDict =
+            bedloadProperties.subDict("criticalShieldsModel");
+
+        critShieldsModelPtr.reset
         (
-            new areaVectorField
+            criticalShieldsModels::criticalShieldsModel::New
             (
-                IOobject
-                (
-                    "shields",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                bed.aMesh(),
-                dimensionedVector(dimless, Zero)
+                critShieldsDict
             )
         );
+    }
+
+
+    // model for bedload
+    if (bedloadProperties.found("bedloadModel"))
+    {
+        const dictionary bedloadModelDict =
+            bedloadProperties.subDict("bedloadModel");
+
+        bedloadModelPtr.reset
+        (
+            new bedloadModel
+            (
+                bedloadModelDict
+            )
+        );
+    }
+    else
+    {
+        bedloadModelPtr.reset(new bedloadModel());
+    }
+
+    const bedloadModel& bedloadMod = bedloadModelPtr.ref();
+
+    Info << "\nbedload Model: " << endl
+        << bedloadMod << endl;
+
+    Info << "Instantiate finite area fields" << endl;
+    shieldsPtr.reset
+    (
+        new areaVectorField
+        (
+            IOobject
+            (
+                "shields",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedVector(dimless, Zero)
+        )
+    );
 
     qbPtr.reset
+    (
+        new areaVectorField
         (
-            new areaVectorField
+            IOobject
             (
-                IOobject
-                (
-                    "qb",
-                    runTime.timeName(),
-                    mesh,
-                    IOobject::MUST_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                bed.aMesh()
-            )
-        );
+                "qb",
+                runTime.timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            bed.aMesh()
+        )
+    );
 
     dHptr.reset
     (
@@ -215,29 +268,6 @@ if (bed.exist())
         )
     );
 
-    if (bedloadProperties.found("bedloadModel"))
-    {
-        dictionary bedloadModelDict =
-            bedloadProperties.subDict("bedloadModel");
-
-        bedloadModelPtr.reset
-            (
-                new bedloadModel
-                (
-                    bedloadModelDict
-                )
-            );
-    }
-    else
-    {
-        bedloadModelPtr.reset(new bedloadModel());
-    }
-
-    const bedloadModel& bedloadMod = bedloadModelPtr.ref();
-
-    Info << "\nbedload Model: " << endl
-        << bedloadMod << endl;
-
     critShieldsPtr.reset
     (
         new areaScalarField
@@ -254,4 +284,23 @@ if (bed.exist())
             bedloadMod.criticalShields0()
         )
     );
+
+    // add a turbulent diffusivity for suspended particles near wall
+    // initialize a wallDist function for ditance to bed patches
+    if (switchSuspension == "on")
+    {
+        labelHashSet bedPatchSet;
+
+        for (const label patchID : bed.bedPatchesID())
+        {
+            bedPatchSet.insert(patchID);
+        }
+
+        bedDistPtr.reset(new wallDist(mesh, bedPatchSet, "wall"));
+
+        wallDist& bedDist = bedDistPtr.ref();
+
+        Info << "bed patches ID: " << bedDist.patchIDs() << endl;
+        Info << "bed dist y: " << bedDist.y() << endl;
+    }
 }

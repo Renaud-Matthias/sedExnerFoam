@@ -1,11 +1,11 @@
-SettlingModel/SettlingModel.C
-HindranceModel/HindranceModel.C
-HindranceModel/Zaki/Zaki.C
-HindranceModel/ZakiModified/ZakiModified.C
-HindranceModel/None/None.C
-FallModel/FallModel.C
-FallModel/FixedValue/FixedValue.C
-FallModel/Deigaard/Deigaard.C
-FallModel/Stokes/Stokes.C
+settlingModel.C
+hindranceModel/hindranceModel.C
+hindranceModel/Zaki/Zaki.C
+hindranceModel/ZakiModified/ZakiModified.C
+hindranceModel/none/none.C
+fallModel/fallModel.C
+fallModel/fixedValue/fixedValue.C
+fallModel/Deigaard/Deigaard.C
+fallModel/Stokes/Stokes.C
 
 LIB = $(FOAM_USER_LIBBIN)/libsettlingModels
