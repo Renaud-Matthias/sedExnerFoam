@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.7.1                                 |
+|  \\    /   O peration     | Version:  v2312                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -56,6 +56,11 @@ interpolationSchemes
     flux(HbyA) linear;
     dotInterpolate(S,U_0) linear;
     interpolate((1|A(U))) linear;*/
+}
+
+wallDist
+{
+    method          meshWave;
 }
 
 snGradSchemes

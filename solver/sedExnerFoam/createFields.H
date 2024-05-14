@@ -115,6 +115,7 @@ if (switchSuspension!="on" and switchSuspension!="off")
         << ", valid options are: on off" << endl;
     Info << abort(FatalError) << endl;
 }
+Info << "suspension is " << switchSuspension << endl;
 
 word switchMULES = "off";
 if (suspensionProperties.found("MULESformulation"))
@@ -177,7 +178,7 @@ autoPtr<settlingModel> settlingModelPtr;
 
 if (switchSuspension=="on")
 {
-    Info<< "Reading field Cs\n" << endl;
+    Info<< "Reading field Cs" << endl;
     CsPtr.reset
     (
         new volScalarField

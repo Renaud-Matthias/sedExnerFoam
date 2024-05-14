@@ -116,7 +116,7 @@ bool Foam::sedimentBed::bedMotion() const
 
 void Foam::sedimentBed::checkBedExistence_()
 {
-    word isBed(dict_.lookup("bedload"));
+    word isBed(dict_.lookup("sedimentBed"));
     if (isBed=="on")
     {
         bedExist_ = true;
@@ -129,7 +129,7 @@ void Foam::sedimentBed::checkBedExistence_()
     }
     else
     {
-        FatalError << "wrong keyword for entry bedload!"
+        FatalError << "wrong keyword for entry sedimentBed!"
             << " possible options are: on off" << endl;
         Info << abort(FatalError) << endl;
     }

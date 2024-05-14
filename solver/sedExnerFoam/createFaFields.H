@@ -34,8 +34,17 @@ IOdictionary bedloadProperties
     )
 );
 
-// Check if bedload is on or off
-const word switchBedload(bedloadProperties.lookup("bedload"));
+// Instantiate sedimentBed object
+Info << "Instantiate sedimentBed" << endl;
+sedimentBed bed(bedloadProperties, mesh, g);
+
+// Check bedload state (on/off)
+// bedload is off if no sedimentBed exists
+word switchBedload("off");
+if (bed.exist())
+{
+    switchBedload = word(bedloadProperties.lookup("bedload"));
+}
 if (switchBedload!="on" and switchBedload!="off")
 {
     FatalError << switchBedload
@@ -44,9 +53,7 @@ if (switchBedload!="on" and switchBedload!="off")
     Info << abort(FatalError) << endl;
 }
 
-// Instantiate sedimentBed object
-Info << "Instantiate sedimentBed" << endl;
-sedimentBed bed(bedloadProperties, mesh, g);
+Info << "bedload is " << switchBedload << endl;
 
 // points displacements values for mesh motion
 autoPtr<vectorField> dispValsPtr;
@@ -90,8 +97,7 @@ Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);
 // create fa fields if morphology on
 if (bed.exist())
 {
-    Info << "bedload is on" << endl
-        << "Instantiate faMeshProjection" << endl;
+    Info << "Instantiate faMeshProjection" << endl;
 
     aMeshProjPtr.reset
     (

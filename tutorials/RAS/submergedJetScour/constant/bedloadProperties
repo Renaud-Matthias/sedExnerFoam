@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.7.1                                 |
+|  \\    /   O peration     | Version:  v2312                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -18,9 +18,11 @@ FoamFile
 
 sedimentBed            on;  // on or off
 
-meshMotion             on;  // default is on
+bedMotion              on;
 
 sedimentBedPatches     (sedimentBed);
+
+bedload                on;
 
 bedloadModel
 {

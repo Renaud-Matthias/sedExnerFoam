@@ -20,34 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to variables relative to bedload
-areaVectorField& shields = shieldsPtr.ref();
+// Access to bedload field
 areaVectorField& qb = qbPtr.ref();
-
-// compute wallShearStress on each patch belonging to sediment bed
-for (const label patchID : bed.bedPatchesID())
-{
-    // compute wall shear stress on patch
-    vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
-    const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
-    const scalarField& magSfp =
-        mesh.magSf().boundaryField()[patchID];
-    volSymmTensorField Reff =
-        rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
-    const symmTensorField& Reffp = Reff.boundaryField()[patchID];
-    
-    // compute shields number
-    ssp = ((-Sfp / magSfp) & Reffp)
-        / (mag(g).value() * dS.value()
-        * (rhoS.value() - rhoF.value()));
-}
-
-// map volumic shields number to area shields number
-shields.primitiveFieldRef() =
-    bed.vsm.ref().mapToSurface<vector>
-    (
-        shieldsVf.boundaryFieldRef()
-    );
 
 dimensionedScalar smallVal(dimless, SMALL);
 // unit vector gravity oriented

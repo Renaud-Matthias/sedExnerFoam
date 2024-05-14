@@ -20,38 +20,30 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-const faMesh& aMesh = bed.aMesh();
 
-areaScalarField& dH = dHptr.ref();
-areaScalarField& dVsed = dVsedPtr.ref();
+areaVectorField& shields = shieldsPtr.ref();
 
-// faMesh horizontal projection
-faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
-// area of projected mesh faces
-const scalarField& SfProj = meshProj.S();
-
-if (switchBedload=="on")
+// compute wallShearStress on each patch belonging to sediment bed
+for (const label patchID : bed.bedPatchesID())
 {
-    #include "balanceBedload.H"
+    // compute wall shear stress on patch
+    vectorField& ssp = shieldsVf.boundaryFieldRef()[patchID];
+    const vectorField& Sfp = mesh.Sf().boundaryField()[patchID];
+    const scalarField& magSfp =
+        mesh.magSf().boundaryField()[patchID];
+    volSymmTensorField Reff =
+        rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
+    const symmTensorField& Reffp = Reff.boundaryField()[patchID];
+    
+    // compute shields number
+    ssp = ((-Sfp / magSfp) & Reffp)
+        / (mag(g).value() * dS.value()
+        * (rhoS.value() - rhoF.value()));
 }
 
-if (switchSuspension=="on")
-{
-    #include "erosionDeposition.H"
-}
-
-scalar deltaT = runTime.time().deltaT().value();
-
-// solve exner equation explicitly (euler explicit)
-forAll(aMesh.areaCentres(), facei)
-{
-    dH[facei] =
-        (deltaT / SfProj[facei])
-        * (1/CsMax.value())
-        * dVsed[facei];
-}
-
-if (bed.bedMotion())
-{
-    #include "meshMove.H"
-}
+// map volumic shields number to area shields number
+shields.primitiveFieldRef() =
+    bed.vsm.ref().mapToSurface<vector>
+    (
+        shieldsVf.boundaryFieldRef()
+    );

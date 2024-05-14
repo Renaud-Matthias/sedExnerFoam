@@ -189,7 +189,12 @@ int main(int argc, char *argv[])
 
         if (bed.exist())
         {
-            #include "bedload.H"
+            #include "bedShearStress.H"
+            
+            if (switchBedload=="on")
+            {
+                #include "bedload.H"
+            }
         }
 
         if (switchSuspension=="on")

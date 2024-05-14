@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2206                                 |
+|  \\    /   O peration     | Version:  v2312                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -15,5 +15,22 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
 
 suspension     off;
+
+diffusivity    turbulent;
+
+wallDiffusivity
+{
+    alpha      5e-6;
+}
+
+fallModel
+{
+    type       Deigaard;
+}
+
+hindranceModel
+{
+    type       none;
+}
 
 // ************************************************************************* //
