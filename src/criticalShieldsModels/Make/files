@@ -1,0 +1,5 @@
+criticalShieldsModel.C
+fixedValue/fixedValue.C
+Soulsby/Soulsby.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcriticalShieldsModels
