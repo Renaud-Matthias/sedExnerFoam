@@ -114,7 +114,6 @@ if (bed.exist())
         dispVals[pointi] = vector(0, 0, 0);
     }
 
-
     // model for critical Shields number
     if (bedloadProperties.found("criticalShieldsModel"))
     {
@@ -129,7 +128,6 @@ if (bed.exist())
             )
         );
     }
-
 
     // model for bedload
     if (bedloadProperties.found("bedloadModel"))

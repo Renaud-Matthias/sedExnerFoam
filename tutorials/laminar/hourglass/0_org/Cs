@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      Cs;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    top
+    {
+        type      codedFixedValue;
+        value     uniform 0;
+
+        name      hourglassBound;
+
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude
+        #};
+
+        codeInclude
+        #{
+                #include "fvCFD.H"
+        #};
+
+        code
+        #{
+            const fvPatch& boundaryPatch = patch();
+            const vectorField& facesPos = boundaryPatch.Cf();
+            scalarField& field = *this;
+
+            scalar inPos = 0.0;  // inlet x coordinate
+            scalar Rin = 0.005;  // radius of sand inlet
+            scalar Cin = 0.02;
+
+            forAll(facesPos, facei)
+            {
+                // distance to sand inlet
+                scalar distInlet = mag((inPos - facesPos[facei].x()));
+                if (distInlet<Rin)
+                {
+                    field[facei] = Cin * exp(-distInlet/Rin);
+                }
+                else
+                {
+                    field[facei] = 0;
+                }
+            }
+        #};
+    }
+    bed
+    {
+        type            zeroGradient;
+    }
+    walls
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+    sides
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2312                                 |
+|  \\    /   O peration     | Version:  v2306                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -10,25 +10,19 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      sedimentProperties;
+    object      dynamicMeshDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-suspension         on;
+dynamicFvMesh      dynamicMotionSolverFvMesh;
 
-MULESformulation   off;
+motionSolverLibs ("libfvMotionSolvers.so");
 
-diffusivity        effective;
+solver            displacementLaplacian;
 
-fallModel
+displacementLaplacianCoeffs
 {
-	type   fixedValue;
-	value  0.023;
-}
-
-hindranceModel
-{
-	type   none;
+    diffusivity     quadratic inversePointDistance (bed);
 }
 
 // ************************************************************************* //
