@@ -11,13 +11,13 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      omega;
+    object      Cs;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 -1 0 0 0 0];
+dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 1e-1;
+internalField   uniform 1e-6;
 
 boundaryField
 {
@@ -31,14 +31,12 @@ boundaryField
     }
     top
     {
-        type            omegaWallFunction;
-        value           $internalField;
+        type            fixedValue;
+        value           uniform 0;
     }
     bed
     {
-        kn              0.5e-3;
-        type            wilcoxOmegaWallFunction;
-        value           $internalField;
+        type 	        zeroGradient;
     }
     frontAndBackPlanes
     {

@@ -9,7 +9,7 @@ print("- running test equilibrium channel")
 
 time = "latestTime"
 
-dS = 0.5e-3  # sediment diameter
+dS = 0.2e-3  # sediment diameter
 rhoS = 2650.  # sediment density
 rhoF = 1000.  # fluid density
 g = 9.81  # gravity acceleration
@@ -17,6 +17,9 @@ critShields = 0.047
 
 
 def bedloadMPM(shields):
+    """
+    Return bedload computed using Meyer-Peter Muller formula
+    """
     einNum = np.sqrt((rhoS/rhoF - 1) * g * dS**3)
     return 8 * einNum * (shields - critShields)**1.5
 

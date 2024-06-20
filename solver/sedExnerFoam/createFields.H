@@ -125,7 +125,7 @@ if (suspensionProperties.found("MULESformulation"))
 if (switchMULES!="on" and switchMULES!="off")
 {
     FatalError << switchMULES
-        << " is not a valid entry for suspension"
+        << " is not a valid entry for MULESformulation"
         << ", valid options are: on off" << endl;
     Info << abort(FatalError) << endl;
 }
@@ -166,9 +166,20 @@ if (isWallDiff)
         << ", beta = " << betaWall.value() << endl;
 }
 
+// maximum reference concentration for erosion condition
+// sediment vol fraction, default is 0.3 , user modifiable
+dimensionedScalar CsbMax(dimless, 0.3);
+if (suspensionProperties.found("CsbMax"))
+{
+    scalar csbmaxVal = readScalar(suspensionProperties.lookup("CsbMax"));
+    CsbMax.value() = Foam::min(CsMax.value(), csbmaxVal);
+}
+Info << "maximum reference sediment volumic fraction: " << CsbMax.value() << endl;
+
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
 autoPtr<volVectorField> WsPtr;  // sediment settling velocity
+autoPtr<volScalarField> diffSedPtr;  // turbulent diffusivity for sediment
 autoPtr<volScalarField> erosionPtr;  // erosion flux
 autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
@@ -266,6 +277,24 @@ if (switchSuspension=="on")
             //fvc::interpolate(U+Ws) & mesh.Sf()
         )
     );
+
+    Info << "Initialize turbulent diffusivity for sediment\n" << endl;
+    diffSedPtr.reset(
+        new volScalarField
+        (
+            IOobject
+            (
+                "diffSed",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimensionedScalar(dimViscosity, Zero)
+        )
+    );
+        
     
     // Initialize Settling Model
     Info << "Initialize settling Model\n" << endl;

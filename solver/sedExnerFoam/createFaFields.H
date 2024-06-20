@@ -304,9 +304,8 @@ if (bed.exist())
 
         bedDistPtr.reset(new wallDist(mesh, bedPatchSet, "wall"));
 
-        wallDist& bedDist = bedDistPtr.ref();
-
-        Info << "bed patches ID: " << bedDist.patchIDs() << endl;
-        Info << "bed dist y: " << bedDist.y() << endl;
+        //wallDist& bedDist = bedDistPtr.ref();
+        //Info << "bed patches ID: " << bedDist.patchIDs() << endl;
+        //Info << "bed dist y: " << bedDist.y() << endl;
     }
 }

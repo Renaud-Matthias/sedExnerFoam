@@ -23,16 +23,20 @@ License
 // Access variables relative to suspension
 volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
+volScalarField& diffSed = diffSedPtr.ref();  // turbulent diffusivity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 // reference to erosion terms
 volScalarField& Erosion = erosionPtr.ref();
 
 // turbulent sediment diffusivity
-volScalarField epsEff("epsEff", turbulence->nut()/Sc);
-if (CsDiffusivity == "effective")
+if (CsDiffusivity=="turbulent")
 {
-    volScalarField epsEff("epsEff", turbulence->nuEff()/Sc);
+    diffSed = turbulence->nut()/Sc;
+}
+else if (CsDiffusivity=="effective")
+{
+    diffSed = turbulence->nuEff()/Sc;
 }
 
 
@@ -50,11 +54,12 @@ if (bed.exist())
         // additional near bed patches turbulent diffusivity for suspension
         // access wallDist object for distance to bed patches
         wallDist& bedDist = bedDistPtr.ref();
-        epsEff += epsWall0 * 0.5
+        diffSed += epsWall0 * 0.5
            *(
                 1 - Foam::tanh(betaWall * (bedDist.y() - ks) / ks)
             );
     }
+    diffSed.correctBoundaryConditions();
 
     // handle erosion and deposition if bedload and suspension are switched on
     for (const label patchID : bed.bedPatchesID())
@@ -93,7 +98,7 @@ if (bed.exist())
                     0.015 * (dS.value()/zbRef)
                   * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
                   * Foam::pow(Dstar, -0.3),
-                    CsMax.value()
+                    CsbMax.value()
                 );
             // label of neighbour cell
             label idNCell = bedPatch.faceCells()[facei];
@@ -108,7 +113,7 @@ if (bed.exist())
             //scalar ci = Cs[idNCell];
             vector wsi = Ws[idNCell];
             scalar bedPhiFace = bedPhiPatch[facei];
-            scalar Roi = Foam::mag(wsi) / Foam::max(epsEff[idNCell], 1e-6);
+            scalar Roi = Foam::mag(wsi) / Foam::max(diffSed[idNCell], 1e-6);
             //scalar cb = ci + cbRef * (
             //    1 - Foam::exp(-Roi * (Foam::mag(zi-zbRef))));
             // implicit, zeroGradient bc for Ws and Cs on bed needed
@@ -116,7 +121,7 @@ if (bed.exist())
             scalar cbRefZ1 = Foam::min
                 (
                     cbRef * Foam::exp(-Roi * (zi-zbRef)),
-                    CsMax.value()
+                    CsbMax.value()
                 );
             Ep[facei] = (cbRefZ1 / Vcell)
                 * ((wsi & nFace) * Sface - bedPhiFace);
@@ -128,13 +133,10 @@ if (bed.exist())
                 << ", D* = " << Dstar
                 << ", T = " << Tshear
                 << ", ws = " << wsi
-                << ", epsEff = " << epsEff[idNCell]
+                << ", diffSed cell = " << diffSed[idNCell]
                 << ", Ro = " << Roi
-                << ", c1 = " << ci
                 << ", cbRef = " << cbRef
-                << ", cb = " << cb
-                << ", cbRefZ1 = " << cbRefZ1
-                << ", E = " << Ep[facei] << endl;*/
+                << ", cbRefZ1 = " << cbRefZ1 << endl;*/
         }
     }
 }
@@ -179,7 +181,7 @@ if (switchMULES=="on")
     fvScalarMatrix CsEqn
     (
         fvm::ddt(Cs) - fvc::ddt(Cs)
-      - fvm::laplacian(epsEff, Cs)
+      - fvm::laplacian(diffSed, Cs)
         ==
         fvOptions(Cs)
     );
@@ -202,7 +204,7 @@ else if (switchMULES=="off")
     (
         fvm::ddt(Cs)
       + fvm::div(phip, Cs)
-      - fvm::laplacian(epsEff, Cs)
+      - fvm::laplacian(diffSed, Cs)
         ==
         fvOptions(Cs)
         + Erosion

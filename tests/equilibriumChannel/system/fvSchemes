@@ -31,7 +31,7 @@ divSchemes
 // UEqn
     div(phi,U)    Gauss limitedLinearV 1;
 // CsEqn
-    div(phip,Cs)   Gauss linearUpwind phip;
+    div(phip,Cs)   Gauss upwind phip;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 // k and EpsilonEqn
@@ -48,7 +48,7 @@ laplacianSchemes
 // pEqn
     laplacian((1|A(U)),p) Gauss linear corrected;
 // CsEqn
-    laplacian(epsEff,Cs) Gauss linear corrected;
+    laplacian(diffSed,Cs) Gauss linear corrected;
 // k and EpsilonEqn 
     laplacian(DkEff,k) Gauss linear corrected;
     laplacian(DkEff,beta) Gauss linear corrected;

@@ -46,6 +46,9 @@ for (const label patchID : bed.bedPatchesID())
     // reference to bed fvPatch
     const fvPatch& bedPatch = mesh.boundary()[patchID];
     const scalarField& bedPhiPatch = bedPhi.boundaryFieldRef()[patchID];
+    
+    //const scalarField& diffSedPatch = diffSed.boundaryFieldRef()[patchID];
+    // get gradient of Cs on bed patch faces
 
     forAll(bedPatch, facei)
     {
@@ -57,7 +60,10 @@ for (const label patchID : bed.bedPatchesID())
         scalar Vcell = mesh.V()[idNCell];
         scalar bedPhiFace = bedPhiPatch[facei];
         const vector& nFace = aMesh.faceAreaNormals()[facei];
+        // deposition due to settling
         DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);
+        // deposition due to diffusion
+        //DepPatch[facei] +=
         DE[facei] = DepPatch[facei] - EroPatch[facei] * (Vcell/Sface);
     }
 }

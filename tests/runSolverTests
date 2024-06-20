@@ -1,0 +1,38 @@
+#!/bin/sh
+
+nTests=0  # number of test
+failedTests=0  # counter for failed tests
+
+pathTests="./1DSedim ./equilibriumChannel ./massConservation ./slopeAvalanche"
+
+echo "run sedExnerFoam tests"
+
+for path in $pathTests
+do
+    nTests=$(( nTests + 1 ))
+    echo "path: " $path
+    cd $path
+    ./Allrun > /dev/null 2>&1
+    python test.py
+
+    resTest=$?
+
+    if test "$resTest" -ne 0
+    then
+        echo 'test failed'
+        failedTests=$(( failedTests + 1 ))
+    else
+        echo 'test success'
+    fi
+    
+    ./Allclean > /dev/null 2>&1
+    cd -
+done
+
+if test "$failedTests" -ne 0
+then
+    echo 'warning! Some tests failed'
+fi
+
+echo 'number of tests tried : ' $nTests
+echo 'number of tests failed : ' $failedTests
