@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      sedimentProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+
+suspension         on;
+
+MULESformulation   off;
+
+diffusivity        turbulent;
+
+fallModel
+{
+    type           fixedValue;
+    value          0.023;
+}
+
+hindranceModel
+{
+    type   none;
+}
+
+wallDiffusivity
+{
+    alpha           5e-6;
+}
+
+CsbMax              0.15;
+
+
+// ************************************************************************* //
