@@ -5,7 +5,7 @@ Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
 License
     This file is part of ScourFOAM.
 
-    ScourFOAM is free software: you can redistribute it and/or modify it
+    sedExnerFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -19,7 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sedbedManager
+    Foam::sedimentBed
 
 Description
     Manage the presence of a sediment bed in the domain

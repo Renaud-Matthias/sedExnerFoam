@@ -86,16 +86,18 @@ Foam::dimensionedScalar Foam::settlingModels::Deigaard::solveUfall0
     const dimensionedScalar& g
 ) const
 {
-    dimensionedScalar Ws("Ws", dimVelocity, 0.1);
-    dimensionedScalar eps("eps", dimVelocity, 1e-5);
+    dimensionedScalar Ws(dimVelocity, 0.1);
+    dimensionedScalar err(dimless, 1);
+    dimensionedScalar eps(dimless, 1e-3);
     dimensionedScalar Wsnext(nextValue(Ws, dS, s, nuF, g));
     label i(0);
-    label imax(10);
-    while (i<imax and mag(Ws-Wsnext)>eps)
+    label imax(1000);  // maximum number of iteration
+    while (i<imax and err>eps)
         {
             i += 1;
             Ws = Wsnext;
             Wsnext = nextValue(Ws, dS, s, nuF, g);
+            err = Foam::mag((Ws - Wsnext)/Wsnext);
         }
     Info << "solve settling velocity, ";
     if (i>=imax)
