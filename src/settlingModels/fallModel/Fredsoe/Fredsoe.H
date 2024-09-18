@@ -19,8 +19,8 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef Deigaard_H
-#define Deigaard_H
+#ifndef Fredsoe_H
+#define Fredsoe_H
 
 #include "fallModel.H"
 
@@ -29,7 +29,7 @@ namespace Foam
 namespace settlingModels
 {
 
-class Deigaard
+class Fredsoe
 :
     public fallModel
 {
@@ -48,7 +48,7 @@ class Deigaard
         const dimensionedScalar& g
     ) const;
 
-    //- Solve the Deigaard model to compute th fall velocity
+    //- Solve the Fredsoe model to compute th fall velocity
     dimensionedScalar solveUfall0
     (
         const dimensionedScalar& dS,
@@ -70,17 +70,17 @@ class Deigaard
 public:
 
     //- Runtime type information
-    TypeName("Deigaard");
+    TypeName("Fredsoe");
 
 
     // Constructors
 
     //- Construct from components
-    Deigaard(const dictionary& dict);
+    Fredsoe(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~Deigaard();
+    virtual ~Fredsoe();
 
 };
 

@@ -53,6 +53,16 @@ protected:
         const dimensionedScalar& nuF,
         const dimensionedScalar& g
     ) const = 0;
+
+    //- Compute dimensionless particle diameter Dstar
+    dimensionedScalar Dstar
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
     
     public:
     

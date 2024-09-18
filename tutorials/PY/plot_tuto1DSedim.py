@@ -1,5 +1,5 @@
 """
-Plot results from 1DSedim tutorial and compare with eperimental results
+Plot results from 1DSedim tutorial and compare with experimental results
 from Pham Van Bang (2006)
 """
 
@@ -10,7 +10,7 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
 path_data = "../DATA/PhamVanBang2006/"
-path_tuto = "../suspensionFoam/laminar/1DSedim/"
+path_tuto = "../laminar/1DSedim/"
 
 t_plot_list = [0, 540, 900, 1380]
 # possible choices are :

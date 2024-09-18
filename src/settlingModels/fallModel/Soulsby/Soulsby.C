@@ -22,41 +22,48 @@ License
 #include "Soulsby.H"
 #include "addToRunTimeSelectionTable.H"
 
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace criticalShieldsModels
+namespace settlingModels
 {
     defineTypeNameAndDebug(Soulsby, 0);
-    addToRunTimeSelectionTable(criticalShieldsModel, Soulsby, dictionary);
+    addToRunTimeSelectionTable(fallModel, Soulsby, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::Soulsby(const dictionary& dict)
+Foam::settlingModels::Soulsby::Soulsby(const dictionary& dict)
 :
-    criticalShieldsModel(dict)
-{
-}
+    fallModel(dict)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::~Soulsby()
+Foam::settlingModels::Soulsby::~Soulsby()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Soulsby::criticalShields0
+Foam::dimensionedScalar Foam::settlingModels::Soulsby::Ufall0
 (
-    const dimensionedScalar& Dstar
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
 ) const
 {
-    dimensionedScalar critShields =
-        (0.3 / (1 + 1.2*Dstar))
-        + 0.055 * (1 - Foam::exp(-0.02*Dstar));
-    return critShields;
+    dimensionedScalar dstar = Dstar(dS, rhoS, rhoF, nuF, g);
+    dimensionedScalar Ws =
+        (
+            Foam::sqrt
+            (
+                Foam::sqr(10.36) + 1.049*Foam::pow(dstar, 3.)
+            )
+            - 10.36
+        ) * nuF/dS;
+    return Ws;
 }

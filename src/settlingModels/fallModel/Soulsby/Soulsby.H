@@ -19,44 +19,54 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Soulsby.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef SoulsbyFall_H
+#define SoulsbyFall_H
 
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+#include "fallModel.H"
 
 namespace Foam
 {
-namespace criticalShieldsModels
+namespace settlingModels
 {
-    defineTypeNameAndDebug(Soulsby, 0);
-    addToRunTimeSelectionTable(criticalShieldsModel, Soulsby, dictionary);
-}
-}
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::criticalShieldsModels::Soulsby::Soulsby(const dictionary& dict)
+class Soulsby
 :
-    criticalShieldsModel(dict)
+    public fallModel
 {
-}
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+    protected:
 
-Foam::criticalShieldsModels::Soulsby::~Soulsby()
-{}
+    // Protected member functions
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+    //- Get settling velocity of a lone particle in a fluid
+    dimensionedScalar Ufall0
+    (
+        const dimensionedScalar& dS,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nuF,
+        const dimensionedScalar& g
+    ) const;
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Soulsby::criticalShields0
-(
-    const dimensionedScalar& Dstar
-) const
-{
-    dimensionedScalar critShields =
-        (0.3 / (1 + 1.2*Dstar))
-        + 0.055 * (1 - Foam::exp(-0.02*Dstar));
-    return critShields;
-}
+
+public:
+
+    //- Runtime type information
+    TypeName("Soulsby");
+
+
+    // Constructors
+
+    //- Construct from components
+    Soulsby(const dictionary& dict);
+
+
+    //- Destructor
+    virtual ~Soulsby();
+
+};
+
+} // End namespace settlingModels
+} // End namespace Foam
+
+#endif

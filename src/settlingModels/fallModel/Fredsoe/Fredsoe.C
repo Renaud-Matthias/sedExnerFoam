@@ -19,7 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Deigaard.H"
+#include "Fredsoe.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -28,26 +28,26 @@ namespace Foam
 {
 namespace settlingModels
 {
-    defineTypeNameAndDebug(Deigaard, 0);
-    addToRunTimeSelectionTable(fallModel, Deigaard, dictionary);
+    defineTypeNameAndDebug(Fredsoe, 0);
+    addToRunTimeSelectionTable(fallModel, Fredsoe, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Deigaard::Deigaard(const dictionary& dict)
+Foam::settlingModels::Fredsoe::Fredsoe(const dictionary& dict)
 :
     fallModel(dict)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::settlingModels::Deigaard::~Deigaard()
+Foam::settlingModels::Fredsoe::~Fredsoe()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar Foam::settlingModels::Deigaard::Ufall0
+Foam::dimensionedScalar Foam::settlingModels::Fredsoe::Ufall0
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
@@ -64,7 +64,7 @@ Foam::dimensionedScalar Foam::settlingModels::Deigaard::Ufall0
     return Ws;
 }
 
-Foam::dimensionedScalar Foam::settlingModels::Deigaard::nextValue
+Foam::dimensionedScalar Foam::settlingModels::Fredsoe::nextValue
 (
     const dimensionedScalar& WsOld,
     const dimensionedScalar& dS,
@@ -78,7 +78,7 @@ Foam::dimensionedScalar Foam::settlingModels::Deigaard::nextValue
     return WsNew;
 }
 
-Foam::dimensionedScalar Foam::settlingModels::Deigaard::solveUfall0
+Foam::dimensionedScalar Foam::settlingModels::Fredsoe::solveUfall0
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& s,

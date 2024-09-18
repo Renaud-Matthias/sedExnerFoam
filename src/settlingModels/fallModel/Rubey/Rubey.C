@@ -19,44 +19,48 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Soulsby.H"
+#include "Rubey.H"
 #include "addToRunTimeSelectionTable.H"
-
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-namespace criticalShieldsModels
+namespace settlingModels
 {
-    defineTypeNameAndDebug(Soulsby, 0);
-    addToRunTimeSelectionTable(criticalShieldsModel, Soulsby, dictionary);
+    defineTypeNameAndDebug(Rubey, 0);
+    addToRunTimeSelectionTable(fallModel, Rubey, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::Soulsby(const dictionary& dict)
+Foam::settlingModels::Rubey::Rubey(const dictionary& dict)
 :
-    criticalShieldsModel(dict)
-{
-}
+    fallModel(dict)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::~Soulsby()
+Foam::settlingModels::Rubey::~Rubey()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Soulsby::criticalShields0
+Foam::dimensionedScalar Foam::settlingModels::Rubey::Ufall0
 (
-    const dimensionedScalar& Dstar
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
 ) const
 {
-    dimensionedScalar critShields =
-        (0.3 / (1 + 1.2*Dstar))
-        + 0.055 * (1 - Foam::exp(-0.02*Dstar));
-    return critShields;
+    dimensionedScalar dstar = Dstar(dS, rhoS, rhoF, nuF, g);
+    dimensionedScalar s = rhoS/rhoF;
+    dimensionedScalar Ws = Foam::sqrt(dS*g*(s-1)) * (
+        Foam::sqrt(0.667 + 36/Foam::pow(dstar, 3.))
+        - Foam::sqrt(36/Foam::pow(dstar, 3.))
+    );
+    return Ws;
 }
