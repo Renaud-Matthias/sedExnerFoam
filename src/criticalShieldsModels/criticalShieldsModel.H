@@ -40,8 +40,6 @@ class criticalShieldsModel
     //- dictionary containing parameters fro criticalShieldsModel
     const dictionary& dict_;
 
-    //- Base value of critical Shields number without slope correction
-    //dimensionedScalar critShields0_;
     
     public:
     
@@ -59,10 +57,12 @@ class criticalShieldsModel
         ),
         (dict)
     );
-    
+
     // Constructor
-    //- Construct from dictionary
-    criticalShieldsModel(const dictionary& dict);
+    criticalShieldsModel
+    (
+        const dictionary& dict
+    );
 
     // Selectors
     static autoPtr<criticalShieldsModel> New
@@ -73,10 +73,11 @@ class criticalShieldsModel
     //- Destructor
     virtual ~criticalShieldsModel();
 
+    
     // Member functions
 
-    //- Compute dimensionless diameter from sediment and fluid properties
-    static dimensionedScalar viscousDiameter
+    //- Compute viscous diameter
+    dimensionedScalar viscousDiameter
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
