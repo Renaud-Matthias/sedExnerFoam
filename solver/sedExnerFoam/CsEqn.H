@@ -223,6 +223,12 @@ Ws.correctBoundaryConditions();
 
 phip = fvc::flux(U + Ws);
 
+if (bed.bedMotion())
+{
+    surfaceScalarField& phipBed = phipBedPtr.ref();
+    phipBed = phip - mesh.setPhi().ref();
+}
+
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()
         << "  Min(Cs) = " << gMin(Cs)

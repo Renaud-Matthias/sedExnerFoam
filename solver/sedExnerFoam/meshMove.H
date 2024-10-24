@@ -62,7 +62,7 @@ for (const label patchID : bed.bedPatchesID())
         // loop over points belonging to face
         for (label pi=0; pi < nVerts; pi++)
         {
-            // label of point pi
+            // label of point pi, global
             const label piGlob = f.thisLabel(pi);
 
             scalar areaPF = 0;
@@ -88,8 +88,18 @@ for (const label patchID : bed.bedPatchesID())
             normWeight[piGlob] += areaPF;
         }
     }
-    // Normalise weight of interpolation
+    // Normalise interpolation weights
     dHpoints /= normWeight;
+
+    // zero displacements for faPatches
+    const labelList& fixedPointsLabels = fixedPatchPointLabelsPtr.ref();
+    
+    for(const label i : fixedPointsLabels)
+    {
+        Info << "point " << i;
+        Info << "; coords " << bed.aMesh().points()[i] << endl;
+        dHpoints[i] = 0.;
+    }
 
     dispVals -= eg * dHpoints;
 

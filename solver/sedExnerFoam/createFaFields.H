@@ -94,9 +94,91 @@ Info << "morphological acceleration factor is set to: "
 dimensionedScalar Qav(dimVelocity * dimLength, 0.01);
 Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);
 
+// list of patch to apply zeroDisplacements condition
+List<word> fixedFaPatchNames;
+
+if (bedloadProperties.found("fixedFaPatches"))
+{
+    fixedFaPatchNames = bedloadProperties.lookup("fixedFaPatches");
+}
+Info << "fixedFaPatchesNames: " << fixedFaPatchNames << endl;
+
+List<label> fixedFaPatchLabels;
+autoPtr<labelList> fixedPatchPointLabelsPtr;
+
 // create fa fields if morphology on
 if (bed.exist())
 {
+    const faBoundaryMesh& faBounds = bed.aMesh().boundary();
+    const uindirectPrimitivePatch& bp = bed.aMesh().patch();
+    /*Info << "\nfaMesh.edges: " << bed.aMesh().edges() << endl;
+    Info << "\nfaBoundaryMesh: " << faBounds.edgeLabels() << endl;
+    Info << "edge 44: " << bed.aMesh().edges()[44]
+        << ", " << bed.aMesh().points()[bp.edges()[44].first()]
+        << ", " << bed.aMesh().points()[bp.edges()[44].second()] << endl;
+    
+    Info << "edge 134: " << bed.aMesh().edges()[134]
+        << ", " << bed.aMesh().points()[bp.edges()[134].first()]
+        << ", " << bed.aMesh().points()[bp.edges()[134].second()] << endl;*/
+    label nFixedPatches = fixedFaPatchNames.size();
+    Info << "\nnumber of fixed faPatches: " << nFixedPatches << endl;
+    for (label bci=0; bci<nFixedPatches; bci++)
+    {
+        const word& faPatchName = fixedFaPatchNames[bci];
+        Info << "fixed faPatch " << bci << ": " << faPatchName;
+        label faPatchID = faBounds.findPatchID(fixedFaPatchNames[bci]);
+        if (faPatchID==-1)
+        {
+            FatalError << "in bedloadProperties,"
+                << "wrong entry for fixedFaPatches " << faPatchName
+                << "\nvalid options are: " << faBounds.names() << endl;
+            Info << abort(FatalError) << endl;
+        }
+        fixedFaPatchLabels.append(faPatchID);
+    }
+    Info << "fixedFaPatchID: " << fixedFaPatchLabels << endl;
+
+    // create a labelHashSet to store faPatch vertices labels
+    labelHashSet verticesSet;
+    
+    for(label bci=0; bci<fixedFaPatchLabels.size(); bci++)
+    {
+        label patchID = fixedFaPatchLabels[bci];
+        const faPatch& patch = faBounds[patchID];
+        const labelList& edgeList = patch.edgeLabels();
+
+        Info << "patch start in edge list: " << patch.start() << endl;
+        
+        Info << "number of edges in patch: " << patch.nEdges() << endl;
+        Info << "edges List: " << edgeList << endl;
+        for(const label edgei : edgeList)
+        {
+            // edge with local addressing
+            const edge& e = bp.edges()[edgei];
+            Info << "local edge label: " << edgei << " edge: " << e << endl;
+            Info << " - faMesh indexing, start: " << bed.aMesh().points()[e.start()];
+            Info << "; end: " << bed.aMesh().points()[e.end()] << endl;
+            Info << " - fvMesh indexing, start: " << mesh.points()[e.start()];
+            Info << "; end: " << mesh.points()[e.end()] << endl;
+            verticesSet.insert(e.start());
+            verticesSet.insert(e.end());
+        }
+    }
+    
+    fixedPatchPointLabelsPtr.reset(new labelList(verticesSet.size()));
+    Info << "vertices labelHashSet: " << verticesSet << endl;
+    labelList& fixedPatchPointLabels = fixedPatchPointLabelsPtr.ref();
+
+    label icount = 0;
+    for (const label pointLabel : verticesSet)
+    {
+        Info << pointLabel << "; " << endl;
+        fixedPatchPointLabels[icount] = pointLabel;
+        icount ++;
+    }
+
+    Info << "vertices labelList: " << fixedPatchPointLabelsPtr.ref() << endl;
+    
     Info << "Instantiate faMeshProjection" << endl;
 
     aMeshProjPtr.reset
@@ -179,7 +261,7 @@ if (bed.exist())
             (
                 "qb",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
@@ -195,7 +277,7 @@ if (bed.exist())
             (
                 "deltaH",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -212,7 +294,7 @@ if (bed.exist())
             (
                 "phiqb",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -229,7 +311,7 @@ if (bed.exist())
             (
                 "bedPhi",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -246,7 +328,7 @@ if (bed.exist())
             (
                 "dVsed",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -263,7 +345,7 @@ if (bed.exist())
             (
                 "DE",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -280,7 +362,7 @@ if (bed.exist())
             (
                 "critShields",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),

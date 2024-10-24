@@ -54,16 +54,17 @@ for (const label patchID : bed.bedPatchesID())
     {
         // label of owner cell of face
         label idNCell = bedPatch.faceCells()[facei];
-        scalar ci = Cs[idNCell];
+        //scalar ci = Cs[idNCell];
+        scalar ci = Cs.boundaryField()[patchID][facei];
         vector wsi = Ws[idNCell];
         scalar Sface = aMesh.S()[facei];
         scalar Vcell = mesh.V()[idNCell];
         scalar bedPhiFace = bedPhiPatch[facei];
         const vector& nFace = aMesh.faceAreaNormals()[facei];
         // deposition due to settling
-        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);
-        // deposition due to diffusion
-        //DepPatch[facei] +=
+        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/SfProj[facei]);
+        // deposition due to diffusion, not implemented
+        // error in case of non zero diffusion on bed
         DE[facei] = DepPatch[facei] - EroPatch[facei] * (Vcell/Sface);
     }
 }

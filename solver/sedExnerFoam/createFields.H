@@ -52,7 +52,6 @@ Info << "Reading/calculating face flux field phi\n" << endl;
 
 #include "createPhi.H"
 
-
 #include "createRDeltaT.H"
 
 #include "readGravitationalAcceleration.H"
@@ -183,6 +182,7 @@ autoPtr<volScalarField> diffSedPtr;  // turbulent diffusivity for sediment
 autoPtr<volScalarField> erosionPtr;  // erosion flux
 autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
+autoPtr<surfaceScalarField> phipBedPtr;  // 
 autoPtr<wallDist> bedDistPtr;  // wallDist for bed patches
 
 autoPtr<settlingModel> settlingModelPtr;
@@ -223,6 +223,27 @@ if (switchSuspension=="on")
         )
     );
 
+    volScalarField& Cs = CsPtr.ref();  // suspended load
+    volVectorField& Ws = WsPtr.ref();  // settling velocity
+
+    // Initialize Settling Model
+    Info << "Initialize settling Model\n" << endl;
+    settlingModelPtr.reset(new settlingModel(suspensionProperties));
+
+    Info<< "Initialize sediment settling velocity\n" << endl;
+    Ws = settlingModelPtr->Ufall
+        (
+            Cs,
+            CsMax,
+            dS,
+            rhoS,
+            rhoF,
+            nuF,
+            mag(g)
+        ) *g/mag(g);
+
+    Ws.correctBoundaryConditions();
+
     erosionPtr.reset
     (
         new volScalarField
@@ -257,9 +278,6 @@ if (switchSuspension=="on")
         )
     );
 
-    volScalarField& Cs = CsPtr.ref();  // suspended load
-    volVectorField& Ws = WsPtr.ref();  // settling velocity
-
     Info << "Reading/calculating face flux field phi\n" << endl;
     phipPtr.reset
     (
@@ -274,6 +292,25 @@ if (switchSuspension=="on")
                 IOobject::AUTO_WRITE
             ),
             fvc::flux(U+Ws)
+            //fvc::interpolate(U+Ws) & mesh.Sf()
+        )
+    );
+
+    surfaceScalarField& phip = phipPtr.ref();
+    Info << "Reading/calculating face flux field phi\n" << endl;
+    phipBedPtr.reset
+    (
+        new surfaceScalarField
+        (
+            IOobject
+            (
+                "phipBed",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            phip
             //fvc::interpolate(U+Ws) & mesh.Sf()
         )
     );
@@ -294,27 +331,7 @@ if (switchSuspension=="on")
             dimensionedScalar(dimViscosity, Zero)
         )
     );
-        
-    
-    // Initialize Settling Model
-    Info << "Initialize settling Model\n" << endl;
-    settlingModelPtr.reset(new settlingModel(suspensionProperties));
-
-    Info<< "Initialize sediment settling velocity\n" << endl;
-    Ws = settlingModelPtr->Ufall
-        (
-            Cs,
-            CsMax,
-            dS,
-            rhoS,
-            rhoF,
-            nuF,
-            mag(g)
-        ) *g/mag(g);
-
-    Ws.correctBoundaryConditions();
 }
-
 
 //phip = fvc::flux(U+Ws);
 
