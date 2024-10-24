@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2312                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -10,32 +10,36 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      faMeshDefinition;
+    object      faSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-polyMeshPatches ( "bed" );
-
-boundary
+ddtSchemes
 {
-    sidesFa
-    {
-        type patch;
-        neighbourPolyPatch sides;
-    }
-    
-    frontAndBackFa
-    {
-        type empty;
-        neighbourPolyPatch frontAndBackPlanes;
-    }
 }
 
-defaultPatch
+gradSchemes
 {
-    name empty;
-    type empty;
+	default       Gauss linear;
+}
+
+divSchemes
+{
+}
+
+laplacianSchemes
+{
+	default       Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+}
+
+lnGradSchemes
+{
+	default       corrected;
 }
 
 
-// ************************************************************************** //
+// ************************************************************************* //
