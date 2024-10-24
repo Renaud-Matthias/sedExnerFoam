@@ -5,7 +5,7 @@ Test for bedload value
 import numpy as np
 from fluidfoam import readof as rdf
 
-print("- running slope avalanche")
+print(" --- running slope avalanche --- ")
 
 time = "latestTime"
 

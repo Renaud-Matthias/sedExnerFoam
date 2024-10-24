@@ -5,7 +5,7 @@ Test for bedload value
 import numpy as np
 from fluidfoam import readof as rdf
 
-print("- running test equilibrium channel")
+print(" --- running test equilibrium channel --- ")
 
 time = "latestTime"
 

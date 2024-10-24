@@ -5,7 +5,7 @@ Test for bedload value
 import numpy as np
 from fluidfoam import readof as rdf
 
-print("- running sedimentation mass conservation")
+print(" --- running sedimentation mass conservation --- ")
 
 rhoS = 2650.  # sediment density
 porosity = 0.4
