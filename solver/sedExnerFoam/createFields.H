@@ -173,7 +173,8 @@ if (suspensionProperties.found("CsbMax"))
     scalar csbmaxVal = readScalar(suspensionProperties.lookup("CsbMax"));
     CsbMax.value() = Foam::min(CsMax.value(), csbmaxVal);
 }
-Info << "maximum reference sediment volumic fraction: " << CsbMax.value() << endl;
+Info << "maximum reference sediment volumic fraction: "
+    << CsbMax.value() << endl;
 
 // Instantiate pointers to fields associated with suspension
 autoPtr<volScalarField> CsPtr;  // suspended load concentration
@@ -182,7 +183,7 @@ autoPtr<volScalarField> diffSedPtr;  // turbulent diffusivity for sediment
 autoPtr<volScalarField> erosionPtr;  // erosion flux
 autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
-autoPtr<surfaceScalarField> phipBedPtr;  // 
+autoPtr<surfaceScalarField> phipBedPtr;  // mesh motion faces flux
 autoPtr<wallDist> bedDistPtr;  // wallDist for bed patches
 
 autoPtr<settlingModel> settlingModelPtr;

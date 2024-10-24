@@ -94,7 +94,7 @@ for (const label patchID : bed.bedPatchesID())
     // zero displacements for faPatches
     const labelList& fixedPointsLabels = fixedPatchPointLabelsPtr.ref();
     
-    for(const label i : fixedPointsLabels)
+    for (const label i : fixedPointsLabels)
     {
         Info << "point " << i;
         Info << "; coords " << bed.aMesh().points()[i] << endl;

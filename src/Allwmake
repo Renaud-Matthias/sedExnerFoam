@@ -24,5 +24,6 @@ wmake libso settlingModels
 wmake libso sedimentBed
 wmake libso faMeshProjection
 wmake libso bedloadModels
+wmake libso criticalShieldsModels
 
 #------------------------------------------------------------------------------

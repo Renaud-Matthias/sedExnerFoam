@@ -40,7 +40,7 @@ class criticalShieldsModel
     //- dictionary containing parameters fro criticalShieldsModel
     const dictionary& dict_;
 
-    
+
     public:
     
     //- Runtime type information
@@ -73,7 +73,7 @@ class criticalShieldsModel
     //- Destructor
     virtual ~criticalShieldsModel();
 
-    
+
     // Member functions
 
     //- Compute viscous diameter

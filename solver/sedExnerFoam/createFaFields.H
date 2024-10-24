@@ -111,15 +111,6 @@ if (bed.exist())
 {
     const faBoundaryMesh& faBounds = bed.aMesh().boundary();
     const uindirectPrimitivePatch& bp = bed.aMesh().patch();
-    /*Info << "\nfaMesh.edges: " << bed.aMesh().edges() << endl;
-    Info << "\nfaBoundaryMesh: " << faBounds.edgeLabels() << endl;
-    Info << "edge 44: " << bed.aMesh().edges()[44]
-        << ", " << bed.aMesh().points()[bp.edges()[44].first()]
-        << ", " << bed.aMesh().points()[bp.edges()[44].second()] << endl;
-    
-    Info << "edge 134: " << bed.aMesh().edges()[134]
-        << ", " << bed.aMesh().points()[bp.edges()[134].first()]
-        << ", " << bed.aMesh().points()[bp.edges()[134].second()] << endl;*/
     label nFixedPatches = fixedFaPatchNames.size();
     Info << "\nnumber of fixed faPatches: " << nFixedPatches << endl;
     for (label bci=0; bci<nFixedPatches; bci++)
@@ -141,22 +132,23 @@ if (bed.exist())
     // create a labelHashSet to store faPatch vertices labels
     labelHashSet verticesSet;
     
-    for(label bci=0; bci<fixedFaPatchLabels.size(); bci++)
+    for (label bci=0; bci<fixedFaPatchLabels.size(); bci++)
     {
         label patchID = fixedFaPatchLabels[bci];
         const faPatch& patch = faBounds[patchID];
         const labelList& edgeList = patch.edgeLabels();
 
         Info << "patch start in edge list: " << patch.start() << endl;
-        
+
         Info << "number of edges in patch: " << patch.nEdges() << endl;
         Info << "edges List: " << edgeList << endl;
-        for(const label edgei : edgeList)
+        for (const label edgei : edgeList)
         {
             // edge with local addressing
             const edge& e = bp.edges()[edgei];
             Info << "local edge label: " << edgei << " edge: " << e << endl;
-            Info << " - faMesh indexing, start: " << bed.aMesh().points()[e.start()];
+            Info << " - faMesh indexing, start: "
+                << bed.aMesh().points()[e.start()];
             Info << "; end: " << bed.aMesh().points()[e.end()] << endl;
             Info << " - fvMesh indexing, start: " << mesh.points()[e.start()];
             Info << "; end: " << mesh.points()[e.end()] << endl;
