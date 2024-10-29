@@ -35,6 +35,10 @@ volVectorField& Ws = WsPtr.ref();  // settling velocity
 areaScalarField& DE = DEptr.ref();  // deposition - erosion
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 
+areaScalarField& dH = dHptr.ref();
+scalar deltaT = runTime.time().deltaT().value();
+
+
 const faMesh& aMesh = bed.aMesh();
 
 for (const label patchID : bed.bedPatchesID())
@@ -61,26 +65,26 @@ for (const label patchID : bed.bedPatchesID())
         scalar Vcell = mesh.V()[idNCell];
         scalar bedPhiFace = bedPhiPatch[facei];
         const vector& nFace = aMesh.faceAreaNormals()[facei];
+
+        /*Info << "cb = " << ci << endl
+            << "Sf = " << Sface << endl
+            << "Sfproj = " << SfProj[facei] << endl
+            << "nface = " << nFace << endl
+            << "bedPhi = " << bedPhiFace
+            << ", SfProj * dzb / dt = " << SfProj[facei] * dH[facei] / deltaT
+            << endl;*/
         // deposition due to settling
-        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/SfProj[facei]);
+        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);  // option 1
+        //DepPatch[facei] = ci * (Foam::mag(wsi) + dH[facei]/deltaT);  // option 2
         // deposition due to diffusion, not implemented
         // error in case of non zero diffusion on bed
         DE[facei] = DepPatch[facei] - EroPatch[facei] * (Vcell/Sface);
     }
 }
 
-/*DE.primitiveFieldRef() =
-    bed.vsm.ref().mapToSurface<scalar>
-    (
-        Dep.boundaryFieldRef()
-    )
-  - bed.vsm.ref().mapToSurface<scalar>
-    (
-        Ero.boundaryFieldRef()
-    );*/
-
 // deposition and erosion contribution in Exner equation
 forAll(bed.aMesh().areaCentres(), facei)
 {
-    dVsed[facei] += DE[facei] * SfProj[facei];
+    dVsed[facei] += DE[facei] * aMesh.S()[facei];  // option 1
+    //dVsed[facei] += DE[facei] * SfProj[facei];  // option 2
 }
