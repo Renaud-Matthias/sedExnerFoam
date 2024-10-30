@@ -33,12 +33,12 @@ jobs:
       - name: Test sedimMassConservation1D
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
-          cd tests/massConservation &&
+          cd tests/sedimMassConservation1D &&
           runuser -u sudofoam -- ./Allrun > /dev/null
       - name: Test sedimMassConservation1D_tilted
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
-          cd tests/massConservation &&
+          cd tests/sedimMassConservation1D_tilted &&
           runuser -u sudofoam -- ./Allrun > /dev/null
       - name: Test slopeAvalanche
         run: |
