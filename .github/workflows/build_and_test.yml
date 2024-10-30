@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: opencfd/openfoam-dev:2312
+    container: opencfd/openfoam-dev:2406
     defaults:
       run:
         shell: bash
@@ -12,7 +12,6 @@ jobs:
         run: |
           apt-get update &&
           apt-get -y install python3-pip git &&
-          pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
