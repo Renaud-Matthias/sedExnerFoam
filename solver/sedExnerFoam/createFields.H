@@ -183,7 +183,6 @@ autoPtr<volScalarField> diffSedPtr;  // turbulent diffusivity for sediment
 autoPtr<volScalarField> erosionPtr;  // erosion flux
 autoPtr<volScalarField> depositionPtr;  // deposition flux
 autoPtr<surfaceScalarField> phipPtr;  // flux of suspended sediment
-autoPtr<surfaceScalarField> phipBedPtr;  // mesh motion faces flux
 autoPtr<wallDist> bedDistPtr;  // wallDist for bed patches
 
 autoPtr<settlingModel> settlingModelPtr;
@@ -293,25 +292,6 @@ if (switchSuspension=="on")
                 IOobject::AUTO_WRITE
             ),
             fvc::flux(U+Ws)
-            //fvc::interpolate(U+Ws) & mesh.Sf()
-        )
-    );
-
-    surfaceScalarField& phip = phipPtr.ref();
-    Info << "Reading/calculating face flux field phi\n" << endl;
-    phipBedPtr.reset
-    (
-        new surfaceScalarField
-        (
-            IOobject
-            (
-                "phipBed",
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            phip
             //fvc::interpolate(U+Ws) & mesh.Sf()
         )
     );

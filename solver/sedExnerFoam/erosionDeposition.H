@@ -35,8 +35,8 @@ volVectorField& Ws = WsPtr.ref();  // settling velocity
 areaScalarField& DE = DEptr.ref();  // deposition - erosion
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 
-areaScalarField& dH = dHptr.ref();
-scalar deltaT = runTime.time().deltaT().value();
+//areaScalarField& dH = dHptr.ref();
+//scalar deltaT = runTime.time().deltaT().value();
 
 
 const faMesh& aMesh = bed.aMesh();
