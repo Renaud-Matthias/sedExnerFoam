@@ -24,11 +24,11 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
-    -I../../src/settlingModels/lnInclude \
-    -I../../src/criticalShieldsModels/lnInclude \
-    -I../../src/bedloadModels/lnInclude \
-    -I../../src/sedimentBed/lnInclude \
-    -I../../src/faMeshProjection/lnInclude
+    -I../src/settlingModels/lnInclude \
+    -I../src/criticalShieldsModels/lnInclude \
+    -I../src/bedloadModels/lnInclude \
+    -I../src/sedimentBed/lnInclude \
+    -I../src/faMeshProjection/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \

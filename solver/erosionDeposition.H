@@ -23,7 +23,7 @@ License
 // Access to horizontaly projected variables
 faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
 // area of faces projected on horizontal plane
-const scalarField& SfProj = meshProj.S();
+//const scalarField& SfProj = meshProj.S();
 
 // reference to erosion and deposition terms
 volScalarField& Ero = erosionPtr.ref();
@@ -74,8 +74,10 @@ for (const label patchID : bed.bedPatchesID())
             << ", SfProj * dzb / dt = " << SfProj[facei] * dH[facei] / deltaT
             << endl;*/
         // deposition due to settling
-        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);  // option 1
-        //DepPatch[facei] = ci * (Foam::mag(wsi) + dH[facei]/deltaT);  // option 2
+        // option 1
+        DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);
+        // option 2
+        //DepPatch[facei] = ci * (Foam::mag(wsi) + dH[facei]/deltaT);
         // deposition due to diffusion, not implemented
         // error in case of non zero diffusion on bed
         DE[facei] = DepPatch[facei] - EroPatch[facei] * (Vcell/Sface);
