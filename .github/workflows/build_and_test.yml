@@ -24,26 +24,27 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           sudo chmod -R a+rwX tests && cd tests/1DSedim &&
-          runuser -u sudofoam -- ./Allrun &&
-          python3 test.py
+          runuser -u sudofoam -- ./Allrun
       - name: Test equilibriumChannel
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/equilibriumChannel &&
-          runuser -u sudofoam -- ./Allrun &&
-          python3 test.py
-      - name: Test massConservation
+          runuser -u sudofoam -- ./Allrun
+      - name: Test sedimMassConservation1D
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/massConservation &&
-          runuser -u sudofoam -- ./Allrun > /dev/null &&
-          python3 test.py
+          runuser -u sudofoam -- ./Allrun > /dev/null
+      - name: Test sedimMassConservation1D_tilted
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
+          cd tests/massConservation &&
+          runuser -u sudofoam -- ./Allrun > /dev/null
       - name: Test slopeAvalanche
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/slopeAvalanche &&
-          runuser -u sudofoam -- ./Allrun > /dev/null &&
-          python3 test.py
+          runuser -u sudofoam -- ./Allrun > /dev/null
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
