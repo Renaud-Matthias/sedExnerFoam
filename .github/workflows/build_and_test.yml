@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: opencfd/openfoam-dev:2406
+    container: opencfd/openfoam-dev:2312
     defaults:
       run:
         shell: bash
