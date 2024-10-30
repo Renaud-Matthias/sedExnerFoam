@@ -46,26 +46,26 @@ massBed = np.zeros(ntimes-1)
 for i in range(ntimes-1):
     t, tnext = timeList[i], timeList[i+1]
     dt = float(tnext) - float(t)
-    if i==0:
+    if i == 0:
         zbed_t = 0.  # initial bed position
     else:
-        zbed_t= Zfaces[0]
-    
+        zbed_t = Zfaces[0]
+
     # get suspended mass
     Cs = rdf.readscalar("./", time_name=t, name="Cs", verbose=False)
-    if Cs.shape==(1,):
+    if Cs.shape == (1,):
         Cs = np.ones(ncells) * Cs
     try:
         cellVolumes = rdf.readscalar("./", t, "V")
-    except:
+    except FileNotFoundError:
         os.system("postProcess -func writeCellVolumes")
         cellVolumes = rdf.readscalar("./", t, "V")
-    if cellVolumes.shape==(1,):
+    if cellVolumes.shape == (1,):
         cellVolumes = np.ones(ncells) * cellVolumes
     massSuspension[i] = rhoS * np.sum(Cs * cellVolumes)
     # get bed mass
     Zcells, Zfaces = myReadMesh("./", tnext)
-        
+
     # bed is only one face, mesh is 1D
     massBed[i] = rhoS * CsMax * Zfaces[0] * bedArea
 
