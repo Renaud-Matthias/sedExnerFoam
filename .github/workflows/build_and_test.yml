@@ -24,6 +24,7 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           sudo chmod -R a+rwX tests && cd tests &&
+          pip3 list &&
           python3 mytest.py
       - name: Build and install
         run: |
