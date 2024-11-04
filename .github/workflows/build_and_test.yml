@@ -13,7 +13,7 @@ jobs:
           apt-get update &&
           apt-get -y install python3 python3-pip git python3-venv &&
           python3 -m venv /home/sudofoam/pyenv &&
-          source /home/sudofoam/pyenv/bin/activate
+          source /home/sudofoam/pyenv/bin/activate &&
           pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -26,28 +26,33 @@ jobs:
       - name: Test 1DSedim
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           sudo chmod -R a+rwX tests && cd tests/1DSedim &&
           runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test equilibriumChannel
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           cd tests/equilibriumChannel &&
-          runuser -u sudofoam -- ./Allrun
+          runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test sedimMassConservation1D
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           cd tests/sedimMassConservation1D &&
-          runuser -u sudofoam -- ./Allrun > /dev/null
+          runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test sedimMassConservation1D_tilted
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           cd tests/sedimMassConservation1D_tilted &&
-          runuser -u sudofoam -- ./Allrun > /dev/null
+          runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test slopeAvalanche
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           cd tests/slopeAvalanche &&
-          runuser -u sudofoam -- ./Allrun > /dev/null
+          runuser -u sudofoam -- ./Allrun > /dev/null && python3 test.py
   checkstyle:
     runs-on: ubuntu-latest
     defaults:
