@@ -19,6 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #include "fallModel.H"
 
 
@@ -80,6 +81,23 @@ Foam::settlingModels::fallModel::New
 }
 
 // Member functions
+
+Foam::dimensionedScalar Foam::settlingModels::fallModel::Dstar
+(
+    const dimensionedScalar& dS,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nuF,
+    const dimensionedScalar& g
+) const
+{
+    dimensionedScalar s = rhoS/rhoF;
+    dimensionedScalar dstar = dS
+        * Foam::cbrt((s-1)*g / Foam::sqr(nuF));
+    Info << "Dstar = " << dstar << endl;
+    return dstar;
+}
+
 
 Foam::dimensionedScalar Foam::settlingModels::fallModel::getUfall0
 (

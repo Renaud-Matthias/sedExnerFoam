@@ -20,12 +20,12 @@ MULESformulation  off;
 
 fallModel
 {
-	type   Deigaard;
+	type   Fredsoe;
 }
 
 hindranceModel
 {
-	type   None;
+	type   none;
 }
 
 // ************************************************************************* //

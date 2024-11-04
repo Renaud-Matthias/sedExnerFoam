@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: opencfd/openfoam-dev:2312
+    container: opencfd/openfoam-dev:2406
     defaults:
       run:
         shell: bash
@@ -11,7 +11,9 @@ jobs:
       - name: install python3 packages
         run: |
           apt-get update &&
-          apt-get -y install python3-pip git &&
+          apt-get -y install python3 python3-pip git python3-venv &&
+          python3 -m venv /home/sudofoam/pyenv &&
+          source /home/sudofoam/pyenv/bin/activate
           pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -25,26 +27,27 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           sudo chmod -R a+rwX tests && cd tests/1DSedim &&
-          runuser -u sudofoam -- ./Allrun &&
-          python3 test.py
+          runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test equilibriumChannel
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/equilibriumChannel &&
-          runuser -u sudofoam -- ./Allrun &&
-          python3 test.py
-      - name: Test massConservation
+          runuser -u sudofoam -- ./Allrun
+      - name: Test sedimMassConservation1D
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
-          cd tests/massConservation &&
-          runuser -u sudofoam -- ./Allrun > /dev/null &&
-          python3 test.py
+          cd tests/sedimMassConservation1D &&
+          runuser -u sudofoam -- ./Allrun > /dev/null
+      - name: Test sedimMassConservation1D_tilted
+        run: |
+          shopt -s expand_aliases && source /openfoam/bash.rc &&
+          cd tests/sedimMassConservation1D_tilted &&
+          runuser -u sudofoam -- ./Allrun > /dev/null
       - name: Test slopeAvalanche
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           cd tests/slopeAvalanche &&
-          runuser -u sudofoam -- ./Allrun > /dev/null &&
-          python3 test.py
+          runuser -u sudofoam -- ./Allrun > /dev/null
   checkstyle:
     runs-on: ubuntu-latest
     defaults:

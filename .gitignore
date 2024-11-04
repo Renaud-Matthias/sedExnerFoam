@@ -14,4 +14,11 @@ log*
 postProcessing
 dynamicCode
 tutorials/PY/Figures
+tutorials/laminar/**/*.py
+tutorials/RAS/**/*.py
+tests/**/*.py
+!tests/**/test.py
 MUSTE_NS?_*
+doc/html
+doc/latex
+tests/unitTests

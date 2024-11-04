@@ -10,6 +10,6 @@ then
 fi
 
 src/Allwclean $*
-solver/suspensionFoam/Allwclean $*
+solver/Allwclean $*
 
 #------------------------------------------------------------------------------

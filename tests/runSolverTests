@@ -3,14 +3,16 @@
 nTests=0  # number of test
 failedTests=0  # counter for failed tests
 
-pathTests="./1DSedim ./equilibriumChannel ./massConservation ./slopeAvalanche"
+pathTests="./1DSedim ./equilibriumChannel ./sedimMassConservation1D ./sedimMassConservation1D_tilted ./slopeAvalanche"
+
+basePath=$(pwd)
 
 echo "run sedExnerFoam tests"
 
 for path in $pathTests
 do
     nTests=$(( nTests + 1 ))
-    echo "path: " $path
+    echo "\npath: " $path
     cd $path
     ./Allrun > /dev/null 2>&1
     python test.py
@@ -26,7 +28,7 @@ do
     fi
     
     ./Allclean > /dev/null 2>&1
-    cd -
+    cd $basePath
 done
 
 if test "$failedTests" -ne 0

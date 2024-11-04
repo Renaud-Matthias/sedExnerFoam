@@ -20,7 +20,7 @@ MULESformulation   off;
 
 fallModel
 {
-	type   Deigaard;
+	type   Fredsoe;
 }
 
 hindranceModel

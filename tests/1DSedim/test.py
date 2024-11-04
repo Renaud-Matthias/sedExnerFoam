@@ -8,7 +8,7 @@ Return error if results and data do not match
 import numpy as np
 from fluidfoam import readof as rdf
 
-print("- running test 1DSedimentation (MULES formulation)")
+print(" --- running test 1DSedimentation (MULES formulation) --- ")
 
 Ysimu = rdf.readmesh('./', verbose=False)[1]
 

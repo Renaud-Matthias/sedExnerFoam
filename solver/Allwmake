@@ -1,40 +1,25 @@
 #!/bin/sh
 cd "${0%/*}" || exit                            # Run from this directory
-targetType=libso
+#------------------------------------------------------------------------------
 
-[ -d "$WM_PROJECT_DIR" ] || {
-    echo "$0: The OpenFOAM environment not set?" 1>&2
-    exit 1
-}
-if [ -f "$WM_PROJECT_DIR"/wmake/scripts/AllwmakeParseArguments ]
-then  . "$WM_PROJECT_DIR"/wmake/scripts/AllwmakeParseArguments
+# Newer openfoam.com provides 'wmake -version' -> API
+foam_api=$(wmake -version 2>/dev/null)
+if [ -z "$foam_api" ]
+then
+   # Or get from the WM_PROJECT_VERSION
+   foam_api="${WM_PROJECT_VERSION}-00"
+   foam_api="$(echo "$foam_api" | sed -e 's/[v+]//g; s/\.x/-9/; s/[-.]/\n/g' | grep "[0-9]" | head -3 | tr -d '\n')"
 fi
-
+if [ "${#foam_api}" -gt 3 ]
+then
+    # Truncate to 3 characters
+    foam_api="$(echo "$foam_api" | head -c3)"
+fi
 #------------------------------------------------------------------------------
-# Build into FOAM_USER_{APPBIN,LIBBIN} unless otherwise specified with
-# -prefix or FOAM_MODULE_{APPBIN,LIBBIN} env varables
+export OF_VERSION="$foam_api"
 
-moduleName="sedExnerFoam"
+set -x
 
-echo "========================================"
-date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
-echo "Starting compile of $moduleName with ${WM_PROJECT_DIR##*/}"
-echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
-echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
-echo "  prefix = ${FOAM_MODULE_PREFIX:-default (user)}"
-echo
+wmake
 
-#------------------------------------------------------------------------------
-
-sedExnerFoam/Allwmake $targetType $*
-
-
-# Some summary information
-echo
-date "+%Y-%m-%d %H:%M:%S %z" 2>/dev/null || echo "date is unknown"
-echo "========================================"
-echo "  Finished compile of $moduleName with ${WM_PROJECT_DIR##*/}"
-echo "  $WM_COMPILER $WM_COMPILER_TYPE compiler"
-echo "  ${WM_OPTIONS}, with ${WM_MPLIB} ${FOAM_MPI}"
-echo
 #------------------------------------------------------------------------------

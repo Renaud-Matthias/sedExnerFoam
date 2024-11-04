@@ -57,6 +57,6 @@ Foam::criticalShieldsModels::Soulsby::criticalShields0
 {
     dimensionedScalar critShields =
         (0.3 / (1 + 1.2*Dstar))
-        + 0.055 * (1 - Foam::exp(0.02*Dstar));
+        + 0.055 * (1 - Foam::exp(-0.02*Dstar));
     return critShields;
 }

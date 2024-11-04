@@ -2,6 +2,7 @@
 Function to read dataset from Lyn (1988)
 """
 
+
 def readLynParams(pathParams, caseName=None):
     """
     pathData: str, path to folder where experimental data from Lyn are stored
