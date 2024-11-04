@@ -50,6 +50,7 @@ jobs:
       - name: Test slopeAvalanche
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
+          source /home/sudofoam/pyenv/bin/activate &&
           cd tests/slopeAvalanche &&
           runuser -u sudofoam -- ./Allrun > /dev/null && python3 test.py
   checkstyle:
