@@ -11,7 +11,8 @@ jobs:
       - name: install python3 packages
         run: |
           apt-get update &&
-          apt-get -y install python3-pip git &&
+          apt-get -y install python3-pip git python3-venv &&
+          python3 -m venv /home/sudofoam/pyenv &&
           pip3 install fluidfoam
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -25,7 +26,7 @@ jobs:
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           sudo chmod -R a+rwX tests && cd tests/1DSedim &&
-          runuser -u sudofoam -- ./Allrun && python test.py
+          runuser -u sudofoam -- ./Allrun && python3 test.py
       - name: Test equilibriumChannel
         run: |
           shopt -s expand_aliases && source /openfoam/bash.rc &&
