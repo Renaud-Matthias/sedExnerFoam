@@ -56,10 +56,10 @@ for i in range(ntimes-1):
     if Cs.shape == (1,):
         Cs = np.ones(ncells) * Cs
     try:
-        cellVolumes = rdf.readscalar("./", t, "V")
+        cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
     except FileNotFoundError:
         os.system("postProcess -func writeCellVolumes")
-        cellVolumes = rdf.readscalar("./", t, "V")
+        cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
     if cellVolumes.shape == (1,):
         cellVolumes = np.ones(ncells) * cellVolumes
     massSuspension[i] = rhoS * np.sum(Cs * cellVolumes)
