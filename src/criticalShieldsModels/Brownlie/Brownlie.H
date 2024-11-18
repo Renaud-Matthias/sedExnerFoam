@@ -19,8 +19,8 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef ShieldsFixedValue_H
-#define ShieldsFixedValue_H
+#ifndef Brownlie_H
+#define Brownlie_H
 
 #include "criticalShieldsModel.H"
 
@@ -29,39 +29,35 @@ namespace Foam
 namespace criticalShieldsModels
 {
 
-class fixedValue
+class Brownlie
 :
     public criticalShieldsModel
 {
-    private:
 
-    const scalar value_;
-
-    public:
+public:
 
     // Runtime type information
-    TypeName("fixedValue");
+    TypeName("Brownlie");
+
 
     // Constructors
 
-    //- Construct from components
-    fixedValue(const dictionary& dict);
+    // Construct from components
+    Brownlie(const dictionary& dict);
 
 
     // Destructor
-    virtual ~fixedValue();
+    virtual ~Brownlie();
 
 
     // Member functions
-
-    //- Return critical Shields number, computed from dimless diameter
     dimensionedScalar criticalShields0
     (
         const dimensionedScalar& Dstar
     ) const;
 };
 
-} // End namespace criticalShieldsModels
+} // End namespace bedloadModels
 } // End namespace Foam
 
 #endif

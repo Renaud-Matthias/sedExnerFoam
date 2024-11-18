@@ -19,49 +19,47 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef ShieldsFixedValue_H
-#define ShieldsFixedValue_H
+#include "Brownlie.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "criticalShieldsModel.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace criticalShieldsModels
 {
+    defineTypeNameAndDebug(Brownlie, 0);
+    addToRunTimeSelectionTable(criticalShieldsModel, Brownlie, dictionary);
+}
+}
 
-class fixedValue
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::criticalShieldsModels::Brownlie::Brownlie(const dictionary& dict)
 :
-    public criticalShieldsModel
+    criticalShieldsModel(dict)
 {
-    private:
+}
 
-    const scalar value_;
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-    public:
+Foam::criticalShieldsModels::Brownlie::~Brownlie()
+{}
 
-    // Runtime type information
-    TypeName("fixedValue");
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-    // Constructors
-
-    //- Construct from components
-    fixedValue(const dictionary& dict);
-
-
-    // Destructor
-    virtual ~fixedValue();
-
-
-    // Member functions
-
-    //- Return critical Shields number, computed from dimless diameter
-    dimensionedScalar criticalShields0
-    (
-        const dimensionedScalar& Dstar
-    ) const;
-};
-
-} // End namespace criticalShieldsModels
-} // End namespace Foam
-
-#endif
+Foam::dimensionedScalar
+Foam::criticalShieldsModels::Brownlie::criticalShields0
+(
+    const dimensionedScalar& Dstar
+) const
+{
+    dimensionedScalar critShields =
+        (0.22 / Foam::pow(Dstar, 0.9))
+        + Foam::pow(
+            0.0610,
+            -7.7 * Foam::pow(Dstar, -0.9)
+        );
+    return critShields;
+}

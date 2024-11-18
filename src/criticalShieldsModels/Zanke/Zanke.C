@@ -19,49 +19,47 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef ShieldsFixedValue_H
-#define ShieldsFixedValue_H
+#include "Zanke.H"
+#include "addToRunTimeSelectionTable.H"
 
-#include "criticalShieldsModel.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
 namespace criticalShieldsModels
 {
+    defineTypeNameAndDebug(Zanke, 0);
+    addToRunTimeSelectionTable(criticalShieldsModel, Zanke, dictionary);
+}
+}
 
-class fixedValue
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::criticalShieldsModels::Zanke::Zanke(const dictionary& dict)
 :
-    public criticalShieldsModel
+    criticalShieldsModel(dict)
 {
-    private:
+}
 
-    const scalar value_;
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-    public:
+Foam::criticalShieldsModels::Zanke::~Zanke()
+{}
 
-    // Runtime type information
-    TypeName("fixedValue");
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-    // Constructors
-
-    //- Construct from components
-    fixedValue(const dictionary& dict);
-
-
-    // Destructor
-    virtual ~fixedValue();
-
-
-    // Member functions
-
-    //- Return critical Shields number, computed from dimless diameter
-    dimensionedScalar criticalShields0
-    (
-        const dimensionedScalar& Dstar
-    ) const;
-};
-
-} // End namespace criticalShieldsModels
-} // End namespace Foam
-
-#endif
+Foam::dimensionedScalar
+Foam::criticalShieldsModels::Zanke::criticalShields0
+(
+    const dimensionedScalar& Dstar
+) const
+{
+    dimensionedScalar critShields =
+        (0.0145 / Foam::pow(Dstar, 0.5))
+        + Foam::pow(
+            0.04510,
+            1100 * Foam::pow(Dstar, -2.25)
+        );
+    return critShields;
+}

@@ -1,6 +1,8 @@
 criticalShieldsModel.C
+Brownlie/Brownlie.C
 fixedValue/fixedValue.C
 Miedema/Miedema.C
 Soulsby/Soulsby.C
+Zanke/Zanke.C
 
 LIB = $(FOAM_USER_LIBBIN)/libcriticalShieldsModels

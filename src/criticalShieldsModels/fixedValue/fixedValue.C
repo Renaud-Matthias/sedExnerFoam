@@ -38,8 +38,10 @@ namespace criticalShieldsModels
 
 Foam::criticalShieldsModels::fixedValue::fixedValue(const dictionary& dict)
 :
-    criticalShieldsModel(dict)
-{}
+    criticalShieldsModel(dict),
+    value_(dict_.get<scalar>("value"))
+{
+}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -54,6 +56,6 @@ Foam::criticalShieldsModels::fixedValue::criticalShields0
     const dimensionedScalar& Dstar
 ) const
 {
-    dimensionedScalar shieldsC0(dimless, dict_.get<scalar>("value"));
+    dimensionedScalar shieldsC0(dimless, value_);
     return shieldsC0;
 }
