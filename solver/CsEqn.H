@@ -79,13 +79,6 @@ if (bed.exist())
         const scalarField& bedPhiPatch = bedPhi.boundaryFieldRef()[patchID];
         // reference level
         scalar zbRef = 2.5 * dS.value();
-        // dimensionless sediment diameter
-        scalar sRatio = rhoS.value() / rhoF.value();  // density ratio
-        scalar Dstar = dS.value()
-            * Foam::pow(
-                (sRatio - 1) * mag(g).value() / Foam::pow(nuF.value(), 2),
-                1.0/3.0
-            );
 
         forAll(bedPatch, facei)
         {
@@ -97,7 +90,7 @@ if (bed.exist())
                 Foam::min(
                     0.015 * (dS.value()/zbRef)
                   * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
-                  * Foam::pow(Dstar, -0.3),
+                    * Foam::pow(Dstar.value(), -0.3),
                     CsbMax.value()
                 );
             // label of neighbour cell

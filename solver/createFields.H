@@ -72,10 +72,20 @@ IOdictionary transportProperties
 // fluid and sediment properties
 // fluid kinematic viscosity
 dimensionedScalar nuF("nu", transportProperties);
+// water density (kg.m-3), should be changed and read in case
+dimensionedScalar rhoF(dimDensity, 1000);
 // sediment density (kg.m-3)
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
+// density ratio
+dimensionedScalar sRatio = rhoS / rhoF;
 // sediment diameter (m)
 dimensionedScalar dS("dS", dimLength, transportProperties);
+// dimension less sediment diameter
+dimensionedScalar Dstar = dS
+    * Foam::pow(
+        (sRatio - 1) * mag(g) / Foam::pow(nuF, 2),
+        1.0/3.0
+    );
 // maximum sediment volumic fraction (1 - porosity)
 dimensionedScalar CsMax("CsMax", dimless, transportProperties);
 // porosity of granular material
@@ -88,9 +98,6 @@ if (transportProperties.found("Sc"))
 {
     Sc.value() = readScalar(transportProperties.lookup("Sc"));
 }
-
-// water density, should be changed and read in case
-dimensionedScalar rhoF(dimDensity, 1000);
 
 Info<< "Reading suspensionProperties\n" << endl;
 IOdictionary suspensionProperties

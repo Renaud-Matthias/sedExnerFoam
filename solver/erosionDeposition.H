@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 // Access to horizontaly projected variables
-faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
+//faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
 // area of faces projected on horizontal plane
 //const scalarField& SfProj = meshProj.S();
 

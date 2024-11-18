@@ -28,10 +28,11 @@ dimensionedScalar smallVal(dimless, SMALL);
 vector eg = (g/mag(g)).value();
 
 // Access bedload model and critical Shields number
-const bedloadModel& bedloadMod = bedloadModelPtr.ref();
+const bedloadModel& bedload = bedloadModelPtr.ref();
 areaScalarField& critShields = critShieldsPtr.ref();
 // base critical Shields number
-const dimensionedScalar& critShields0 = bedloadMod.criticalShields0();
+const dimensionedScalar& critShields0 =
+    critShieldsModelPtr->criticalShields0(Dstar);
 
 // shear stress direction
 vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
@@ -65,7 +66,7 @@ forAll(critShields, facei)
 }
 
 // compute bedload from Shields number
-qb = bedloadMod.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
+qb = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
 
 // additional bedload due to avalanche
 if (bed.isAvalanche())

@@ -71,8 +71,8 @@ autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
 autoPtr<areaScalarField> dVsedPtr;  // volumic variation, face displacements
 autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
 // models relative to bedload and morphology
-autoPtr<bedloadModel> bedloadModelPtr;  // bedloadModel
-// critical Shields
+autoPtr<bedloadModel> bedloadModelPtr;
+// Pointer to critical Shields model
 autoPtr<criticalShieldsModels::criticalShieldsModel>
 critShieldsModelPtr;
 
@@ -137,21 +137,10 @@ if (bed.exist())
         label patchID = fixedFaPatchLabels[bci];
         const faPatch& patch = faBounds[patchID];
         const labelList& edgeList = patch.edgeLabels();
-
-        Info << "patch start in edge list: " << patch.start() << endl;
-
-        Info << "number of edges in patch: " << patch.nEdges() << endl;
-        Info << "edges List: " << edgeList << endl;
         for (const label edgei : edgeList)
         {
             // edge with local addressing
             const edge& e = bp.edges()[edgei];
-            Info << "local edge label: " << edgei << " edge: " << e << endl;
-            Info << " - faMesh indexing, start: "
-                << bed.aMesh().points()[e.start()];
-            Info << "; end: " << bed.aMesh().points()[e.end()] << endl;
-            Info << " - fvMesh indexing, start: " << mesh.points()[e.start()];
-            Info << "; end: " << mesh.points()[e.end()] << endl;
             verticesSet.insert(e.start());
             verticesSet.insert(e.end());
         }
@@ -168,8 +157,6 @@ if (bed.exist())
         fixedPatchPointLabels[icount] = pointLabel;
         icount ++;
     }
-
-    Info << "vertices labelList: " << fixedPatchPointLabelsPtr.ref() << endl;
     
     Info << "Instantiate faMeshProjection" << endl;
 
@@ -189,16 +176,30 @@ if (bed.exist())
     }
 
     // model for critical Shields number
+    dictionary defaultCritShieldsDict;
+    defaultCritShieldsDict.add(keyType("type"), "fixedValue");
+    defaultCritShieldsDict.add(keyType("value"), 0.047);
+    // if dictionary not present, defaultCritShieldsDict is applied
+    // default is fixedValue, value = 0.047
     if (bedloadProperties.found("criticalShieldsModel"))
     {
         const dictionary critShieldsDict =
             bedloadProperties.subDict("criticalShieldsModel");
-
         critShieldsModelPtr.reset
         (
             criticalShieldsModels::criticalShieldsModel::New
             (
                 critShieldsDict
+            )
+        );
+    }
+    else
+    {
+        critShieldsModelPtr.reset
+        (
+            criticalShieldsModels::criticalShieldsModel::New
+            (
+                defaultCritShieldsDict
             )
         );
     }
@@ -359,7 +360,7 @@ if (bed.exist())
                 IOobject::NO_WRITE
             ),
             bed.aMesh(),
-            bedloadMod.criticalShields0()
+            critShieldsModelPtr->criticalShields0(Dstar)
         )
     );
 
