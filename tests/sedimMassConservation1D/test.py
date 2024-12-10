@@ -58,7 +58,7 @@ for i in range(ntimes-1):
     try:
         cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
     except FileNotFoundError:
-        os.system("postProcess -func writeCellVolumes")
+        os.system("postProcess -func writeCellVolumes > /dev/null")
         cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
     if cellVolumes.shape == (1,):
         cellVolumes = np.ones(ncells) * cellVolumes

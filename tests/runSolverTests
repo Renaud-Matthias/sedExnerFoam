@@ -36,5 +36,5 @@ then
     echo 'warning! Some tests failed'
 fi
 
-echo 'number of tests tried : ' $nTests
-echo 'number of tests failed : ' $failedTests
+echo 'number of tests tried :' $nTests
+echo 'number of tests failed :' $failedTests
