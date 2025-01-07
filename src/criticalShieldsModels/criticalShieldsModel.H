@@ -24,6 +24,7 @@ License
 
 #include "dictionary.H"
 #include "volFields.H"
+#include "areaFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
 
@@ -39,6 +40,9 @@ class criticalShieldsModel
 
     //- dictionary containing parameters fro criticalShieldsModel
     const dictionary& dict_;
+
+    //- true if slope correction activated
+    bool slopeCorrection_;
 
 
     public:
@@ -75,6 +79,16 @@ class criticalShieldsModel
 
 
     // Member functions
+
+    //- Apply slope correction on critical Shields
+    void slopeCorrection
+    (
+        areaScalarField& critShields,
+        const areaVectorField& shields,
+        const scalarField& slopeAngle,
+        const vectorField& slopeDir,
+        scalar reposeAngle
+    ) const;
 
     //- Compute viscous diameter
     dimensionedScalar viscousDiameter

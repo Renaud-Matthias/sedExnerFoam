@@ -40,9 +40,25 @@ Foam::criticalShieldsModels::criticalShieldsModel::criticalShieldsModel
     const dictionary& dict
 )
 :
-    dict_(dict)
+    dict_(dict),
+    slopeCorrection_(false)
     //critShields0_(dimensionedScalar(dimless, 0.047))
-{}
+{
+    if (dict_.found("slopeCorrection"))
+    {
+        word switchSlopeCorr = word(dict_.lookup("slopeCorrection"));
+        if (switchSlopeCorr == "on")
+        {
+            slopeCorrection_ = true;
+        }
+        else if (switchSlopeCorr != "off")
+        {
+            FatalError << "wrong value for entry slopeCorrection, "
+                << "possible options are: on off" << endl;
+        Info << abort(FatalError) << endl;
+        }
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -82,6 +98,45 @@ Foam::criticalShieldsModels::criticalShieldsModel::New
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+
+void Foam::criticalShieldsModels::criticalShieldsModel::slopeCorrection
+(
+    areaScalarField& critShields,
+    const areaVectorField& shields,
+    const scalarField& slopeAngle,
+    const vectorField& slopeDir,
+    scalar reposeAngle
+) const
+{
+    if (slopeCorrection_)
+    {
+        // direction of shear stress on bed
+        vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
+        forAll(critShields, facei)
+        {
+            scalar beta = slopeAngle[facei];
+            scalar alpha = Foam::acos(slopeDir[facei] & stressDir[facei]);
+            scalar betap = Foam::min(beta, reposeAngle);
+            critShields[facei] *=
+                (
+                    Foam::cos(betap)
+                    * Foam::sqrt
+                    (
+                        1 - Foam::pow
+                        (
+                            Foam::sin(alpha)
+                            * Foam::tan(betap)
+                            * (1/Foam::tan(reposeAngle)),
+                            2
+                        )
+                    )
+                    - Foam::cos(alpha)
+                    * Foam::sin(betap) / Foam::tan(reposeAngle)
+                );
+        }
+    }
+}
 
 Foam::dimensionedScalar
 Foam::criticalShieldsModels::criticalShieldsModel::viscousDiameter
