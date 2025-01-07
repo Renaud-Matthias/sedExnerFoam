@@ -24,4 +24,10 @@ bedMotion              off;
 
 sedimentBedPatches     (bed);
 
+criticalShieldsModel
+{
+    type            fixedValue;
+    value           0.047;
+}
+
 // ************************************************************************* //

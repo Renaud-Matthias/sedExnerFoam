@@ -36,7 +36,7 @@ tauOf = -rdf.readvector("./", time, "wallShearStress",
 shieldsOf = tauOf / ((rhoS/rhoF - 1) * g * dS)
 
 success = True
-tol = 1e-4
+tol = 1e-5
 
 err = np.abs((shieldsSolv - shieldsOf) / shieldsSolv)
 # test shields value
@@ -48,6 +48,6 @@ qbTest = bedloadMPM(shieldsOf)
 err = np.abs((qbSolv - qbTest) / qbSolv)
 if err > tol and success is True:
     success = False
-    print("problem, bedload value")
+    print("problem, bedload value != Meyer-Peter formula")
 
 assert success
