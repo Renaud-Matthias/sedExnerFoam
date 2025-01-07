@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2312                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -31,9 +31,7 @@ divSchemes
 // UEqn
     div(phi,U)     Gauss upwind phi;
 // CEqn
-    div(phi,Cs)     Gauss vanLeer; //Gamma 1;
-    div(phir,Cs)    Gauss linear; //Gamma 1;
-    div(phip,Cs)    Gauss upwind phip;
+    div(phip,Cs)     Gauss linearUpwind phip; //Gamma 1;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 
@@ -50,12 +48,6 @@ interpolationSchemes
     default  linear;
 //    flux((U+Ws)) downwind phip;
 //    flux(Ws) downwind phip;
-    /*interpolate((U+Ws)) upwind phi;//downwind phip;
-    flux(U) linear;
-    flux((U+Ws)) upwind phi;
-    flux(HbyA) linear;
-    dotInterpolate(S,U_0) linear;
-    interpolate((1|A(U))) linear;*/
 }
 
 wallDist
