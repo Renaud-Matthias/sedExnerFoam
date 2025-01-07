@@ -32,7 +32,7 @@ vector eg = (g/mag(g)).value();
 const bedloadModels::bedloadModel& bedload = bedloadModelPtr.ref();
 areaScalarField& critShields = critShieldsPtr.ref();
 
-if (!readCritShields)
+if (not readCritShields)
 {
     // base critical Shields number
     const dimensionedScalar& critShields0 =
@@ -56,7 +56,7 @@ if (!readCritShields)
 // compute bedload from Shields number
 qsat = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
 
-// apply saturation time to compute bedload  
+// apply saturation time to compute bedload
 const scalar& deltaT = runTime.time().deltaT().value();
 if (saturation and Tsat->value() > deltaT)
 {

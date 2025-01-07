@@ -1,6 +1,6 @@
-# scourFoam
+# SedExnerFoam
 
-SedExnerFoam is an OpenFOAM solver in development aiming at the numerical study of scour around hydraulics structures like bridge piles. The objectiv is to simulate the hydrodynamics and both the bedload sediment transport and the suspension of sediment. Morphodynamics is handled with the Arbitrary Lagrangian Eulerian approach, which consists of a dynamic mesh getting distorted to track the morphology evolution.
+SedExnerFoam is an OpenFOAM solver in development aiming at the numerical study of various sediment transport and morphodynamics problems. It is based on the solver pimpleFoam for te hydrodynamics. The sediments can be either transported in suspension in the fluid or move but stay in contact with the bed. Morphodynamics is handled with the Arbitrary Lagrangian Eulerian approach. With this approach, computational domain stops at the sediment bed and thus does not include the granular material below. The sediments movements along this boundary (bedload) or through it (erosion/deposition) drive its morphology evolution. The mesh is dynamic and get distorted in time so that the bed boundary match the geometry changes.
 
 - suspended load transport:
 
@@ -18,6 +18,7 @@ The repository is organized in different folders
 - **solver**, all the files related to the solver
 - **src**, all the librairies needed by the solver
 - **tests**, cases to help identify bugs and missbehavior of model 
-- **tutorials**, sedExnerFoam cases to test and validate the code
+- **tutorials**, examples of sedExnerFoam cases and applications with validation
 
 [OpenFoam](https://www.openfoam.com/) is the free, open source CFD software developed primarily by OpenCFD Ltd since 2004. The OpenFOAM trademark is owned by OpenCFD Ltd.
+

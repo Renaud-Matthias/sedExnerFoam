@@ -39,7 +39,7 @@ for (const label patchID : bed.bedPatchesID())
     ssp = ((-Sfp / magSfp) & Reffp)
         / (mag(g).value() * dS.value()
         * (rhoS.value() - rhoF.value()));
-    
+
     // remove bed normal component, shear stress only
     ssp += (ssp & (-Sfp / magSfp)) * (Sfp / magSfp);
 }

@@ -46,7 +46,7 @@ protected:
 
 
 public:
-    
+
     //- Runtime type information
     TypeName("bedloadModel");
     
