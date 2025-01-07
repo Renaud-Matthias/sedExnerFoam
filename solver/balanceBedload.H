@@ -55,8 +55,20 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         )
         * (1 / (distOwner + distNeighbour));
 
+    if (qbUpwind)
+    {
+        if ((qbEdgei & LeProj[edgei]) > 0)
+        {
+            qbEdgei = qbProj[owner[edgei]];
+        }
+        else
+        {
+            qbEdgei = qbProj[neighbour[edgei]];
+        }
+    }
+
     scalar phiqbEdgei = qbEdgei & LeProj[edgei];
-    
+
     dVsed[owner[edgei]] -= phiqbEdgei;
     
     dVsed[neighbour[edgei]] += phiqbEdgei;

@@ -86,6 +86,8 @@ dimensionedScalar Dstar = dS
         (sRatio - 1) * mag(g) / Foam::pow(nuF, 2),
         1.0/3.0
     );
+Info << "dimensionless diameter, Dstar = " << Dstar.value() << endl;
+
 // maximum sediment volumic fraction (1 - porosity)
 dimensionedScalar CsMax("CsMax", dimless, transportProperties);
 // porosity of granular material

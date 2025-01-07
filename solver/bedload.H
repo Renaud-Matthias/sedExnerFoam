@@ -20,7 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to bedload field
+// Access to saturated bedload and bedload fields
+areaVectorField& qsat = qsatPtr.ref();
 areaVectorField& qb = qbPtr.ref();
 
 dimensionedScalar smallVal(dimless, SMALL);
@@ -28,45 +29,43 @@ dimensionedScalar smallVal(dimless, SMALL);
 vector eg = (g/mag(g)).value();
 
 // Access bedload model and critical Shields number
-const bedloadModel& bedload = bedloadModelPtr.ref();
+const bedloadModels::bedloadModel& bedload = bedloadModelPtr.ref();
 areaScalarField& critShields = critShieldsPtr.ref();
-// base critical Shields number
-const dimensionedScalar& critShields0 =
-    critShieldsModelPtr->criticalShields0(Dstar);
 
-// shear stress direction
-vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
-// slope direction
-const vectorField& nFaces =
-    bed.aMesh().faceAreaNormals().internalField();
-vectorField slopeDir = (nFaces & eg) * eg - nFaces;
-slopeDir /= (Foam::mag(slopeDir) + SMALL);
-forAll(critShields, facei)
+if (!readCritShields)
 {
-    scalar beta = Foam::acos(nFaces[facei] & eg);  // bed slope angle
-    // angle between shear stress and slope direction
-    scalar alpha = Foam::acos(slopeDir[facei] & stressDir[facei]);
-    // slope effect on critical Shields number
-    scalar betap = Foam::min(beta, betaRep.value());
-    critShields[facei] = critShields0.value()
-      * (
-          Foam::cos(betap)
-        * Foam::sqrt
-          (
-              1 - Foam::pow
-              (
-                  Foam::sin(alpha)
-                * Foam::tan(betap)
-                * (1/Foam::tan(betaRep.value())),
-                  2
-              )
-          )
-          - Foam::cos(alpha) * Foam::sin(betap) / Foam::tan(betaRep.value())
-      );
+    // base critical Shields number
+    const dimensionedScalar& critShields0 =
+        critShieldsModelPtr->criticalShields0(Dstar);
+
+    // shear stress direction
+    vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
+    // slope direction
+    const vectorField& nFaces =
+        bed.aMesh().faceAreaNormals().internalField();
+    // bed faces angle
+    scalarField slopeAngle = Foam::acos(nFaces & eg);
+    // slope direction
+    vectorField slopeDir = (nFaces & eg) * eg - nFaces;
+    slopeDir /= (Foam::mag(slopeDir) + SMALL);
+    // Apply slope correction on critical Shields number
+    critShieldsModelPtr->slopeCorrection(
+        critShields, shields, slopeAngle, slopeDir, betaRep.value());
 }
 
 // compute bedload from Shields number
-qb = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
+qsat = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
+
+// apply saturation time to compute bedload  
+const scalar& deltaT = runTime.time().deltaT().value();
+if (saturation and Tsat->value() > deltaT)
+{
+   qb += (deltaT / Tsat->value()) * (qsat - qb);
+}
+else
+{
+    qb = qsat;
+}
 
 // additional bedload due to avalanche
 if (bed.isAvalanche())
