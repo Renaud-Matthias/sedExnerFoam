@@ -19,69 +19,43 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef bedloadModel_H
-#define bedloadModel_H
+#ifndef MeyerPeter_H
+#define MeyerPeter_H
 
-#include "dictionary.H"
-#include "volFields.H"
-#include "areaFields.H"
-#include "dimensionedTypes.H"
-#include "runTimeSelectionTables.H"
+#include "bedloadModel.H"
 
 namespace Foam
 {
 namespace bedloadModels
 {
 
-class bedloadModel
+class MeyerPeter
+:
+    public bedloadModel
 {
-
 protected:
 
-    //- dictionary containing parameters fro bedloadModel
-    const dictionary& dict_;
+    scalar alpha_;
 
-    //- model name
-    word modelName_;
-
+    scalar bExp_;
 
 public:
-    
-    //- Runtime type information
-    TypeName("bedloadModel");
-    
-    // Declare runtime constructor selection table
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        bedloadModel,
-        dictionary,
-        (
-            const dictionary& dict
-        ),
-        (dict)
-    );
 
-    // Constructor
-    bedloadModel
-    (
-        const dictionary& dict
-    );
+    // Runtime type information
+    TypeName("MeyerPeter");
 
-    // Selectors
-    static autoPtr<bedloadModel> New
-    (
-        const dictionary& dict
-    );
+    //- Construct from components
+    MeyerPeter(const dictionary& dict);
+
 
     //- Destructor
-    virtual ~bedloadModel();
+    virtual ~MeyerPeter();
 
 
     // Member functions
 
-    //- Compute bedload from base Shields and sediment properties
-    virtual tmp<areaVectorField> qb
+    //- Compute bedload from Shields and sediment properties
+    tmp<areaVectorField> qb
     (
         const areaVectorField& shields,
         const areaScalarField& critShields,
@@ -89,20 +63,10 @@ public:
         const dimensionedScalar& rhoF,
         const dimensionedScalar& g,
         const dimensionedScalar& dS
-    ) const = 0;
-
-    dimensionedScalar einsteinNumber
-    (
-        const dimensionedScalar& rhoS,
-        const dimensionedScalar& rhoF,
-        const dimensionedScalar& g,
-        const dimensionedScalar& dS
     ) const;
-    
 };
 
-}  // End namespace bedloadModels
-
-}  // End namespace Foam
+} // End namespace bedloadModels
+} // End namespace Foam
 
 #endif
