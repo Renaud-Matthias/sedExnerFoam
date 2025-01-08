@@ -3,7 +3,7 @@
 # Create the mesh
 blockMesh
 topoSet
-#setsToZones
+setsToZones
 # create the intial time folder
 cp -r 0_org 0
 

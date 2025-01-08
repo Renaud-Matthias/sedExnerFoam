@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.7.1                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -29,10 +29,9 @@ divSchemes
 {
     default         none;
 // UEqn
-    div(phi,U)  Gauss upwind phi;
-// CEqn
-    div(phi,C)    Gauss vanLeer;
-    div(phir,C)   Gauss linear;
+    div(phi,U)      Gauss upwind phi;
+// CsEqn
+    div(phip,Cs)    Gauss vanLeer;
 // pEqn
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 // k and EpsilonEqn
@@ -46,7 +45,7 @@ laplacianSchemes
     default         Gauss linear orthogonal;
     /*// UEqn
     laplacian(nuEff,U) Gauss linear;
-// CEqn
+// CsEqn
     laplacian(epsEff,C) Gauss linear;
 // pEqn
     laplacian((1|A(U)),p) Gauss linear;
@@ -62,13 +61,6 @@ laplacianSchemes
 interpolationSchemes
 {
     default  linear;
-    //interpolate((U+Ws)) downwind phip;
-    //flux(U) linear;
-    flux(U+Ws) downwind phip;
-    //flux(HbyA) linear;
-    //default localMax;
-    //dotInterpolate(S,U_0) linear;
-    //interpolate((1|A(U))) linear;
 }
 
 snGradSchemes
@@ -80,7 +72,7 @@ fluxRequired
 {
     default         no;
     p               ;
-    C               ;
+    Cs              ;
 }
 wallDist
 {

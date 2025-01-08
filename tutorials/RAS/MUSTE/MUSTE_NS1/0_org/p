@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.4.0                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -23,26 +23,21 @@ boundaryField
 {
     inlet
     {
-        type            fixedJump;
-    patchType       cyclic;
-    jump            uniform -3.525e-05;
-    value           $internalField;
+        type           cyclic;
     }
     outlet
     {
-        type            fixedJump;
-    patchType       cyclic;
-    value           $internalField;
+        type           cyclic;
     }
     top
     {
-    type  fixedValue;
-    value uniform 0;
+        type           fixedValue;
+        value          uniform 0;
     }
     walls
     {
-	type 		fixedFluxPressure;
-	gradient	$internalField;
+	type           fixedFluxPressure;
+	gradient       $internalField;
     }
     frontAndBackPlanes
     {

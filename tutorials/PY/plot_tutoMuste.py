@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from fluidfoam import readof as rdf
 
-pathFoam = "../suspensionFoam/RAS/MUSTE/"
+pathFoam = "../RAS/MUSTE/"
 
 # plot parameters
 col_exp = "#F05039"
@@ -54,12 +54,12 @@ print(crefNS1, zrefNS1)
 
 OFNS1case = pathFoam + "MUSTE_NS1"
 Z_foamNS1 = rdf.readmesh(OFNS1case)[1]
-C_foamNS1 = rdf.readscalar(OFNS1case, "latestTime", "C")
+C_foamNS1 = rdf.readscalar(OFNS1case, "latestTime", "Cs")
 
 # same as NS1 but with reference concentration at bottom
 OFNS1TScase = pathFoam + "MUSTE_NS1_topoSet"
 Z_foamNS1TS = rdf.readmesh(OFNS1TScase)[1]
-C_foamNS1TS = rdf.readscalar(OFNS1TScase, "latestTime", "C")
+C_foamNS1TS = rdf.readscalar(OFNS1TScase, "latestTime", "Cs")
 
 cminNS1 = 1e-5
 cmaxNS1 = 5e-2
@@ -83,7 +83,7 @@ print("Rouse number : ", RoNBS1)
 
 OFNBS1case = pathFoam + "MUSTE_NBS1"
 Z_foamNBS1 = rdf.readmesh(OFNBS1case)[1]
-C_foamNBS1 = rdf.readscalar(OFNBS1case, "latestTime", "C")
+C_foamNBS1 = rdf.readscalar(OFNBS1case, "latestTime", "Cs")
 
 cminNBS1 = 1e-4
 cmaxNBS1 = 2e-3

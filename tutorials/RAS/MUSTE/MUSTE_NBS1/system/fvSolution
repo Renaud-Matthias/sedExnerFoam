@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.4.0                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -40,37 +40,7 @@ solvers
         relTol          0;
     }
     
-    C
-    {
-        nAlphaCorr      2;
-        nAlphaSubCycles 1;
-
-        MULESCorr       yes;
-        nLimiterIter    3;
-        alphaApplyPrevCorr  no;
-
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
-        tolerance       1e-6;
-        relTol          0;
-        minIter         1;
-    }
-    
-    CFinal
-    {
-        $C;
-    }
-
-    "C.*Diffusion"
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-6;
-        relTol          0;
-        minIter         1;
-    }
-    
-    "(k|epsilon|omega)"
+    "(Cs|k|epsilon|omega)"
     {
         solver          PBiCG;
         preconditioner  DILU;
@@ -78,7 +48,7 @@ solvers
         relTol          0.001;
     }
 
-    "(kFinal|epsilonFinal|omegaFinal)"
+    "(CsFinal|kFinal|epsilonFinal|omegaFinal)"
     {
         solver          PBiCG;
         preconditioner  DILU;

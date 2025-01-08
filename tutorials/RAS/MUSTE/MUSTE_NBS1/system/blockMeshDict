@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  1.7.1                                 |
+|  \\    /   O peration     | Version:  v2406                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -14,26 +14,34 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-scale 0.021;
+scale 1;
+
+H     0.021;  // water depth
+dx    0.001;  // domain width in x-direction, cyclic
+dz    0.001;  // domain width in y-direction, empty
+
+
+ny    64;
+gy    16;
 
 vertices        
 (
 
     ( 0.01 0    0.01)
-    ( 0.01 1    0.01) 
-    (-0.01 1    0.01)
+    ( 0.01 $H    0.01) 
+    (-0.01 $H    0.01)
     (-0.01 0    0.01)
 
     ( 0.01 0   -0.01)
-    ( 0.01 1   -0.01)
-    (-0.01 1   -0.01)
+    ( 0.01 $H   -0.01)
+    (-0.01 $H   -0.01)
     (-0.01 0   -0.01)
 
 );
 
 blocks          
 (
-    hex (3 0 4 7 2 1 5 6) (1 1 32) simpleGrading (1 1 16)
+    hex (3 0 4 7 2 1 5 6) (1 1 $ny) simpleGrading (1 1 $gy)
 );
 
 edges           
@@ -44,9 +52,9 @@ boundary
 (
     inlet
     {
-     type   cyclic;
-     neighbourPatch outlet;
-     faces ((3 2 6 7));
+        type   cyclic;
+        neighbourPatch outlet;
+        faces ((3 2 6 7));
     }
     outlet
     {

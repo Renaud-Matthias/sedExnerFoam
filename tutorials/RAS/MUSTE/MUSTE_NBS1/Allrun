@@ -7,6 +7,4 @@ blockMesh
 cp -r 0_org 0
 
 # Run sedExnerFoam
-sedExnerFoam > log&
-
-funkySetFields -time 0:
+sedExnerFoam > log &
