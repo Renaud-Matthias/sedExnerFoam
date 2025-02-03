@@ -3,7 +3,7 @@
 nTests=0  # number of test
 failedTests=0  # counter for failed tests
 
-pathTests="./1DSedim ./equilibriumChannel ./sedimMassConservation1D ./sedimMassConservation1D_tilted ./slopeAvalanche"
+pathTests=$(cat listTests.txt)
 
 basePath=$(pwd)
 
