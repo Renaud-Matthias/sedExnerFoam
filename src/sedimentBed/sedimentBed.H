@@ -51,8 +51,6 @@ namespace Foam
 class sedimentBed
 {
 public:
-
-    autoPtr<faMesh> aMesh_;
     autoPtr<volSurfaceMapping> vsm;  // to read faFields with paraview
     // variable for exner filterering
 
@@ -74,7 +72,7 @@ public:
     const faMesh& aMesh();
     
     //- Avalanche module activated or not
-    bool isAvalanche();
+    bool isAvalanche() const;
 
     //- Return copy of patches ID labelList
     labelList bedPatchesID();
@@ -84,18 +82,34 @@ public:
 
     //- Mesh motion activated or not
     bool bedMotion() const;
-    
+
+    //- Presence of a rigid bed below the sediment layer
+    bool rigidBed() const;
+
+    //- Return reference to beta, the bed slope angle of faces in rad
+    const scalarField& beta() const;
+
+    //- Return reference to slope direction scalarField
+    const vectorField& slopeDir() const;
+
+
 protected:
+
+    // protected attributes
+
+    const dictionary& dict_;
 
     bool bedExist_;
     
     bool bedMotion_;
 
     bool avalanche_;
-    
-    const dictionary& dict_;
-    
+
+    bool rigidBed_;
+
     fvMesh& mesh_;
+
+    autoPtr<faMesh> aMesh_;
 
     const meshObjects::gravity& g_;  // gravitational acceleration
 
@@ -103,22 +117,32 @@ protected:
     
     List<word> bedPatchesNames_;
 
-    //- Protected member functions
+    mutable scalarField* betaPtr_;
 
-    // check if avalanche model is used
+    mutable vectorField* slopeDirPtr_;
+
+    // Protected member functions
+
+    //- check if avalanche model is used
     void checkAvalancheModel_();
     
-    // Check if bed exists
+    //- Check if bed exists
     void checkBedExistence_();
 
-    // Check if patch are well oriented
+    //- Check if patch are well oriented
     void checkFaMeshOrientation_() const;
 
-    // check if bed/mesh motion (on/off)
+    //- Check if bed/mesh motion (on/off)
     void checkBedMotion_();
 
-    // get sediment bed patches ID
+    //- get sediment bed patches ID
     void getPatchesID();
+
+    //- Compute beta, the bed slope angle, pointed by betaPtr_
+    void calcBeta() const;
+
+    //- Compute slope direction unit vector for each face
+    void calcSlopeDir() const;
     
 };
 

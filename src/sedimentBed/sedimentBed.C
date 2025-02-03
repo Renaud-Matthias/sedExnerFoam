@@ -37,20 +37,28 @@ Foam::sedimentBed::sedimentBed
     const meshObjects::gravity& g
 )
 :
+    dict_(dict),
     bedExist_(false),
     bedMotion_(false),
     avalanche_(false),
-    dict_(dict),
+    rigidBed_(false),
     mesh_(mesh),
     g_(g)
 {
     checkBedExistence_();
     if (bedExist_)
     {
+        Info << "create finite-area mesh" << endl;
         aMesh_.reset(new faMesh(mesh_));
         vsm.reset(new volSurfaceMapping(aMesh_));
         getPatchesID();
         checkFaMeshOrientation_();
+        word switchRigidBed =
+            dict_.lookupOrDefault<word>("rigidBed", "off");
+        if (switchRigidBed=="on")
+        {
+            rigidBed_ = true;
+        }
         
         Info << "faMesh patches ID : " << bedPatchesID_ << endl;
         Info << "faMesh patches names : " << bedPatchesNames_ << endl;
@@ -62,16 +70,14 @@ Foam::sedimentBed::sedimentBed
 Foam::sedimentBed::~sedimentBed()
 {}
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-// public member functions
+// * * * * * * * * * * * * Public Member Functions * * * * * * * * * * * * * //
 
 const faMesh& Foam::sedimentBed::aMesh()
 {
     return aMesh_.ref();
 }
 
-bool Foam::sedimentBed::isAvalanche()
+bool Foam::sedimentBed::isAvalanche() const
 {
     if (avalanche_)
     {
@@ -112,7 +118,39 @@ bool Foam::sedimentBed::bedMotion() const
     }
 }
 
-// Protected member functions
+bool Foam::sedimentBed::rigidBed() const
+{
+    if (rigidBed_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+const Foam::scalarField& Foam::sedimentBed::beta() const
+{
+    if (betaPtr_==nullptr)
+    {
+        calcBeta();
+    }
+
+    return *betaPtr_;
+}
+
+const Foam::vectorField& Foam::sedimentBed::slopeDir() const
+{
+    if (slopeDirPtr_==nullptr)
+    {
+        calcSlopeDir();
+    }
+
+    return *slopeDirPtr_;
+}
+
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::sedimentBed::checkBedExistence_()
 {
