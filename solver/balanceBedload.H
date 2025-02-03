@@ -1,4 +1,3 @@
-
 /*---------------------------------------------------------------------------* \
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
@@ -157,7 +156,7 @@ if (bed.rigidBed())
 
 for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 {
-    dVsed[owner[edgei]] -= phiqbProj[edgei];    
+    dVsed[owner[edgei]] -= phiqbProj[edgei];
     dVsed[neighbour[edgei]] += phiqbProj[edgei];
 }
 

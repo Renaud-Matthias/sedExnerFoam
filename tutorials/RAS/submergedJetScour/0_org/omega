@@ -1,29 +1,30 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2306                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
     format      ascii;
-    class       pointVectorField;
-    object      pointDisplacement;
+    class       volScalarField;
+    location    "0";
+    object      omega;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 0 0 0 0 0];
+dimensions      [0 0 -1 0 0 0 0];
 
-internalField   uniform (0 0 0);
+internalField   uniform 1e-1; 
 
 boundaryField
 {
     inlet
     {
         type            fixedValue;
-        value           uniform (0 0 0);
+        value           $internalField;
     }
     outlet
     {
@@ -31,18 +32,17 @@ boundaryField
     }
     rigidWalls
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            omegaWallFunction;
+        value           $internalField;
     }
     top
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            zeroGradient;
     }
     bed
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type            omegaWallFunction;
+        value           $internalField;
     }
     sidesApron
     {

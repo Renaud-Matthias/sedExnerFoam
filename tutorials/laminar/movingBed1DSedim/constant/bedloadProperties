@@ -22,7 +22,10 @@ bedMotion              on;
 
 sedimentBedPatches     (bed);
 
-bedload                off;
+bedloadModel
+{
+    type               none;
+}
 
 fixedFaPatches         ();
 

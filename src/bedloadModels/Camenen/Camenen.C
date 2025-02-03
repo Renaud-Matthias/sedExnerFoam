@@ -41,7 +41,7 @@ Foam::bedloadModels::Camenen::Camenen(const dictionary& dict)
     bedloadModel(dict),
     alpha_(12),
     aExp_(1.5),
-    bCoef_(4.5)
+    bCoef_(-4.5)
 {
      Info << "bedload model type: Camenen" << endl
          << "qb* = 8 (shields-critShields)^1.5" << endl;
