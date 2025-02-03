@@ -30,25 +30,45 @@ faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
 // area of projected mesh faces
 const scalarField& SfProj = meshProj.S();
 
-if (switchBedload=="on")
-{
-    #include "balanceBedload.H"
-}
+#include "balanceBedload.H"
 
 if (switchSuspension=="on")
 {
     #include "erosionDeposition.H"
 }
 
-scalar deltaT = runTime.time().deltaT().value();
 
-// solve exner equation explicitly (euler explicit)
-forAll(aMesh.areaCentres(), facei)
+scalar deltaT = runTime.time().deltaT().value();  // current time step
+
+// solve exner equation explicitly with Adams-Bashforth scheme
+if (ABorder==0)
 {
-    dH[facei] =
-        (deltaT / SfProj[facei])
-        * (1/CsMax.value())
-        * dVsed[facei];
+    // Adams-Bashforth order 0, euler explicit scheme
+    forAll(aMesh.areaCentres(), facei)
+    {
+        dH[facei] =
+            morphoAccFactor
+            * (1/CsMax.value())
+            * (deltaT / SfProj[facei])
+            * dVsed[facei];
+    }
+}
+else if (ABorder==1)
+{
+    scalar deltaT0 = runTime.time().deltaT0().value();  // old time step
+
+    scalar coefT0 = deltaT * (1 + 0.5 * (deltaT / deltaT0));
+    scalar coefT00 = - 0.5 * deltaT * deltaT / deltaT0;
+
+    // Adams-Bashforth order 1
+    forAll(aMesh.areaCentres(), facei)
+    {
+        dH[facei] =
+            morphoAccFactor
+            * (1/CsMax.value())
+            * (coefT0 * dVsed[facei] + coefT00 * dVsed.oldTime()[facei])
+            * (1 / SfProj[facei]);
+    }
 }
 
 if (bed.bedMotion())

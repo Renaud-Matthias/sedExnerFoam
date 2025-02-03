@@ -72,8 +72,13 @@ IOdictionary transportProperties
 // fluid and sediment properties
 // fluid kinematic viscosity
 dimensionedScalar nuF("nu", transportProperties);
-// water density (kg.m-3), should be changed and read in case
-dimensionedScalar rhoF(dimDensity, 1000);
+// water density (kg.m-3), default is 1000 (water)
+dimensionedScalar* rhoFptr = new dimensionedScalar(dimDensity, 1000);
+if (transportProperties.found("rhoF"))
+{
+    rhoFptr = new dimensionedScalar("rhoF", dimDensity, transportProperties);
+}
+dimensionedScalar& rhoF = *rhoFptr;
 // sediment density (kg.m-3)
 dimensionedScalar rhoS("rhoS", dimDensity, transportProperties);
 // density ratio
@@ -94,8 +99,8 @@ dimensionedScalar CsMax("CsMax", dimless, transportProperties);
 dimensionedScalar porosity(dimless, 1/CsMax.value());
 // Nikuradse equivalent roughness height, skin friction
 dimensionedScalar ks =  2.5 * dS;
-// Schmidt number
-dimensionedScalar Sc("Sc", dimless, 1);  // Schmidt number default value
+// Schmidt number, default value 1
+dimensionedScalar Sc("Sc", dimless, 1);
 if (transportProperties.found("Sc"))
 {
     Sc.value() = readScalar(transportProperties.lookup("Sc"));

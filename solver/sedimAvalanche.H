@@ -30,8 +30,8 @@ const vectorField& nFaces =
 //bed.angleBedSlope().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
 
 // slope direction
-vectorField slopeDir = (nFaces & eg) * eg - nFaces;
-slopeDir /= (mag(slopeDir) + SMALL);
+vectorField slopeDir = eg - nFaces * (eg & nFaces);
+slopeDir /= (Foam::mag(slopeDir) + SMALL);
 
 // reposeAngle
 //dimensionedScalar betaRep(dimless, degToRad(32));

@@ -38,23 +38,6 @@ IOdictionary bedloadProperties
 Info << "Instantiate sedimentBed" << endl;
 sedimentBed bed(bedloadProperties, mesh, g);
 
-// Check bedload state (on/off)
-// bedload is off if no sedimentBed exists
-word switchBedload("off");
-if (bed.exist())
-{
-    switchBedload = word(bedloadProperties.lookup("bedload"));
-}
-if (switchBedload!="on" and switchBedload!="off")
-{
-    FatalError << switchBedload
-        << " is not a valid entry for bedload"
-        << ", valid options are: on off" << endl;
-    Info << abort(FatalError) << endl;
-}
-
-Info << "bedload is " << switchBedload << endl;
-
 // points displacements values for mesh motion
 autoPtr<vectorField> dispValsPtr;
 
@@ -68,9 +51,12 @@ autoPtr<areaVectorField> qbPtr;  // bedload
 autoPtr<areaScalarField> dHptr;  // bed elevation increment on faces
 autoPtr<scalarField> dHpointsPtr; // bed elevation increment on points
 autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
-autoPtr<edgeScalarField> phiqbPtr;  // bedload flux through edges
+autoPtr<scalarField> phiqbProjPtr;  // projected bedload flux through edges
 autoPtr<areaScalarField> dVsedPtr;  // volumic variation, face displacements
 autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
+autoPtr<areaVectorField> rigidBedPtr;  // rigid bed coordinates
+// width of sediment bed layer, between the rigid bed and the fluid
+autoPtr<areaScalarField> HsedBedPtr;
 
 // models to compute bedload
 autoPtr<bedloadModels::bedloadModel> bedloadModelPtr;
@@ -81,11 +67,9 @@ critShieldsModelPtr;
 bool readCritShields = false;
 
 // saturated length and time
-bool saturation = false;
-dimensionedScalar* Tsat;  // pointer to saturation time
+dimensionedScalar* Tsat = nullptr;  // pointer to saturation time
 if (bedloadProperties.found("saturation"))
 {
-    saturation = true;
     const dictionary& satDict = bedloadProperties.subDict("saturation");
     Tsat = new dimensionedScalar(
         dimensionSet(0, 0, 1, 0, 0, 0, 0),
@@ -123,7 +107,9 @@ Info << "fixedFaPatchesNames: " << fixedFaPatchNames << endl;
 List<label> fixedFaPatchLabels;
 autoPtr<labelList> fixedPatchPointLabelsPtr;
 
-label ABschemeOrder = 0;
+// order for explicit Adams-Bashforth time scheme
+// default is 0, euler explicit
+label ABorder = 0;
 word qbInterpScheme = "linear";
 bool qbUpwind = false;
 
@@ -270,14 +256,14 @@ if (bed.exist())
     }
 
     // choose time scheme for Exner equation, default is euler explicit
-    if (bedloadProperties.found("ABschemeOrder"))
+    if (bedloadProperties.found("ABorder"))
     {
-        ABschemeOrder = readLabel(
-            bedloadProperties.lookup("ABschemeOrder"));
-        if (ABschemeOrder != 0)
+        ABorder = readLabel(
+            bedloadProperties.lookup("ABorder"));
+        if (ABorder!=0 and ABorder!=1)
         {
             FatalError << "in bedloadProperties,"
-                << "wrong entry for ABschemeOrder " << ABschemeOrder
+                << "wrong time scheme entry ABorder " << ABorder
                 << "\nvalid options are: 0 1" << endl;
             Info << abort(FatalError) << endl;
         }
@@ -350,6 +336,11 @@ if (bed.exist())
         )
     );
 
+    phiqbProjPtr.reset
+        (
+            new scalarField(bed.aMesh().nEdges(), 0)
+        );
+
     dHptr.reset
     (
         new areaScalarField
@@ -364,23 +355,6 @@ if (bed.exist())
             ),
             bed.aMesh(),
             dimensionedScalar(dimLength, Zero)
-        )
-    );
-
-    phiqbPtr.reset
-    (
-        new edgeScalarField
-        (
-            IOobject
-            (
-                "phiqb",
-                runTime.timeName(),
-                bed.aMesh(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            bed.aMesh(),
-            dimensionedScalar(dimensionSet(0, 3, -1, 0, 0, 0, 0), Zero)
         )
     );
 
@@ -492,5 +466,55 @@ if (bed.exist())
         //wallDist& bedDist = bedDistPtr.ref();
         //Info << "bed patches ID: " << bedDist.patchIDs() << endl;
         //Info << "bed dist y: " << bedDist.y() << endl;
+    }
+
+    if (bed.rigidBed())
+    {
+        rigidBedPtr.reset
+            (
+                new areaVectorField
+                (
+                    IOobject
+                    (
+                        "rigidBed",
+                        runTime.timeName(),
+                        bed.aMesh(),
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    bed.aMesh()
+                )
+            );
+
+        HsedBedPtr.reset
+            (
+                new areaScalarField
+                (
+                    IOobject
+                    (
+                        "HsedBed",
+                        runTime.timeName(),
+                        bed.aMesh(),
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    bed.aMesh(),
+                    dimensionedScalar(dimLength, Zero)
+                )
+            );
+
+        areaVectorField& rigidBed = rigidBedPtr.ref();
+        areaScalarField& HsedBed = HsedBedPtr.ref();
+
+        HsedBed =
+            (
+                rigidBed
+                - bed.aMesh().areaCentres()
+            ) & (g/mag(g)).value();
+
+        Info << "width of sediment layer, max: "
+            << max(HsedBed).value() << " m, min: "
+            << min(HsedBed).value() << " m, mean: "
+            << average(HsedBed).value() << endl;
     }
 }

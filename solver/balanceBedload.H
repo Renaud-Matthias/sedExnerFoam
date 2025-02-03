@@ -1,4 +1,5 @@
-/*---------------------------------------------------------------------------*\
+
+/*---------------------------------------------------------------------------* \
 Copyright (C) 2022 Matthias Renaud, Cyrille Bonamy, Julien Chauchat
                    and contributors
 
@@ -27,6 +28,9 @@ areaVectorField& qb = qbPtr.ref();
 // project qb on horizontal plane
 vectorField qbProj = meshProj.project(qb);
 
+// projected bedload flux through projected faMesh edges
+scalarField phiqbProj = phiqbProjPtr.ref();
+
 // projected edge centers coordinates
 const vectorField& xEdgesProj = meshProj.edgeCentres();
 // projected face centers coordinates
@@ -38,7 +42,12 @@ const labelList& owner = meshProj.edgeOwner();
 // face neighbour list
 const labelList& neighbour = meshProj.edgeNeighbour();
 
-// get qb on edges, linear interpolation
+//if (filterBedload)
+//{
+//    #include "filterBedload.H"
+//}
+
+// compute bedload flux on through internal edges
 for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 {
     // distance between edgei center and owner face center
@@ -50,8 +59,8 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     // linear interpolate qb on edge i
     vector qbEdgei =
         (
-            distOwner * qbProj[owner[edgei]]
-            + distNeighbour * qbProj[neighbour[edgei]]
+            distNeighbour * qbProj[owner[edgei]]
+            + distOwner * qbProj[neighbour[edgei]]
         )
         * (1 / (distOwner + distNeighbour));
 
@@ -67,14 +76,10 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         }
     }
 
-    scalar phiqbEdgei = qbEdgei & LeProj[edgei];
-
-    dVsed[owner[edgei]] -= phiqbEdgei;
-    
-    dVsed[neighbour[edgei]] += phiqbEdgei;
+    phiqbProj[edgei] = qbEdgei & LeProj[edgei];
 }
 
-// get qb value for edges on boundary patches
+// compute bedload flux on through internal edges
 forAll(aMesh.boundary(), patchi)
 {
     const faPatchField<Vector<double>>& QbBound =
@@ -95,12 +100,73 @@ forAll(aMesh.boundary(), patchi)
 
             vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
 
-            scalar phiqbEdgei = qbEdgei & edgeLeProj;
-
-            // apply boundary condition to exner equation
-            dVsed[owner[edgei]] -= phiqbEdgei;
+            phiqbProj[edgei] = qbEdgei & edgeLeProj;
 
             edgei++;
         }
     }
+}
+
+// cancel computed bedload flux where no more sediments are present
+if (bed.rigidBed())
+{
+    //const scalarField& SfProj = meshProj.S();
+
+    areaScalarField& HsedBed = HsedBedPtr.ref();
+
+    //scalar deltaT = runTime.time().deltaT().value();
+
+    for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+    {
+        if (phiqbProj[edgei]>0)
+        {
+            //scalar phiqbMax =
+            //    HsedBed[owner[edgei]] * SfProj[owner[edgei]] / deltaT;
+            //phiqbProj[edgei] = min(phiqbProj[edgei], phiqbMax);
+            if (HsedBed[owner[edgei]]<=1e-4)
+            {
+                phiqbProj[edgei] = 0;
+            }
+        }
+        else
+        {
+            //scalar phiqbMin =
+            //    - HsedBed[neighbour[edgei]]
+            //    * SfProj[neighbour[edgei]] / deltaT;
+            //phiqbProj[edgei] = max(phiqbProj[edgei], phiqbMin);
+            if (HsedBed[neighbour[edgei]]<=1e-4)
+            {
+                phiqbProj[edgei] = 0;
+            }
+        }
+    }
+    for (
+    label edgei = meshProj.nInternalEdges();
+    edgei < meshProj.nEdges();
+    edgei++)
+    {
+        if (phiqbProj[edgei]>0)
+        {
+            if (HsedBed[owner[edgei]]<=0)
+            {
+                phiqbProj[edgei] = 0;
+            }
+        }
+    }
+}
+
+for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+{
+    dVsed[owner[edgei]] -= phiqbProj[edgei];    
+    dVsed[neighbour[edgei]] += phiqbProj[edgei];
+}
+
+// apply boundary condition to exner equation
+for (
+    label edgei = meshProj.nInternalEdges();
+    edgei < meshProj.nEdges();
+    edgei++
+    )
+{
+    dVsed[owner[edgei]] -= phiqbProj[edgei];
 }

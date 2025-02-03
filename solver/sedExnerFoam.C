@@ -169,6 +169,22 @@ int main(int argc, char *argv[])
                     {
                         #include "meshCourantNo.H"
                     }
+                    if (bed.rigidBed())
+                    {
+                        areaVectorField& rigidBed = rigidBedPtr.ref();
+                        areaScalarField& HsedBed = HsedBedPtr.ref();
+
+                        HsedBed =
+                            (
+                                rigidBed
+                                - bed.aMesh().areaCentres()
+                            ) & (g/mag(g)).value();
+
+                        Info << "width of sediment layer, max: "
+                            << max(HsedBed).value() << " m, min: "
+                            << min(HsedBed).value() << " m, mean: "
+                            << average(HsedBed).value() << endl;
+                    }
                 }
             }
             
@@ -190,11 +206,8 @@ int main(int argc, char *argv[])
         if (bed.exist())
         {
             #include "bedShearStress.H"
-            
-            if (switchBedload=="on")
-            {
-                #include "bedload.H"
-            }
+
+            #include "bedload.H"
         }
 
         if (switchSuspension=="on")

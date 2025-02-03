@@ -96,8 +96,6 @@ for (const label patchID : bed.bedPatchesID())
     
     for (const label i : fixedPointsLabels)
     {
-        Info << "point " << i;
-        Info << "; coords " << bed.aMesh().points()[i] << endl;
         dHpoints[i] = 0.;
     }
 
@@ -110,11 +108,4 @@ for (const label patchID : bed.bedPatchesID())
     Info << " m , min:" << min(mag(dispVals));
     Info << " m , mean:" << average(mag(dispVals)) << " m" << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
-}
-
-// reset some fields to 0
-areaScalarField& dVsed = dVsedPtr.ref();
-forAll(bed.aMesh().areaCentres(), facei)
-{
-    dVsed[facei] = 0;
 }

@@ -46,8 +46,10 @@ if (not readCritShields)
     // bed faces angle
     scalarField slopeAngle = Foam::acos(nFaces & eg);
     // slope direction
-    vectorField slopeDir = (nFaces & eg) * eg - nFaces;
+    vectorField slopeDir = eg - nFaces * (eg & nFaces);
     slopeDir /= (Foam::mag(slopeDir) + SMALL);
+    //vectorField slopeDir = (nFaces & eg) * eg - nFaces;
+    //slopeDir /= (Foam::mag(slopeDir) + SMALL);
     // Apply slope correction on critical Shields number
     critShieldsModelPtr->slopeCorrection(
         critShields, shields, slopeAngle, slopeDir, betaRep.value());
@@ -58,9 +60,13 @@ qsat = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
 
 // apply saturation time to compute bedload
 const scalar& deltaT = runTime.time().deltaT().value();
-if (saturation and Tsat->value() > deltaT)
+if (Tsat)
 {
-   qb += (deltaT / Tsat->value()) * (qsat - qb);
+    Info << "Tsat: " << Tsat << endl;
+    if (Tsat->value() > deltaT)
+    {
+        qb += (deltaT / Tsat->value()) * (qsat - qb);
+    }
 }
 else
 {

@@ -20,6 +20,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// reset dVsed to 0
+areaScalarField& dVsed = dVsedPtr.ref();
+// store old dVsed field
+dVsed.storeOldTimes();
+forAll(bed.aMesh().areaCentres(), facei)
+{
+    dVsed[facei] = 0;
+}
 
 areaVectorField& shields = shieldsPtr.ref();
 
@@ -34,7 +42,6 @@ for (const label patchID : bed.bedPatchesID())
     volSymmTensorField Reff =
         rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
     const symmTensorField& Reffp = Reff.boundaryField()[patchID];
-    
     // compute shields number
     ssp = ((-Sfp / magSfp) & Reffp)
         / (mag(g).value() * dS.value()
@@ -50,8 +57,3 @@ shields.primitiveFieldRef() =
     (
         shieldsVf.boundaryFieldRef()
     );
-
-// remove bed normal component from shields, shear stress only
-//shields -=
-//    (shields & bed.aMesh().faceAreaNormals())
-//    * (shields / (Foam::mag(shields) + SMALL));

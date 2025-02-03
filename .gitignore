@@ -13,6 +13,8 @@ log*
 *.pvsm
 postProcessing
 dynamicCode
+constant/finite-area
+constant/polyMesh
 tutorials/PY/Figures
 tutorials/laminar/**/*.py
 tutorials/RAS/**/*.py
