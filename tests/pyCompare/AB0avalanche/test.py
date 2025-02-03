@@ -43,7 +43,7 @@ for i in range(ntimes-1):
     zbFaces_tnext = rdf.readmesh(
         "./", tnext, boundary="bed", verbose=False)[2]
     dzbOF = zbFaces_tnext - zbFaces_t
-    qb_x  = rdf.readvector(
+    qb_x = rdf.readvector(
         "./", t, "qbVf", boundary="bed", verbose=False)[0]
     # qb on edges, linear interpolation
     qbEdges[1:-1] = 0.5 * (qb_x[1:] + qb_x[:-1])

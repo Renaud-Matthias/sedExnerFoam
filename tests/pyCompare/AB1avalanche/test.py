@@ -43,7 +43,7 @@ for i in range(ntimes-1):
     zbFaces_tnext = rdf.readmesh(
         "./", tnext, boundary="bed", verbose=False)[2]
     dzbOF = zbFaces_tnext - zbFaces_t
-    qb_x  = rdf.readvector(
+    qb_x = rdf.readvector(
         "./", t, "qbVf", boundary="bed", verbose=False)[0]
     # qb on edges, linear interpolation
     qbEdges[1:-1] = 0.5 * (qb_x[1:] + qb_x[:-1])
@@ -51,7 +51,7 @@ for i in range(ntimes-1):
     qbEdges[0], qbEdges[-1] = 0, 0
     # rate of sediment volume variation, m2/s
     dVsed = qbEdges[:-1] - qbEdges[1:]
-    if i==0:
+    if i == 0:
         dt0 = dt
         dVsed0 = np.copy(dVsed)
     # coefficients for Adams-Bashforth scheme
