@@ -3,5 +3,6 @@ Camenen/Camenen.C
 custom/custom.C
 MeyerPeter/MeyerPeter.C
 Nielsen/Nielsen.C
+none/none.C
 
 LIB = $(FOAM_USER_LIBBIN)/libbedloadModels
