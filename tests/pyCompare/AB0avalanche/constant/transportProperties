@@ -11,28 +11,23 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      bedloadProperties;
+    object      transportProperties;
 }
 
-// ************************** sediment properties ************************** //
+// * * * * * * * * * * * * * * sediment properties * * * * * * * * * * * * * //
 
-sedimentBed            on;
+rhoS    [1 -3 0 0 0 0 0] 2650; // sediment density
 
-bedload                on;
+dS      [0 1 0 0 0 0 0] 0.5e-3; // sediment diameter
 
-bedMotion              off;
+CsMax    [0 0 0 0 0 0 0] 0.57; // max volumic sediment concentration
 
-sedimentBedPatches     (bed);
+// ************************************************************************* //
 
-bedloadModel
-{
-    type            MeyerPeter;
-}
+transportModel  Newtonian;
 
-criticalShieldsModel
-{
-    type            fixedValue;
-    value           0.047;
-}
+nu              nu [ 0 2 -1 0 0 0 0 ] 1e-6;
+
+Sc      1; // Schmidt number
 
 // ************************************************************************* //

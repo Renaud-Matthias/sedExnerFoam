@@ -2,7 +2,7 @@
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  v2406                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -11,28 +11,10 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      bedloadProperties;
+    object      turbulenceProperties;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// ************************** sediment properties ************************** //
-
-sedimentBed            on;
-
-bedload                on;
-
-bedMotion              off;
-
-sedimentBedPatches     (bed);
-
-bedloadModel
-{
-    type            MeyerPeter;
-}
-
-criticalShieldsModel
-{
-    type            fixedValue;
-    value           0.047;
-}
+simulationType  laminar;
 
 // ************************************************************************* //

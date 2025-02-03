@@ -9,30 +9,13 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
+    class       uniformDimensionedVectorField;
     location    "constant";
-    object      bedloadProperties;
+    object      g;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// ************************** sediment properties ************************** //
-
-sedimentBed            on;
-
-bedload                on;
-
-bedMotion              off;
-
-sedimentBedPatches     (bed);
-
-bedloadModel
-{
-    type            MeyerPeter;
-}
-
-criticalShieldsModel
-{
-    type            fixedValue;
-    value           0.047;
-}
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 0 -9.81);
 
 // ************************************************************************* //

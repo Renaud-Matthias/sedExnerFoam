@@ -20,19 +20,16 @@ sedimentBed            on;
 
 bedload                on;
 
-bedMotion              off;
+bedMotion              on;
+
+ABorder                1;
 
 sedimentBedPatches     (bed);
 
-bedloadModel
-{
-    type            MeyerPeter;
-}
+avalanche              on;
 
-criticalShieldsModel
-{
-    type            fixedValue;
-    value           0.047;
-}
+Qav                    1e-3;
+
+reposeAngle            32;
 
 // ************************************************************************* //

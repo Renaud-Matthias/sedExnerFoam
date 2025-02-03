@@ -10,29 +10,53 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      bedloadProperties;
+    location    "system";
+    object      controlDict;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// ************************** sediment properties ************************** //
+application     sedExnerFoam;
 
-sedimentBed            on;
+startFrom       startTime;
 
-bedload                on;
+startTime       0;
 
-bedMotion              off;
+stopAt          endTime;
 
-sedimentBedPatches     (bed);
+endTime         1e-2;
 
-bedloadModel
-{
-    type            MeyerPeter;
-}
+deltaT          0.1e-2;
 
-criticalShieldsModel
-{
-    type            fixedValue;
-    value           0.047;
-}
+writeControl    adjustableRunTime;
+
+writeInterval   0.1e-2;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable on;
+
+adjustTimeStep  false;
+
+maxCo           1;
+
+maxAlphaCo      1;
+
+maxDeltaT       1e0;
+
+libs
+(
+    "libOpenFOAM.so"
+);
+
 
 // ************************************************************************* //
