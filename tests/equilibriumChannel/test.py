@@ -7,7 +7,7 @@ from fluidfoam import readof as rdf
 
 print(" --- running test equilibrium channel --- ")
 
-time = "latestTime"
+time = "50"
 
 dS = 0.2e-3  # sediment diameter
 rhoS = 2650.  # sediment density
@@ -26,12 +26,14 @@ def bedloadMPM(shields):
 
 Zmesh = rdf.readmesh("./", verbose=False)[2]
 
-shieldsSolv = rdf.readvector("./", time, "shieldsVf",
-                             verbose=False, boundary="bed")[0, 0]
-qbSolv = rdf.readvector("./", time, "qbVf",
-                        verbose=False, boundary="bed")[0, 0]
-tauOf = -rdf.readvector("./", time, "wallShearStress",
-                        verbose=False, boundary="bed")[0, 0]
+Cs = rdf.readscalar("./", time, "Cs", verbose=False)
+
+shieldsSolv = rdf.readvector(
+    "./", time, "shieldsVf", verbose=False, boundary="bed")[0, 0]
+qbSolv = rdf.readvector(
+    "./", time, "qbVf", verbose=False, boundary="bed")[0, 0]
+tauOf = -rdf.readvector(
+    "./", time, "wallShearStress", verbose=False, boundary="bed")[0, 0]
 
 shieldsOf = tauOf / ((rhoS/rhoF - 1) * g * dS)
 
@@ -48,6 +50,14 @@ qbTest = bedloadMPM(shieldsOf)
 err = np.abs((qbSolv - qbTest) / qbSolv)
 if err > tol and success is True:
     success = False
-    print("problem, bedload value != Meyer-Peter formula")
+    print("error, bedload value != Meyer-Peter formula")
+
+
+zDatat, CsData = np.loadtxt("./dataCs_50s.txt", unpack=True, delimiter=";")
+for csim, cdat in zip(Cs, CsData):
+    err = np.abs(csim - cdat)
+    if err > tol:
+        success = False
+        print("error, new results differs from old simulation")
 
 assert success
