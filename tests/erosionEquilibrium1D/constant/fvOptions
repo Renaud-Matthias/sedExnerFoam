@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+
+// ************************** sediment properties ************************** //
+
+vectorCodedSource
+{
+    type            vectorCodedSource;
+    active          on; // true;
+    selectionMode   all;
+    redirectType    velocitySource;
+    fields          (U);
+    name            B;
+    codeOptions
+    #{
+        #include "fvCFD.H"
+        #include "fvc.H"
+    #};
+    codeAddSup
+    #{
+        vectorField& B = eqn.source();
+        const scalarField& V = mesh().V();
+        const vectorField& CellC = mesh().C(); 
+        const volVectorField& U = mesh().lookupObject<volVectorField>("U");
+
+        // for t > Tstart, apply a linear drag force to stop the flow
+
+        scalar Tstart = 20;
+        scalar Hwater = 0.1;  // water height
+
+        scalar t = U.db().time().value();  // access time
+        
+        forAll(CellC, i)
+        {            // quadratic forcing
+            B[i] = Foam::pos(t - Tstart) * U[i]
+                * Foam::mag(U[i])* V[i] / Hwater;
+        }
+    #};
+    codeCorrect
+    #{
+    #};
+    codeConstrain
+    #{
+    #};
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Create the mesh
+blockMesh
+
+cp -r 0_org 0
+
+# initial bathymetry
+python createInitialDune.py
+# finite area mesh
+makeFaMesh
+
+sedExnerFoam > log

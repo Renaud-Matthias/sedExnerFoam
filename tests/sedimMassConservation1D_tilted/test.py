@@ -83,7 +83,5 @@ if np.any(np.abs(relMassErr) > tol):
     success = False
     print(f"warning! maximum relative error on mass : {maxRelErr}")
     print(f"tolerance is {tol}")
-else:
-    print("test OK")
 
 assert success

@@ -10,6 +10,13 @@ import os
 
 print(" --- running sedimentation mass conservation --- ")
 
+success = True
+tol = 1e-5
+
+# load previous results to track change in solver behavior
+zpr, *csAllTime = np.loadtxt(
+    "./dataSed.txt", unpack=True, delimiter=";")
+
 rhoS = 2600.  # sediment density
 CsMax = 0.6  # maximum sediment volume fraction
 
@@ -19,11 +26,31 @@ domWidth = 0.1
 
 bedArea = domWidth**2
 
-ncells = len(rdf.readmesh("./", verbose=False)[2])
-
-foamTimes = os.popen('foamListTimes -withZero').read()
+path = "./"
+foamTimes = os.popen("foamListTimes -withZero").read()
 timeList = foamTimes.split('\n')[:-1]
 ntimes = len(timeList)
+
+Zcells = rdf.readmesh(path, "0", verbose=False)[2]
+ncells = len(Zcells)
+
+# initial sediment volume fraction
+Cs0 = rdf.readscalar(path, "0", "Cs", verbose=False)[0]
+if Cs0 != 0.2:
+    success = False
+    print(f"initial sediment volume fraction changed, "
+          +f"previous value: 0.2  new value: {Cs0}")
+
+if len(zpr)!=ncells:
+    success = False
+    print("error, mesh cell number differs from previous results")
+
+errZ = np.max(zpr - Zcells)/domHeight
+if errZ > tol:
+    success = False
+    print("cell position differs from previous results, "
+          + f"relative error is {100*zpr} %, "
+          + f"tolerance is {100*tol} %")
 
 
 def myReadMesh(path, t):
@@ -68,22 +95,32 @@ for i in range(ntimes-1):
 
     # bed is only one face, mesh is 1D
     massBed[i] = rhoS * CsMax * Zfaces[0] * bedArea
+    # compare Cs field with previous results
+    csPrev = csAllTime[i]
+    errCs = np.max(np.abs(csPrev - Cs) / Cs0)
+    if errCs > tol:
+        success = False
+        print(
+            f"error! maximum relative error on cs: {100*errCs} %"
+            + f"tolerance is {100*tol} %")
+
+if success:
+    print("Cs values OK")
 
 
 totMass = massBed + massSuspension
 # relative mass gain or loss
-relMassErr = (totMass - totMass[0]) / totMass[0]
+relMassErr = np.max(np.abs(totMass - totMass[0]) / totMass[0])
 
-maxRelErr = np.max(np.abs(relMassErr))
-
-success = True
-tol = 1e-5
-# test shields value
-if np.any(np.abs(relMassErr) > tol):
+# test conservation of mass
+if relMassErr > tol:
     success = False
-    print(f"warning! maximum relative error on mass : {maxRelErr}")
-    print(f"tolerance is {tol}")
+    print(f"error! maximum relative error on mass: {100*maxRelErr} %")
+    print(f"tolerance is {100*tol} %")
 else:
-    print("test OK")
+    print("mass conservation OK")
+    print("test passed")
+
+
 
 assert success
