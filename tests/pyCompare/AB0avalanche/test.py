@@ -8,9 +8,13 @@ import os
 
 print(" --- running AdamsBashforth 0 compare slope avalanche --- ")
 
+verbose = False
+
 foamTimes = os.popen('foamListTimes').read()
 timeList = foamTimes.split('\n')[:-1]
-print("time list: ", timeList)
+if verbose:
+    print("time list: ", timeList)
+
 ntimes = len(timeList)
 
 rhoS = 2650.  # sediment density m3/s
@@ -36,7 +40,8 @@ tol = 0.2  # tolerance in %
 for i in range(ntimes-1):
     t, tnext = timeList[i], timeList[i+1]
     dt = float(timeList[i+1]) - float(timeList[i])
-    print(f"\n- time, t = {t} s, dt = {dt} s")
+    if verbose:
+        print(f"\n- time, t = {t} s, dt = {dt} s")
     # read bed pos from mesh a t and t+dt
     zbFaces_t = rdf.readmesh(
         "./", t, boundary="bed", verbose=False)[2]
@@ -60,11 +65,12 @@ for i in range(ntimes-1):
 
     zBedErr = 100 * np.abs(dzbOF - dzb)/np.max(np.abs(dzb))
     maxErr = np.max(zBedErr)
-    print(f"max relative error on bed increment = {round(maxErr, 5)} %")
+    if verbose:
+        print(f"max relative error on bed increment = {round(maxErr, 5)} %")
 
     if (maxErr > tol):
         success = False
+        print(f"error! relative error on bed level increment = {100*maxxErr} %")
+        print(f"tolerance is {100 * tol} %")
 
-if success:
-    print("test passed")
 assert success

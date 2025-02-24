@@ -29,16 +29,17 @@ const vectorField& nFaces =
 
 //bed.angleBedSlope().primitiveFieldRef() = Foam::acos(nFaces & gUnit);
 
+// bed faces angle
+scalarField slopeAngle = Foam::acos(nFaces & eg);
+
 // slope direction
 vectorField slopeDir = eg - nFaces * (eg & nFaces);
 slopeDir /= (Foam::mag(slopeDir) + SMALL);
 
-// reposeAngle
-//dimensionedScalar betaRep(dimless, degToRad(32));
-//dimensionedScalar Qav(dimensionSet(0, 2, -1, 0, 0, 0, 0), 0.01);
-
 // Vinent law (2019)
-forAll(bed.aMesh().areaCentres(), facei)
+vectorField& qbIntern = qb.primitiveFieldRef();
+qbIntern += bedloadModelPtr->qbAvalanche(slopeAngle, slopeDir, betaRep);
+/*forAll(bed.aMesh().areaCentres(), facei)
 {
     scalar beta = Foam::acos(nFaces[facei] & eg);  // bed slope angle
     vector qav = Qav.value() * slopeDir[facei]
@@ -47,4 +48,4 @@ forAll(bed.aMesh().areaCentres(), facei)
             Foam::tanh(Foam::tan(beta))
             - Foam::tanh(Foam::tan(betaRep.value())));
     qb[facei] += qav;
-}
+    }*/

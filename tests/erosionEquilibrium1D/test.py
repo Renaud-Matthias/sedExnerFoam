@@ -36,13 +36,13 @@ for i, t in enumerate(timeList):
     zb = rdf.readmesh("./", t, boundary="bed", verbose=False)[2][0]
     Mbed[i] = CsMax * rhoS * zb * dx * dy
     CsField = rdf.readscalar("./", t, "Cs", verbose=False)
-    if CsField.shape==(1,):
+    if CsField.shape == (1,):
         CsField = np.ones(nCells) * CsField
     try:
         Vcells = rdf.readscalar(
             "./", t, "V", verbose=False)
     except FileNotFoundError:
-        os.system("postProcess -func writeCellVolumes")
+        os.system("postProcess -func writeCellVolumes > /dev/null")
         Vcells = rdf.readscalar(
             "./", t, "V", verbose=False)
     Msusp[i] = rhoS * np.sum(CsField * Vcells)

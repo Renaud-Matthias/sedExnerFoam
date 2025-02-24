@@ -10,6 +10,9 @@ import os
 
 print(" --- running sedimentation mass conservation --- ")
 
+success = True
+tol = 1e-5
+
 rhoS = 2600.  # sediment density
 CsMax = 0.6  # maximum sediment volume fraction
 
@@ -72,16 +75,14 @@ for i in range(ntimes-1):
 
 totMass = massBed + massSuspension
 # relative mass gain or loss
-relMassErr = (totMass - totMass[0]) / totMass[0]
+relMassErr = np.max(np.abs(totMass - totMass[0]) / totMass[0])
 
-maxRelErr = np.max(np.abs(relMassErr))
-
-success = True
-tol = 1e-5
-# test shields value
-if np.any(np.abs(relMassErr) > tol):
+# test mass conservation
+if relMassErr > tol:
     success = False
-    print(f"warning! maximum relative error on mass : {maxRelErr}")
-    print(f"tolerance is {tol}")
+    print(f"error! maximum relative error on mass: {100*relMassErr} %")
+    print(f"tolerance is {100*tol} %")
+else:
+    print("mass conservation OK")
 
 assert success

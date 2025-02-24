@@ -18,14 +18,15 @@ FoamFile
 
 sedimentBed            on;
 
-bedload                on;
-
 bedMotion              on;
 
 sedimentBedPatches     (bed);
 
-avalanche              on;
-
-reposeAngle            32;
+bedloadModel
+{
+    type               none;
+    avalanche          on;
+    Qav                5e-3;
+}
 
 // ************************************************************************* //

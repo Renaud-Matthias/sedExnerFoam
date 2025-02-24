@@ -82,9 +82,11 @@ if (bed.exist())
 
         forAll(bedPatch, facei)
         {
+            // label of neighbour cell
+            label idNCell = bedPatch.faceCells()[facei];
             // shear friction dimension less parameter
             scalar Tshear =
-                Foam::mag(shields[facei])/critShields[facei] - 1;
+                Foam::mag(shields[facei])/(critShields[facei] + SMALL) - 1;
             // compute reference concentration, Van Rijn 1984
             scalar cbRef =
                 Foam::min(
@@ -93,8 +95,6 @@ if (bed.exist())
                     * Foam::pow(Dstar.value(), -0.3),
                     CsbMax.value()
                 );
-            // label of neighbour cell
-            label idNCell = bedPatch.faceCells()[facei];
             // coordinates of cell centers located above bed
             const vector xCell = mesh.C()[idNCell];
             // face coordinates
@@ -118,22 +118,32 @@ if (bed.exist())
                 );
             Ep[facei] = (cbRefZ1 / Vcell)
                 * ((wsi & nFace) * Sface - bedPhiFace);
+        }
+        
+        if (bed.rigidBed())
+        {
+            areaScalarField& HsedBed = HsedBedPtr.ref();
+
+            // current time step
+            scalar deltaT = runTime.time().deltaT().value();
+
+            forAll(bedPatch, facei)
+            {
+                Ep[facei] = Foam::min
+                    (
+                        Ep[facei],
+                        HsedBed[facei] / deltaT
+                    );
+            }
+        }
+        forAll(bedPatch, facei)
+        {
+            // label of neighbour cell
+            label idNCell = bedPatch.faceCells()[facei];
             Erosion[idNCell] = Ep[facei];
-            /*Info << "dz = " << zi - zbRef
-                << ", nuF = " << nuF.value()
-                << ", s = " << sRatio
-                << ", g = " << mag(g).value()
-                << ", D* = " << Dstar
-                << ", T = " << Tshear
-                << ", ws = " << wsi
-                << ", diffSed cell = " << diffSed[idNCell]
-                << ", Ro = " << Roi
-                << ", cbRef = " << cbRef
-                << ", cbRefZ1 = " << cbRefZ1 << endl;*/
         }
     }
 }
-
 
 // MULES FORMULATION FOR SUSPENTION TRANSPORT
 if (switchMULES=="on")
@@ -207,14 +217,20 @@ else if (switchMULES=="off")
 
     CsEqn.solve();
 
+    Cs.correctBoundaryConditions();
+
     fvOptions.correct(Cs);
 }
 
-Ws = settlingModelPtr->Ufall(Cs, CsMax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
+Ws = settlingModelPtr->Ufall(
+    Cs, CsMax, dS, rhoS, rhoF, nuF, mag(g))*g/mag(g);
 
 Ws.correctBoundaryConditions();
 
 phip = fvc::flux(U + Ws);
+
+// Make the  flux relative to the mesh motion
+fvc::makeRelative(phip, U);
 
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()

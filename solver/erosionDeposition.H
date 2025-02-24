@@ -65,14 +65,6 @@ for (const label patchID : bed.bedPatchesID())
         scalar Vcell = mesh.V()[idNCell];
         scalar bedPhiFace = bedPhiPatch[facei];
         const vector& nFace = aMesh.faceAreaNormals()[facei];
-
-        /*Info << "cb = " << ci << endl
-            << "Sf = " << Sface << endl
-            << "Sfproj = " << SfProj[facei] << endl
-            << "nface = " << nFace << endl
-            << "bedPhi = " << bedPhiFace
-            << ", SfProj * dzb / dt = " << SfProj[facei] * dH[facei] / deltaT
-            << endl;*/
         // deposition due to settling
         // option 1
         DepPatch[facei] = ci * ((wsi & nFace) - bedPhiFace/Sface);

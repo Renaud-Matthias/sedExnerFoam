@@ -77,12 +77,20 @@ if (bedloadProperties.found("saturation"))
     Info << "saturation time, Tsat = " << Tsat->value() << " s" << endl;
 }
 
-// repose angle of granular material (in rad)
-dimensionedScalar betaRep(dimless, 0.5585);
-betaRep.value() = degToRad
+scalar betaRepDeg =
     (
-        bedloadProperties.lookupOrDefault<scalar>("reposeAngle", 32)
+        transportProperties.lookupOrDefault<scalar>("reposeAngle", 32)
     );
+
+Info << "granular material repose angle: " << betaRepDeg
+    << " degrees" << endl;
+if (betaRepDeg <= 0 or betaRepDeg >= 90)
+{
+    FatalError
+        << "repose angle must be in the interval 0 - 90" << endl;
+    Info << abort(FatalError) << endl;
+}
+scalar betaRep = degToRad(betaRepDeg);
 
 // morphological acceleration factor, default is 1
 scalar morphoAccFactor = 1;
@@ -123,7 +131,6 @@ if (bed.exist())
     for (label bci=0; bci<nFixedPatches; bci++)
     {
         const word& faPatchName = fixedFaPatchNames[bci];
-        Info << "fixed faPatch " << bci << ": " << faPatchName;
         label faPatchID = faBounds.findPatchID(fixedFaPatchNames[bci]);
         if (faPatchID==-1)
         {

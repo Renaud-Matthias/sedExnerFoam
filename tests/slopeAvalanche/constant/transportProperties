@@ -22,6 +22,8 @@ dS      [0 1 0 0 0 0 0] 0.5e-3; // sediment diameter
 
 CsMax    [0 0 0 0 0 0 0] 0.57; // max volumic sediment concentration
 
+reposeAngle     32;  // granular material repose angle in degrees
+
 // ************************************************************************* //
 
 transportModel  Newtonian;

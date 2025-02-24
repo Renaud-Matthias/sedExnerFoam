@@ -39,9 +39,9 @@ Cs0 = rdf.readscalar(path, "0", "Cs", verbose=False)[0]
 if Cs0 != 0.2:
     success = False
     print(f"initial sediment volume fraction changed, "
-          +f"previous value: 0.2  new value: {Cs0}")
+          + f"previous value: 0.2  new value: {Cs0}")
 
-if len(zpr)!=ncells:
+if len(zpr) != ncells:
     success = False
     print("error, mesh cell number differs from previous results")
 
@@ -115,12 +115,10 @@ relMassErr = np.max(np.abs(totMass - totMass[0]) / totMass[0])
 # test conservation of mass
 if relMassErr > tol:
     success = False
-    print(f"error! maximum relative error on mass: {100*maxRelErr} %")
+    print(f"error! maximum relative error on mass: {100*relMassErr} %")
     print(f"tolerance is {100*tol} %")
 else:
     print("mass conservation OK")
-    print("test passed")
-
 
 
 assert success

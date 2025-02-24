@@ -34,10 +34,6 @@ areaScalarField& critShields = critShieldsPtr.ref();
 
 if (not readCritShields)
 {
-    // base critical Shields number
-    const dimensionedScalar& critShields0 =
-        critShieldsModelPtr->criticalShields0(Dstar);
-
     // shear stress direction
     vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
     // slope direction
@@ -52,7 +48,7 @@ if (not readCritShields)
     //slopeDir /= (Foam::mag(slopeDir) + SMALL);
     // Apply slope correction on critical Shields number
     critShieldsModelPtr->slopeCorrection(
-        critShields, shields, slopeAngle, slopeDir, betaRep.value());
+        critShields, stressDir, slopeAngle, slopeDir, betaRep);
 }
 
 // compute bedload from Shields number
@@ -74,7 +70,7 @@ else
 }
 
 // additional bedload due to avalanche
-if (bed.isAvalanche())
+if (bedloadModelPtr->avalanche())
 {
     #include "sedimAvalanche.H"
 }

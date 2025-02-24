@@ -27,7 +27,7 @@ CsMax = 0.57  # maximum sediment volumic fraction
 g = 9.81  # gravity acceleration
 betaRep = 32 * np.pi / 180
 # dimless diameter
-Dstar = dS * (((rhoS/rhoF - 1) * g)/ nuF**2)**(1/3)
+Dstar = dS * (((rhoS/rhoF - 1) * g) / nuF**2)**(1/3)
 
 # domain and mesh dimensions
 domHeight = 1.
@@ -45,7 +45,8 @@ wsx, wsy, wsz = rdf.readvector("./", "latestTime", "Ws", verbose=False)[:, 0]
 beta = np.arctan(np.abs(wsx / wsz))
 
 critShSoulsby = 0.3 / (1 + 1.2 * Dstar) + 0.055 * (1 - np.exp(-0.02*Dstar))
-critShSlopeCorr = critShSoulsby * (np.cos(beta) - np.sin(beta) / np.tan(betaRep))
+critShSlopeCorr = critShSoulsby * (
+    np.cos(beta) - np.sin(beta) / np.tan(betaRep))
 
 critShields = rdf.readscalar(
     "./", "latestTime", "critShieldsVf",
@@ -66,13 +67,13 @@ for i, t in enumerate(timeList):
     zb = rdf.readmesh("./", t, boundary="bed", verbose=False)[2][0]
     Mbed[i] = CsMax * rhoS * zb * dx * dy
     CsField = rdf.readscalar("./", t, "Cs", verbose=False)
-    if CsField.shape==(1,):
+    if CsField.shape == (1,):
         CsField = np.ones(nCells) * CsField
     try:
         Vcells = rdf.readscalar(
             "./", t, "V", verbose=False)
     except FileNotFoundError:
-        os.system("postProcess -func writeCellVolumes")
+        os.system("postProcess -func writeCellVolumes > /dev/null")
         Vcells = rdf.readscalar(
             "./", t, "V", verbose=False)
     Msusp[i] = rhoS * np.sum(CsField * Vcells)

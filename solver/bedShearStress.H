@@ -43,7 +43,8 @@ for (const label patchID : bed.bedPatchesID())
         rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
     const symmTensorField& Reffp = Reff.boundaryField()[patchID];
     // compute shields number
-    ssp = ((-Sfp / magSfp) & Reffp)
+    ssp = bedloadModelPtr->coefShields()
+        * ((-Sfp / magSfp) & Reffp)
         / (mag(g).value() * dS.value()
         * (rhoS.value() - rhoF.value()));
 
