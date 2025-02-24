@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      bedloadProperties;
+}
+
+// ************************************************************************** //
+
+// if on, a sedimentBed is present in the computational domain
+// the Shields number is computed
+sedimentBed            on;  // on or off
+
+// list of patches corresponding to the sediment bed
+// cannot be empty of sedimentBed is on
+sedimentBedPatches     (sedimentBed);
+
+// activate/deactivate bed motion
+// if off the Exner equation is not solved
+bedMotion              off;  // on/off, default is on
+
+// faPatches can be fixed, displacement canceled
+fixedFaPatches         ();
+
+// model for bedload flux
+bedloadModel
+{
+    // possible type: MeyerPeter, Nielsen, Camenen, custom, none
+    type               MeyerPeter; // default is MeyerPeter
+    
+    // custom model formula cooresponds to:
+    // qb* = alpha * shields^aExp * (shields - critShields)^bExp
+    // user then specify values for alpha, aExp and bExp, only custom type
+    // coeficient for custom bedload type
+    alpha              7.2;
+    aExp               0.5;
+    bExp               1;
+
+    // switch on/off the avalanche model
+    // avalanche based on Vinent (2019)
+    avalanche          on;  // default is on
+    Qav                1e-2;  // default is 1e-2
+}
+
+// model for critical Shields number
+criticalShieldsModel
+{
+    // possible types:
+    // fixedValue, Miedema, Soulsby, Brownlie, Zanke or readFromFile
+    type                 fixedValue;  // default is fixedValue, value=0.047
+    // if readFromFile, read from startTime/finite-area/critShields
+
+    // for fixedValue model
+    //value                0.047;
+    
+    // switch on/off slope correction, Fredsoe & Deigaard (1992)
+    // off if model type is readFromFile
+    slopeCorrection     off;  // default is off
+}
+
+// possibility to use a saturation in time for the bedload
+// sedExnerFoam run without using saturation if dict not present
+saturation
+{
+    // saturation time, typically 10 ms
+    Tsat               0.01;
+}
+
+// morphological acceleration factor
+morphoAccFactor        1;
+
+// presence of a rigid bed below the sediment layer, default is off
+rigidBed               on;
+
+// ************************************************************************* //
