@@ -27,6 +27,7 @@ License
 #include "areaFields.H"
 #include "dimensionedTypes.H"
 #include "runTimeSelectionTables.H"
+#include "avalancheVinent.H"
 
 namespace Foam
 {
@@ -43,6 +44,16 @@ protected:
 
     //- model name
     word modelName_;
+
+    //- Coefficient of proportionality to amplify/reduce Shields number
+    scalar coefShields_;
+
+    //- true if avalanche is on
+    bool avalanche_;
+
+    //- Pointer to model for avalanche
+    // bedload due slope exceeding angle of repose
+    autoPtr<avalancheVinent> avalancheModel_;
 
 
 public:
@@ -62,7 +73,7 @@ public:
         (dict)
     );
 
-    // Constructor
+    //- Constructor
     bedloadModel
     (
         const dictionary& dict
@@ -98,7 +109,20 @@ public:
         const dimensionedScalar& g,
         const dimensionedScalar& dS
     ) const;
-    
+
+    //- Coefficient to amplify Shields number
+    scalar coefShields() const;
+
+    //- Return true if avalanche is on
+    bool avalanche() const;
+
+    //- Return avalanche related bedload
+    tmp<vectorField> qbAvalanche
+    (
+        const scalarField& beta,
+        const vectorField& slopeDir,
+        const scalar& betaRep
+    ) const;
 };
 
 }  // End namespace bedloadModels

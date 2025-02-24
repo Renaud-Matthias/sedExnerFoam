@@ -41,8 +41,20 @@ class criticalShieldsModel
     //- dictionary containing parameters fro criticalShieldsModel
     const dictionary& dict_;
 
+    //- pointer to base critical Shields number
+    mutable autoPtr<dimensionedScalar> critShields0_;
+
+    //- pointer to dimless diameter
+    autoPtr<dimensionedScalar> Dstar_;
+
     //- true if slope correction activated
     bool slopeCorrection_;
+
+    //- Compute base critical SHields number
+    virtual void calcCriticalShields0
+    (
+        const dimensionedScalar& Dstar
+    ) const = 0;
 
 
     public:
@@ -84,7 +96,7 @@ class criticalShieldsModel
     void slopeCorrection
     (
         areaScalarField& critShields,
-        const areaVectorField& shields,
+        const vectorField& shields,
         const scalarField& slopeAngle,
         const vectorField& slopeDir,
         scalar reposeAngle
@@ -92,6 +104,15 @@ class criticalShieldsModel
 
     //- Compute viscous diameter
     dimensionedScalar viscousDiameter
+    (
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& nu,
+        const dimensionedScalar& g
+    );
+
+    //- Compute dimless diameter
+    dimensionedScalar Dstar
     (
         const dimensionedScalar& dS,
         const dimensionedScalar& rhoS,
@@ -101,11 +122,10 @@ class criticalShieldsModel
     );
 
     //- Return critical Shields number, computed from dimless diameter
-    virtual dimensionedScalar criticalShields0
+    const dimensionedScalar& criticalShields0
     (
         const dimensionedScalar& Dstar
-    ) const = 0;
-    
+    );
 };
 }  // End namespace Foam
 }  // End namespace criticalShieldsModels

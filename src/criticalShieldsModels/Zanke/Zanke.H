@@ -33,6 +33,13 @@ class Zanke
 :
     public criticalShieldsModel
 {
+private:
+
+    //- calculate critical Shields number, computed from dimless diameter
+    void calcCriticalShields0
+    (
+        const dimensionedScalar& Dstar
+    ) const;
 
 public:
 
@@ -48,13 +55,6 @@ public:
 
     // Destructor
     virtual ~Zanke();
-
-
-    // Member functions
-    dimensionedScalar criticalShields0
-    (
-        const dimensionedScalar& Dstar
-    ) const;
 };
 
 } // End namespace bedloadModels

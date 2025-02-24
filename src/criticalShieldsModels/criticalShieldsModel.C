@@ -41,6 +41,8 @@ Foam::criticalShieldsModels::criticalShieldsModel::criticalShieldsModel
 )
 :
     dict_(dict),
+    critShields0_(nullptr),
+    Dstar_(nullptr),
     slopeCorrection_(false)
     //critShields0_(dimensionedScalar(dimless, 0.047))
 {
@@ -50,12 +52,17 @@ Foam::criticalShieldsModels::criticalShieldsModel::criticalShieldsModel
         if (switchSlopeCorr == "on")
         {
             slopeCorrection_ = true;
+            Info << "slope correction for critical Shields: on" << endl;
         }
         else if (switchSlopeCorr != "off")
         {
             FatalError << "wrong value for entry slopeCorrection, "
                 << "possible options are: on off" << endl;
         Info << abort(FatalError) << endl;
+        }
+        else
+        {
+            Info << "slope correction for critical Shields: off" << endl;
         }
     }
 }
@@ -103,7 +110,7 @@ Foam::criticalShieldsModels::criticalShieldsModel::New
 void Foam::criticalShieldsModels::criticalShieldsModel::slopeCorrection
 (
     areaScalarField& critShields,
-    const areaVectorField& shields,
+    const vectorField& stressDir,
     const scalarField& slopeAngle,
     const vectorField& slopeDir,
     scalar reposeAngle
@@ -111,15 +118,14 @@ void Foam::criticalShieldsModels::criticalShieldsModel::slopeCorrection
 {
     if (slopeCorrection_)
     {
-        // direction of shear stress on bed
-        vectorField stressDir = shields / (Foam::mag(shields) + SMALL);
         forAll(critShields, facei)
         {
             scalar beta = slopeAngle[facei];
             scalar alpha = Foam::acos(slopeDir[facei] & stressDir[facei]);
             scalar betap = Foam::min(beta, reposeAngle);
-            critShields[facei] *=
-                (
+            critShields[facei] =
+                critShields0_->value()
+                * (
                     Foam::cos(betap)
                     * Foam::sqrt
                     (
@@ -138,8 +144,24 @@ void Foam::criticalShieldsModels::criticalShieldsModel::slopeCorrection
     }
 }
 
+
 Foam::dimensionedScalar
 Foam::criticalShieldsModels::criticalShieldsModel::viscousDiameter
+(
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& nu,
+    const dimensionedScalar& g
+)
+{
+    dimensionedScalar s(rhoS/rhoF);  // density ratio
+    dimensionedScalar dv = Foam::pow(Foam::pow(nu, 2)/(g*(s-1)), 1/3);
+    return dv;
+}
+
+
+Foam::dimensionedScalar
+Foam::criticalShieldsModels::criticalShieldsModel::Dstar
 (
     const dimensionedScalar& dS,
     const dimensionedScalar& rhoS,
@@ -148,8 +170,19 @@ Foam::criticalShieldsModels::criticalShieldsModel::viscousDiameter
     const dimensionedScalar& g
 )
 {
-    dimensionedScalar s(rhoS/rhoF);  // density ratio
-    // compute viscous diameter
-    dimensionedScalar dv = Foam::pow(Foam::pow(nu, 2)/(g*(s-1)), 1/3);
-    return dS / dv;
+    return dS / viscousDiameter(rhoS, rhoF, nu, g);
+}
+
+
+const Foam::dimensionedScalar&
+Foam::criticalShieldsModels::criticalShieldsModel::criticalShields0
+(
+    const dimensionedScalar& Dstar
+)
+{
+    if (critShields0_==nullptr)
+    {
+        calcCriticalShields0(Dstar);
+    }
+    return critShields0_.ref();
 }

@@ -44,7 +44,9 @@ Foam::bedloadModels::custom::custom(const dictionary& dict)
     bExp_(dict_.get<scalar>("bExp"))
 {
      Info << "bedload model type: custom" << endl
-         << "qb* = 8 (shields-critShields)^1.5" << endl;
+         << "qb* = " << alpha_
+         << " shields^" << aExp_
+         << " (shields-critShields)^" << bExp_ << endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

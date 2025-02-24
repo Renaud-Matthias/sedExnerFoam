@@ -44,7 +44,7 @@ Foam::bedloadModels::Camenen::Camenen(const dictionary& dict)
     bCoef_(-4.5)
 {
      Info << "bedload model type: Camenen" << endl
-         << "qb* = 8 (shields-critShields)^1.5" << endl;
+         << "qb* = 12 shields^1.5 e^(-4.5 critShields/shields)" << endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -71,7 +71,9 @@ Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Camenen::qb
     dimensionedScalar smallVal(dimless, SMALL);
 
     return alpha_ * numEin
-        * (shields / (mag(shields) + smallVal))
+        * (shields / (Foam::mag(shields) + smallVal))
         * Foam::pow(Foam::mag(shields), aExp_)
-        * Foam::exp(bCoef_ * Foam::mag(shields) / critShields);
+        * Foam::exp(
+            bCoef_ * critShields / (Foam::mag(shields) + smallVal)
+        );
 }

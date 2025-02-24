@@ -33,6 +33,13 @@ class Miedema
 :
     public criticalShieldsModel
 {
+private:
+
+    //- calculate critical Shields number, computed from dimless diameter
+    void calcCriticalShields0
+    (
+        const dimensionedScalar& Dstar
+    ) const;
 
 public:
 
@@ -45,12 +52,9 @@ public:
     // Construct from components
     Miedema(const dictionary& dict);
 
-
     // Destructor
     virtual ~Miedema();
 
-
-    // Member functions
     dimensionedScalar criticalShields0
     (
         const dimensionedScalar& Dstar

@@ -19,56 +19,53 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Soulsby.H"
-#include "addToRunTimeSelectionTable.H"
 
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-namespace criticalShieldsModels
-{
-    defineTypeNameAndDebug(Soulsby, 0);
-    addToRunTimeSelectionTable(criticalShieldsModel, Soulsby, dictionary);
-}
-}
+#include "avalancheVinent.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::Soulsby(const dictionary& dict)
+Foam::bedloadModels::avalancheVinent::avalancheVinent
+(
+    const dictionary& dict
+)
 :
-    criticalShieldsModel(dict)
+    dict_(dict),
+    Qav_(dimVelocity * dimLength, 0.01)
 {
+    setAvalanche();
 }
+
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::criticalShieldsModels::Soulsby::~Soulsby()
+Foam::bedloadModels::avalancheVinent::~avalancheVinent()
 {}
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Member funcions * * * * * * * * * * * * * * //
 
-void Foam::criticalShieldsModels::Soulsby::calcCriticalShields0
-(
-    const dimensionedScalar& Dstar
-) const
+void Foam::bedloadModels::avalancheVinent::setAvalanche()
 {
-    if (critShields0_)
+    Qav_.value() = dict_.lookupOrDefault<scalar>("Qav", 0.01);
+    if (Qav_.value() < 0)
     {
         FatalError
-            << "critShields0_ already allocated" << endl;
+            << "Qav value must be positive" << endl;
+        Info << abort(FatalError) << endl;
     }
-    critShields0_.reset
-        (
-            new dimensionedScalar
-            (
-                "critShields0",
-                dimless,
-                Zero
-            )
-        );
-    dimensionedScalar& critShields0 = critShields0_.ref();
-    critShields0 =
-        (0.3 / (1 + 1.2*Dstar)) + 0.055 * (1 - Foam::exp(-0.02*Dstar));
+}
+
+Foam::tmp<Foam::vectorField>
+Foam::bedloadModels::avalancheVinent::avalanche
+(
+    const scalarField& beta,
+    const vectorField& slopeDir,
+    const scalar& betaRep
+) const
+{
+    return Qav_.value() * slopeDir * Foam::pos(beta - betaRep)
+        * (
+            Foam::tanh(Foam::tan(beta))
+            - Foam::tanh(Foam::tan(betaRep))
+        )
+        / (1 - Foam::tanh(Foam::tan(betaRep)));
 }

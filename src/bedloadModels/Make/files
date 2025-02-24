@@ -4,5 +4,6 @@ custom/custom.C
 MeyerPeter/MeyerPeter.C
 Nielsen/Nielsen.C
 none/none.C
+avalancheVinent.C
 
 LIB = $(FOAM_USER_LIBBIN)/libbedloadModels

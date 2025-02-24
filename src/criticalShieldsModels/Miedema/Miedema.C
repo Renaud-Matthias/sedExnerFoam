@@ -49,14 +49,27 @@ Foam::criticalShieldsModels::Miedema::~Miedema()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Miedema::criticalShields0
+void Foam::criticalShieldsModels::Miedema::calcCriticalShields0
 (
     const dimensionedScalar& Dstar
 ) const
 {
-    dimensionedScalar critShields =
+    if (critShields0_)
+    {
+        FatalError
+            << "critShields0_ already allocated" << endl;
+    }
+    critShields0_.reset
+        (
+            new dimensionedScalar
+            (
+                "critShields0",
+                dimless,
+                Zero
+            )
+        );
+    dimensionedScalar& critShields0 = critShields0_.ref();
+    critShields0 =
         (0.2285 / Foam::pow(Dstar, 1.02))
         + 0.0575 * (1 - Foam::exp(-0.0225*Dstar));
-    return critShields;
 }

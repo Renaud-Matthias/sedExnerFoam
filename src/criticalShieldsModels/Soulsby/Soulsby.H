@@ -51,7 +51,7 @@ public:
 
 
     // Member functions
-    dimensionedScalar criticalShields0
+    void calcCriticalShields0
     (
         const dimensionedScalar& Dstar
     ) const;

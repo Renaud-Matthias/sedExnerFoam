@@ -12,6 +12,7 @@ prec = 8
 
 filePath = "./dataSed.txt"
 
+
 def r(x):
     return str(round(x, prec))
 
@@ -28,7 +29,7 @@ CsFields = np.zeros((ntimes, ncells))
 for i, t in enumerate(timeList):
     cs = rdf.readscalar(
         "./", time_name=t, name="Cs", verbose=False)
-    if cs.shape==(1,):
+    if cs.shape == (1,):
         cs = cs * np.ones_like(Xmesh)
     CsFields[i, :] = cs[:]
 CsFields = np.round(CsFields, prec)

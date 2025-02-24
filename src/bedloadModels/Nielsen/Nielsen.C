@@ -39,12 +39,12 @@ namespace bedloadModels
 Foam::bedloadModels::Nielsen::Nielsen(const dictionary& dict)
 :
     bedloadModel(dict),
-    alpha_(8),
+    alpha_(12),
     aExp_(0.5),
     bExp_(1)
 {
      Info << "bedload model type: Nielsen" << endl
-         << "qb* = 8 (shields-critShields)^1.5" << endl;
+         << "qb* = 12 shields^0.5 (shields-critShields)" << endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

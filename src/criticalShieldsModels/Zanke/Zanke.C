@@ -49,17 +49,30 @@ Foam::criticalShieldsModels::Zanke::~Zanke()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Zanke::criticalShields0
+void Foam::criticalShieldsModels::Zanke::calcCriticalShields0
 (
     const dimensionedScalar& Dstar
 ) const
 {
-    dimensionedScalar critShields =
+    if (critShields0_)
+    {
+        FatalError
+            << "critShields0_ already allocated" << endl;
+    }
+    critShields0_.reset
+        (
+            new dimensionedScalar
+            (
+                "critShields0",
+                dimless,
+                Zero
+            )
+        );
+    dimensionedScalar& critShields0 = critShields0_.ref();
+    critShields0 =
         (0.0145 / Foam::pow(Dstar, 0.5))
         + Foam::pow(
             0.04510,
             1100 * Foam::pow(Dstar, -2.25)
         );
-    return critShields;
 }

@@ -78,7 +78,9 @@ for i in range(ntimes-1):
 
     if (maxErr > tol):
         success = False
-        print(f"error! relative error on bed level increment, {100 * maxErr} %")
+        print(
+            f"error! relative error on bed level increment, "
+            + f"{100 * maxErr} %")
         print(f"tolerance is {100*tol} %")
 
 assert success

@@ -19,46 +19,56 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef ShieldsFixedValue_H
-#define ShieldsFixedValue_H
+#ifndef avalancheVinent_H
+#define avalancheVinent_H
 
-#include "criticalShieldsModel.H"
+#include "dictionary.H"
+#include "dimensionedTypes.H"
+#include "areaFields.H"
+
 
 namespace Foam
 {
-namespace criticalShieldsModels
+namespace bedloadModels
 {
 
-class fixedValue
-:
-    public criticalShieldsModel
+class avalancheVinent
 {
-private:
+protected:
 
-    const scalar value_;
+    //- dictionary containing parameters fro bedloadModel
+    const dictionary& dict_;
+    
+    //- true if avalanche is on, default is true
+    bool avalanche_;
 
-    //- calculate critical Shields number, computed from dimless diameter
-    void calcCriticalShields0
-    (
-        const dimensionedScalar& Dstar
-    ) const;
+    //- Set avalanche on/off from dict_
+    void setAvalanche();
+
+    //- maximum possible bedload related to avalanche
+    dimensionedScalar Qav_;
 
 public:
 
-    // Runtime type information
-    TypeName("fixedValue");
+    //- Constructor
+    avalancheVinent
+    (
+        const dictionary& dict
+    );
 
-    // Constructors
+    //- Destructor
+    ~avalancheVinent();
 
-    //- Construct from components
-    fixedValue(const dictionary& dict);
-
-
-    // Destructor
-    virtual ~fixedValue();
+    //- Compute avalanche related bedload
+    tmp<vectorField> avalanche
+    (
+        const scalarField& beta,
+        const vectorField& slopeDir,
+        const scalar& betaRep
+    ) const;
+    
 };
-
-} // End namespace criticalShieldsModels
-} // End namespace Foam
+}  // end namespace bedloadModels
+}  // end namespace Foam
 
 #endif

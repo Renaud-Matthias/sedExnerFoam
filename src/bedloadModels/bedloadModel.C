@@ -40,8 +40,50 @@ Foam::bedloadModels::bedloadModel::bedloadModel
     const dictionary& dict
 )
 :
-    dict_(dict)
-{}
+    dict_(dict),
+    coefShields_(1),
+    avalanche_(true),
+    avalancheModel_(nullptr)
+{
+    if (dict_.found("coefShields"))
+    {
+        coefShields_ = readScalar(dict_.lookup("coefShields"));
+        Info << "Shields number amplification factor: "
+            << coefShields_ << endl;
+    }
+    if (coefShields_ <= 0)
+    {
+        FatalError
+            << "Shields number amplification factor"
+            << " coefShields must be positive" << endl;
+        Info << abort(FatalError) << endl;
+    }
+
+    // initialize or not avalancheModel
+    word switchAv(dict_.lookupOrDefault<word>("avalanche", "on"));
+    if (switchAv == "on")
+    {
+        avalanche_ = true;
+    }
+    else if (switchAv == "off")
+    {
+        avalanche_ = false;
+    }
+    else
+    {
+        FatalError
+            << "wrong entry for keyword avalanche"
+                << "possible options are: on off" << endl;
+        Info << abort(FatalError) << endl;
+    }
+    if (avalanche_)
+    {
+        avalancheModel_.reset
+            (
+                new avalancheVinent(dict_)
+            );
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -49,7 +91,7 @@ Foam::bedloadModels::bedloadModel::bedloadModel
 Foam::bedloadModels::bedloadModel::~bedloadModel()
 {}
 
-// * * * * * * * * * * * * * * * * Selectors *  * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * Selectors  * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::bedloadModels::bedloadModel>
 Foam::bedloadModels::bedloadModel::New
@@ -80,6 +122,8 @@ Foam::bedloadModels::bedloadModel::New
     return autoPtr<bedloadModel>(cstrIter()(dict));
 }
 
+// * * * * * * * * * * * * * * * Member funcions * * * * * * * * * * * * * * //
+
 Foam::dimensionedScalar
 Foam::bedloadModels::bedloadModel::einsteinNumber
 (
@@ -90,4 +134,39 @@ Foam::bedloadModels::bedloadModel::einsteinNumber
 ) const
 {
     return Foam::sqrt(((rhoS/rhoF) - 1) * g * Foam::pow(dS, 3));
+}
+
+Foam::scalar Foam::bedloadModels::bedloadModel::coefShields() const
+{
+    return coefShields_;
+}
+
+bool Foam::bedloadModels::bedloadModel::avalanche() const
+{
+    if (avalanche_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+Foam::tmp<Foam::vectorField>
+Foam::bedloadModels::bedloadModel::qbAvalanche
+(
+    const scalarField& beta,
+    const vectorField& slopeDir,
+    const scalar& betaRep
+) const
+{
+    if (avalancheModel_==nullptr)
+    {
+        FatalError
+            << "avalanche model not initialized, "
+                << "avalanche related bedload cannot be computed" << endl;
+        Info << abort(FatalError) << endl;
+    }
+    return avalancheModel_->avalanche(beta, slopeDir, betaRep);
 }

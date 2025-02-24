@@ -40,7 +40,7 @@ Foam::sedimentBed::sedimentBed
     dict_(dict),
     bedExist_(false),
     bedMotion_(false),
-    avalanche_(false),
+    //avalanche_(false),
     rigidBed_(false),
     mesh_(mesh),
     g_(g)
@@ -77,7 +77,7 @@ const faMesh& Foam::sedimentBed::aMesh()
     return aMesh_.ref();
 }
 
-bool Foam::sedimentBed::isAvalanche() const
+/*bool Foam::sedimentBed::isAvalanche() const
 {
     if (avalanche_)
     {
@@ -87,7 +87,7 @@ bool Foam::sedimentBed::isAvalanche() const
     {
         return false;
     }
-}
+    }*/
 
 labelList Foam::sedimentBed::bedPatchesID()
 {
@@ -159,7 +159,7 @@ void Foam::sedimentBed::checkBedExistence_()
     {
         bedExist_ = true;
         checkBedMotion_();
-        checkAvalancheModel_();
+        //checkAvalancheModel_();
     }
     else if (isBed=="off")
     {
@@ -173,7 +173,7 @@ void Foam::sedimentBed::checkBedExistence_()
     }
 }
 
-void Foam::sedimentBed::checkAvalancheModel_()
+/*void Foam::sedimentBed::checkAvalancheModel_()
 {
     if (dict_.found("avalanche"))
     {
@@ -193,7 +193,7 @@ void Foam::sedimentBed::checkAvalancheModel_()
             Info << abort(FatalError) << endl;
         }
     }
-}
+    }*/
 
 void Foam::sedimentBed::checkFaMeshOrientation_() const
 {

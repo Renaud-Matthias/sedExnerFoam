@@ -49,17 +49,30 @@ Foam::criticalShieldsModels::Brownlie::~Brownlie()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::Brownlie::criticalShields0
+void Foam::criticalShieldsModels::Brownlie::calcCriticalShields0
 (
     const dimensionedScalar& Dstar
 ) const
 {
-    dimensionedScalar critShields =
+    if (critShields0_)
+    {
+        FatalError
+            << "critShields0_ already allocated" << endl;
+    }
+    critShields0_.reset
+        (
+            new dimensionedScalar
+            (
+                "critShields0",
+                dimless,
+                Zero
+            )
+        );
+    dimensionedScalar& critShields0 = critShields0_.ref();
+    critShields0 =
         (0.22 / Foam::pow(Dstar, 0.9))
         + Foam::pow(
             0.0610,
             -7.7 * Foam::pow(Dstar, -0.9)
         );
-    return critShields;
 }

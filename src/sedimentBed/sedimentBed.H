@@ -72,7 +72,7 @@ public:
     const faMesh& aMesh();
     
     //- Avalanche module activated or not
-    bool isAvalanche() const;
+    //bool isAvalanche() const;
 
     //- Return copy of patches ID labelList
     labelList bedPatchesID();
@@ -103,7 +103,7 @@ protected:
     
     bool bedMotion_;
 
-    bool avalanche_;
+    //bool avalanche_;
 
     bool rigidBed_;
 
@@ -124,7 +124,7 @@ protected:
     // Protected member functions
 
     //- check if avalanche model is used
-    void checkAvalancheModel_();
+    //void checkAvalancheModel_();
     
     //- Check if bed exists
     void checkBedExistence_();

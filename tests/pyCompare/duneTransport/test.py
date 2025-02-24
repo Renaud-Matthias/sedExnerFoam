@@ -40,7 +40,7 @@ Xb, Yb, Zb = rdf.readmesh("./", time, boundary="bed", verbose=False)
 
 critShields = rdf.readscalar(
     "./", time, "critShieldsVf", boundary="bed", verbose=False)
-if critShields.shape==(1,):
+if critShields.shape == (1,):
     critShields = np.ones_like(Xb) * critShields
 shX, shY, shZ = rdf.readvector(
     "./", time, "shieldsVf", boundary="bed", verbose=False)
@@ -48,9 +48,9 @@ magSh = np.sqrt(shX**2 + shZ**2)
 
 # compute slope angle beta from Shields components
 beta = np.arctan(shZ / shX)
-cosAlpha = np.where(shX*beta>0, -1, 1)
+cosAlpha = np.where(shX*beta > 0, -1, 1)
 # limit beta values  to betaRep
-betaEff = np.where(np.abs(beta)<betaRep, np.abs(beta), betaRep)
+betaEff = np.where(np.abs(beta) < betaRep, np.abs(beta), betaRep)
 slopeCorr = np.cos(betaEff) - cosAlpha * np.sin(betaEff)/np.tan(betaRep)
 critShCorr = critShSoulsby * slopeCorr
 
@@ -64,11 +64,11 @@ qbMPM = einNum * 8 * np.where(
 # bedload due to avalanche from Vinent et. al (2019) formula
 Qav = 5e-3
 qbAv = Qav * np.where(
-    np.abs(beta)>betaRep,
+    np.abs(beta) > betaRep,
     (np.tanh(np.tan(np.abs(beta)))-np.tanh(np.tan(betaRep)))
     / (1-np.tanh(np.tan(betaRep))), 0)
 # total bedload, Meyer-Pter + avalanche
-qbTot = np.where(beta*shX>0, np.abs(qbAv-qbMPM), qbAv + qbMPM)
+qbTot = np.where(beta*shX > 0, np.abs(qbAv-qbMPM), qbAv + qbMPM)
 
 # relative error on critical Shields number
 # with slope Correction

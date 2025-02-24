@@ -50,12 +50,23 @@ Foam::criticalShieldsModels::fixedValue::~fixedValue()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::dimensionedScalar
-Foam::criticalShieldsModels::fixedValue::criticalShields0
+void Foam::criticalShieldsModels::fixedValue::calcCriticalShields0
 (
     const dimensionedScalar& Dstar
 ) const
 {
-    dimensionedScalar shieldsC0(dimless, value_);
-    return shieldsC0;
+    if (critShields0_)
+    {
+        FatalError
+            << "critShields0_ already allocated" << endl;
+    }
+    critShields0_.reset
+        (
+            new dimensionedScalar
+            (
+                "critShields0",
+                dimless,
+                value_
+            )
+        );
 }
