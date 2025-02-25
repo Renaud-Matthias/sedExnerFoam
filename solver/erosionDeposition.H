@@ -20,11 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to horizontaly projected variables
-//faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
-// area of faces projected on horizontal plane
-//const scalarField& SfProj = meshProj.S();
-
 // reference to erosion and deposition terms
 volScalarField& Ero = erosionPtr.ref();
 volScalarField& Dep = depositionPtr.ref();

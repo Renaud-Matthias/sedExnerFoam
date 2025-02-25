@@ -20,9 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// projected area mesh
-faMeshProjection& meshProj = aMeshProjPtr.ref();
-
 pointVectorField& pointDisplacement = const_cast<pointVectorField&>
 (
     mesh.objectRegistry::lookupObject<pointVectorField>
@@ -35,75 +32,24 @@ vectorField& dispVals = dispValsPtr.ref();
 scalarField& dHpoints = dHpointsPtr.ref();
 dHpoints = Zero;
 
-// get vertices displacement through interpolation for each bed patch
+//interpolate bed level increment from face center to vertices
+bed.interpFaceToVertices(dH, dHpoints);
+
+// zero displacements for faPatches
+const labelList& fixedPointsLabels = fixedPatchPointLabelsPtr.ref();
+
+for (const label i : fixedPointsLabels)
+{
+    dHpoints[i] = 0.;
+}
+
+dispVals -= eg * dHpoints;
+
+// interpolate displacement on points, vertical orientation
+//dispVals -= patchInterp.faceToPointInterpolate(dH) * eg;
+
 for (const label patchID : bed.bedPatchesID())
 {
-    // Access to face centers in projected horizontal plane
-    const vectorField& xFacesProj = meshProj.areaCentres();
-
-    // Access to points coordinates in projected horizontal plane
-    const vectorField& xPointsProj = meshProj.pointCoords();
-
-    // normalise interpolation weight
-    scalarField normWeight(aMesh.nPoints());
-    normWeight = Zero;
-
-    // gravity oriented unit vector
-    vector eg = (g / Foam::mag(g)).value();
-
-    // loop over all faces
-    for (label facei=0; facei < aMesh.nFaces(); facei++)
-    {
-        const face& f = aMesh.faces()[facei];
-        const vector& xf = xFacesProj[facei];
-        // number of vertices defining face f
-        const label nVerts = f.size();
-        
-        // loop over points belonging to face
-        for (label pi=0; pi < nVerts; pi++)
-        {
-            // label of point pi, global
-            const label piGlob = f.thisLabel(pi);
-
-            scalar areaPF = 0;
-
-            // coordinates of vertices
-            const vector& xv = xPointsProj[piGlob];
-            const vector& xn = xPointsProj[f.nextLabel(pi)];
-            const vector& xp = xPointsProj[f.prevLabel(pi)];
-
-            // vector from vertice to face center
-            vector vp = xf - xv;
-            // vector from vertice to right edge center
-            vector vredg = 0.5 * (xn - xv);
-            // vector from vertice to left edge center
-            vector vledg = 0.5 * (xp - xv);
-
-            areaPF +=
-                0.5 * mag(vredg ^ vp)
-                + 0.5 * mag(vp ^ vledg);
-
-            dHpoints[piGlob] += areaPF * dH[facei];
-
-            normWeight[piGlob] += areaPF;
-        }
-    }
-    // Normalise interpolation weights
-    dHpoints /= normWeight;
-
-    // zero displacements for faPatches
-    const labelList& fixedPointsLabels = fixedPatchPointLabelsPtr.ref();
-    
-    for (const label i : fixedPointsLabels)
-    {
-        dHpoints[i] = 0.;
-    }
-
-    dispVals -= eg * dHpoints;
-
-    // interpolate displacement on points, vertical orientation
-    //dispVals -= patchInterp.faceToPointInterpolate(dH) * eg;
-    
     Info << "mesh vertices motion, max:" << max(mag(dispVals));
     Info << " m , min:" << min(mag(dispVals));
     Info << " m , mean:" << average(mag(dispVals)) << " m" << endl;

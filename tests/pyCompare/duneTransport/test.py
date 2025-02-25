@@ -8,10 +8,13 @@ from fluidfoam import readof as rdf
 
 print(" --- running test dune transport --- ")
 
-time = "latestTime"
+time = "0.1"
 
 success = True
-tol = 1e-4
+
+tolZb = 1e-6
+tolSh = 1e-4
+tolQb = 1e-4
 
 verbose = False
 
@@ -37,6 +40,19 @@ if verbose:
     print(f"critical Shields number, {critShSoulsby}")
 
 Xb, Yb, Zb = rdf.readmesh("./", time, boundary="bed", verbose=False)
+# load xb/zb values from reference simulation
+XbPrev, ZbPrev = np.loadtxt(
+    "./dataZb01.txt", unpack="True", delimiter=";")
+maxRelErrZb = np.max(np.abs(Zb - ZbPrev) / np.max(ZbPrev))
+if maxRelErrZb > tolZb:
+    success = False
+    print("error! bed position differs from previous results"
+          + f"\n relative error is {maxRelErrZb*100} %"
+          + f"\n tolerance is {tolZb*100} %")
+else:
+    print("bed position OK")
+
+# compare
 
 critShields = rdf.readscalar(
     "./", time, "critShieldsVf", boundary="bed", verbose=False)
@@ -73,18 +89,22 @@ qbTot = np.where(beta*shX > 0, np.abs(qbAv-qbMPM), qbAv + qbMPM)
 # relative error on critical Shields number
 # with slope Correction
 errCritShields = np.max((critShields - critShCorr)/np.max(critShCorr))
-if errCritShields > tol:
+if errCritShields > tolSh:
     success = False
     print("error on critical Shields values"
           + f"\n relative error is {errCritShields*100} %"
-          + f"\n tolerance is {tol*100} %")
+          + f"\n tolerance is {tolSh*100} %")
+else:
+    print("critical Shields value OK")
 
 # relative error on bedload
 errQb = np.max((magQb - qbTot)/np.max(qbTot))
-if errQb > tol:
+if errQb > tolQb:
     success = False
     print("error on bedload values"
           + f"\n relative error is {errQb*100} %"
-          + f"\n tolerance is {tol*100} %")
+          + f"\n tolerance is {tolQb*100} %")
+else:
+    print("bedload values OK")
 
 assert success

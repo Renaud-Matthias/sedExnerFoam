@@ -56,6 +56,8 @@ Info << "Reading/calculating face flux field phi\n" << endl;
 
 #include "readGravitationalAcceleration.H"
 
+vector eg = (g / Foam::mag(g)).value();
+
 Info<< "Reading transportProperties\n" << endl;
 IOdictionary transportProperties
 (

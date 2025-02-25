@@ -26,7 +26,7 @@ areaScalarField& dH = dHptr.ref();
 areaScalarField& dVsed = dVsedPtr.ref();
 
 // faMesh horizontal projection
-faMeshProjection& meshProj = aMeshProjPtr.ref();  // projected area mesh
+const faMeshProjection& meshProj = bed.aProjMesh();  // projected area mesh
 // area of projected mesh faces
 const scalarField& SfProj = meshProj.S();
 

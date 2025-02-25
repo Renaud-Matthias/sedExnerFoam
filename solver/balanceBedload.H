@@ -41,11 +41,6 @@ const labelList& owner = meshProj.edgeOwner();
 // face neighbour list
 const labelList& neighbour = meshProj.edgeNeighbour();
 
-//if (filterBedload)
-//{
-//    #include "filterBedload.H"
-//}
-
 // compute bedload flux on through internal edges
 for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 {

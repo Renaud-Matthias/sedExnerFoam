@@ -40,10 +40,10 @@ Foam::sedimentBed::sedimentBed
     dict_(dict),
     bedExist_(false),
     bedMotion_(false),
-    //avalanche_(false),
     rigidBed_(false),
     mesh_(mesh),
-    g_(g)
+    g_(g),
+    eg_((g_ / Foam::mag(g)).value())
 {
     checkBedExistence_();
     if (bedExist_)
@@ -52,7 +52,12 @@ Foam::sedimentBed::sedimentBed
         aMesh_.reset(new faMesh(mesh_));
         vsm.reset(new volSurfaceMapping(aMesh_));
         getPatchesID();
+        // check if bed inclination consistent with gravity
         checkFaMeshOrientation_();
+        // instantiate projected finite-area mesh
+        aProjMesh_.reset(new faMeshProjection(aMesh_.ref(), eg_));
+
+        // activate/deactivate presence of a rigid bed below sediment layer
         word switchRigidBed =
             dict_.lookupOrDefault<word>("rigidBed", "off");
         if (switchRigidBed=="on")
@@ -77,17 +82,10 @@ const faMesh& Foam::sedimentBed::aMesh()
     return aMesh_.ref();
 }
 
-/*bool Foam::sedimentBed::isAvalanche() const
+const Foam::faMeshProjection& Foam::sedimentBed::aProjMesh()
 {
-    if (avalanche_)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-    }*/
+    return aProjMesh_.ref();
+}
 
 labelList Foam::sedimentBed::bedPatchesID()
 {
@@ -150,6 +148,62 @@ const Foam::vectorField& Foam::sedimentBed::slopeDir() const
     return *slopeDirPtr_;
 }
 
+void Foam::sedimentBed::interpFaceToVertices
+(
+    scalarField& dHfaces,
+    scalarField& dHpoints
+)
+{
+    // Access to face centers in projected horizontal plane
+    const vectorField& xFacesProj = aProjMesh_->areaCentres();
+
+    // Access to points coordinates in projected horizontal plane
+    const vectorField& xPointsProj = aProjMesh_->pointCoords();
+
+    // normalise interpolation weight
+    scalarField normWeight(aMesh_->nPoints());
+    normWeight = Zero;
+
+    // loop over all faces
+    for (label facei=0; facei < aMesh_->nFaces(); facei++)
+    {
+        const face& f = aMesh_->faces()[facei];
+        const vector& xf = xFacesProj[facei];
+        // number of vertices defining face f
+        const label nVerts = f.size();
+
+        // loop over points belonging to face
+        for (label pi=0; pi < nVerts; pi++)
+        {
+            // label of point pi, global
+            const label piGlob = f.thisLabel(pi);
+
+            scalar areaPF = 0;
+
+            // vertices coordinates
+            const vector& xv = xPointsProj[piGlob];
+            const vector& xn = xPointsProj[f.nextLabel(pi)];
+            const vector& xp = xPointsProj[f.prevLabel(pi)];
+
+            // vector from vertice to face center
+            vector vp = xf - xv;
+            // vector from vertice to right edge center
+            vector vredg = 0.5 * (xn - xv);
+            // vector from vertice to left edge center
+            vector vledg = 0.5 * (xp - xv);
+
+            areaPF +=
+                0.5 * Foam::mag(vredg ^ vp)
+                + 0.5 * Foam::mag(vp ^ vledg);
+
+            dHpoints[piGlob] += areaPF * dHfaces[facei];
+            normWeight[piGlob] += areaPF;
+        }
+    }
+    // Normalise interpolation weights
+    dHpoints /= normWeight;
+}
+
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
 void Foam::sedimentBed::checkBedExistence_()
@@ -172,28 +226,6 @@ void Foam::sedimentBed::checkBedExistence_()
         Info << abort(FatalError) << endl;
     }
 }
-
-/*void Foam::sedimentBed::checkAvalancheModel_()
-{
-    if (dict_.found("avalanche"))
-    {
-        word avModel(dict_.lookup("avalanche"));
-        if (avModel=="on")
-        {
-            avalanche_ = true;
-        }
-        else if (avModel=="off")
-        {
-            avalanche_ = false;
-        }
-        else
-        {
-            FatalError << "wrong keyword for entry avalanche,"
-                << " possible options are: on off" << endl;
-            Info << abort(FatalError) << endl;
-        }
-    }
-    }*/
 
 void Foam::sedimentBed::checkFaMeshOrientation_() const
 {

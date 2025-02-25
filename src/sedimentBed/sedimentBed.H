@@ -37,6 +37,7 @@ SourceFiles
 #include "dynamicFvMesh.H"
 #include "meshTools.H"
 #include "faCFD.H"
+#include "faMeshProjection.H"
 #include "Time.H"
 #include "gravityMeshObject.H"
 #include "pointMesh.H"
@@ -70,6 +71,9 @@ public:
 
     //- Return const reference to faMesh
     const faMesh& aMesh();
+
+    //- Return const reference to faMeshProjection
+    const faMeshProjection& aProjMesh();
     
     //- Avalanche module activated or not
     //bool isAvalanche() const;
@@ -92,6 +96,14 @@ public:
     //- Return reference to slope direction scalarField
     const vectorField& slopeDir() const;
 
+    //- Interpolate vertical bed displacement from faces center to vertices
+    // interpolation scheme from Jacobsen 2015
+   void interpFaceToVertices
+    (
+        scalarField& dHfaces,
+        scalarField& dHpoints
+    );
+
 
 protected:
 
@@ -111,7 +123,11 @@ protected:
 
     autoPtr<faMesh> aMesh_;
 
+    autoPtr<faMeshProjection> aProjMesh_;
+
     const meshObjects::gravity& g_;  // gravitational acceleration
+
+    const vector eg_;  // unit vector oriented with g
 
     labelList bedPatchesID_;
     

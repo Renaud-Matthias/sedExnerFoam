@@ -41,8 +41,6 @@ sedimentBed bed(bedloadProperties, mesh, g);
 // points displacements values for mesh motion
 autoPtr<vectorField> dispValsPtr;
 
-// horizontal projection of faMesh
-autoPtr<faMeshProjection> aMeshProjPtr;
 // fields, variables for bedload and morphology
 autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaScalarField> critShieldsPtr;  // critical shields number
@@ -171,13 +169,6 @@ if (bed.exist())
         fixedPatchPointLabels[icount] = pointLabel;
         icount ++;
     }
-    
-    Info << "Instantiate faMeshProjection" << endl;
-
-    aMeshProjPtr.reset
-    (
-        new faMeshProjection(bed.aMesh(), (g / mag(g)).value())
-    );
 
     // vertices displacements for mesh motion
     dispValsPtr.reset(new vectorField(bed.aMesh().nPoints()));
