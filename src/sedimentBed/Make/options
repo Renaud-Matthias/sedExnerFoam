@@ -12,8 +12,12 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/OpenFOAM/lnInclude \
     -I../faMeshProjection/lnInclude \
-    -I../faSedimentBed/lnInclude
+    -I../faSedimentBed/lnInclude \
+    -I../bedloadModels/lnInclude \
+    -I../criticalShieldsModels/lnInclude
 
 LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
-    -lfaMeshProjection
+    -lfaMeshProjection \
+    -lbedloadModels \
+    -lcriticalShieldsModels

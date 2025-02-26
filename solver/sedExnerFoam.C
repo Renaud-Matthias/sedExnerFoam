@@ -205,6 +205,9 @@ int main(int argc, char *argv[])
 
         if (bed.exist())
         {
+            // access bedloadModel
+            const bedloadModels::bedloadModel& bedloadMod = bed.bedloadModel();
+
             #include "bedShearStress.H"
 
             #include "bedload.H"

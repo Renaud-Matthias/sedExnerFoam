@@ -20,6 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// reset phiqbProj to 0
+scalarField& phiqbProj = phiqbProjPtr.ref();
+phiqbProj = Zero;
 // reset dVsed to 0
 areaScalarField& dVsed = dVsedPtr.ref();
 // store old dVsed field
@@ -43,7 +46,7 @@ for (const label patchID : bed.bedPatchesID())
         rhoF * turbulence->nuEff() * dev(twoSymm(fvc::grad(U)));
     const symmTensorField& Reffp = Reff.boundaryField()[patchID];
     // compute shields number
-    ssp = bedloadModelPtr->coefShields()
+    ssp = bedloadMod.coefShields()
         * ((-Sfp / magSfp) & Reffp)
         / (mag(g).value() * dS.value()
         * (rhoS.value() - rhoF.value()));

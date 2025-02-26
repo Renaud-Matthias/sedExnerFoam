@@ -28,7 +28,7 @@ areaVectorField& qb = qbPtr.ref();
 vectorField qbProj = meshProj.project(qb);
 
 // projected bedload flux through projected faMesh edges
-scalarField phiqbProj = phiqbProjPtr.ref();
+scalarField& phiqbProj = phiqbProjPtr.ref();
 
 // projected edge centers coordinates
 const vectorField& xEdgesProj = meshProj.edgeCentres();
@@ -70,7 +70,7 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         }
     }
 
-    phiqbProj[edgei] = qbEdgei & LeProj[edgei];
+    phiqbProj[edgei] += qbEdgei & LeProj[edgei];
 }
 
 // compute bedload flux on through internal edges
@@ -94,7 +94,7 @@ forAll(aMesh.boundary(), patchi)
 
             vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
 
-            phiqbProj[edgei] = qbEdgei & edgeLeProj;
+            phiqbProj[edgei] += qbEdgei & edgeLeProj;
 
             edgei++;
         }

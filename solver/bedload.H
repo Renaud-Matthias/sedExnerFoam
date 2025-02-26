@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// Access to saturated bedload and bedload fields
+// access to saturated bedload and bedload fields
 areaVectorField& qsat = qsatPtr.ref();
 areaVectorField& qb = qbPtr.ref();
 
@@ -28,8 +28,11 @@ dimensionedScalar smallVal(dimless, SMALL);
 // unit vector gravity oriented
 vector eg = (g/mag(g)).value();
 
-// Access bedload model and critical Shields number
-const bedloadModels::bedloadModel& bedload = bedloadModelPtr.ref();
+// access criticalShieldsModel
+const criticalShieldsModels::criticalShieldsModel& critShieldsMod =
+    bed.critShieldsModel();
+
+// access critical Shields number
 areaScalarField& critShields = critShieldsPtr.ref();
 
 if (not readCritShields)
@@ -47,12 +50,12 @@ if (not readCritShields)
     //vectorField slopeDir = (nFaces & eg) * eg - nFaces;
     //slopeDir /= (Foam::mag(slopeDir) + SMALL);
     // Apply slope correction on critical Shields number
-    critShieldsModelPtr->slopeCorrection(
+    critShieldsMod.slopeCorrection(
         critShields, stressDir, slopeAngle, slopeDir, betaRep);
 }
 
 // compute bedload from Shields number
-qsat = bedload.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
+qsat = bedloadMod.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
 
 // apply saturation time to compute bedload
 const scalar& deltaT = runTime.time().deltaT().value();
@@ -70,7 +73,7 @@ else
 }
 
 // additional bedload due to avalanche
-if (bedloadModelPtr->avalanche())
+if (bedloadMod.avalanche())
 {
     #include "sedimAvalanche.H"
 }

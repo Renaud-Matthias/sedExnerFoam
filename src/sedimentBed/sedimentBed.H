@@ -37,11 +37,14 @@ SourceFiles
 #include "dynamicFvMesh.H"
 #include "meshTools.H"
 #include "faCFD.H"
-#include "faMeshProjection.H"
 #include "Time.H"
 #include "gravityMeshObject.H"
 #include "pointMesh.H"
 #include "pointPatchField.H"
+
+#include "faMeshProjection.H"
+#include "bedloadModel.H"
+#include "criticalShieldsModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -96,6 +99,12 @@ public:
     //- Return reference to slope direction scalarField
     const vectorField& slopeDir() const;
 
+    //- Return constant reference to bedloadModel
+    const bedloadModels::bedloadModel& bedloadModel();
+
+    //- Return reference to criticalShieldsModel
+    criticalShieldsModels::criticalShieldsModel& critShieldsModel();
+
     //- Interpolate vertical bed displacement from faces center to vertices
     // interpolation scheme from Jacobsen 2015
    void interpFaceToVertices
@@ -125,6 +134,10 @@ protected:
 
     autoPtr<faMeshProjection> aProjMesh_;
 
+    autoPtr<bedloadModels::bedloadModel> bedloadModel_;
+
+    autoPtr<criticalShieldsModels::criticalShieldsModel> critShieldsModel_;
+
     const meshObjects::gravity& g_;  // gravitational acceleration
 
     const vector eg_;  // unit vector oriented with g
@@ -143,13 +156,19 @@ protected:
     //void checkAvalancheModel_();
     
     //- Check if bed exists
-    void checkBedExistence_();
+    void checkBedExistence();
 
     //- Check if patch are well oriented
-    void checkFaMeshOrientation_() const;
+    void checkFaMeshOrientation() const;
 
     //- Check if bed/mesh motion (on/off)
-    void checkBedMotion_();
+    void checkBedMotion();
+
+    //- Instantiate bedloadModel
+    void getBedloadModel();
+
+    //- Instantiate criticalShieldsModel
+    void getCritShieldsModel();
 
     //- get sediment bed patches ID
     void getPatchesID();

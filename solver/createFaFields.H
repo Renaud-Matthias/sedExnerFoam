@@ -56,13 +56,12 @@ autoPtr<areaVectorField> rigidBedPtr;  // rigid bed coordinates
 // width of sediment bed layer, between the rigid bed and the fluid
 autoPtr<areaScalarField> HsedBedPtr;
 
-// models to compute bedload
-autoPtr<bedloadModels::bedloadModel> bedloadModelPtr;
-// Pointer to critical Shields model
-autoPtr<criticalShieldsModels::criticalShieldsModel>
-critShieldsModelPtr;
 // True if critShields is instantiated from time/finite-area/critShields
+// in bedloadProperties/ criticalShieldsModel type "readFromFile"
 bool readCritShields = false;
+
+// compute avalanche directly on edges
+bool onEdgeAvalanche = false;
 
 // saturated length and time
 dimensionedScalar* Tsat = nullptr;  // pointer to saturation time
@@ -96,10 +95,6 @@ morphoAccFactor =
     bedloadProperties.lookupOrDefault<scalar>("morphoAccFactor", 1);
 Info << "morphological acceleration factor is set to: "
 << morphoAccFactor << endl;
-
-// coefficient for avalanche additional bedload
-dimensionedScalar Qav(dimVelocity * dimLength, 0.01);
-Qav.value() = bedloadProperties.lookupOrDefault<scalar>("Qav", 0.01);
 
 // list of patch to apply zeroDisplacements condition
 List<word> fixedFaPatchNames;
@@ -180,77 +175,37 @@ if (bed.exist())
         dispVals[pointi] = vector(0, 0, 0);
     }
 
-    // model for critical Shields number
-    dictionary defaultCritShieldsDict;
-    defaultCritShieldsDict.add(keyType("type"), "fixedValue");
-    defaultCritShieldsDict.add(keyType("value"), 0.047);
-    // if dictionary not present, defaultCritShieldsDict is applied
-    // default is fixedValue, value = 0.047
+    if (bedloadProperties.found("bedloadModel"))
+    {
+        const dictionary& bedloadDict =
+            bedloadProperties.subDict("bedloadModel");
+        word onEdgeQav(
+            bedloadDict.lookupOrDefault<word>("onEdge", "off"));
+        if (onEdgeQav == "on")
+        {
+            onEdgeAvalanche = true;
+        }
+    }
+
+    criticalShieldsModels::criticalShieldsModel& critShieldsMod =
+        bed.critShieldsModel();
     if (bedloadProperties.found("criticalShieldsModel"))
     {
-        const dictionary critShieldsDict =
+        const dictionary& critShieldsDict =
             bedloadProperties.subDict("criticalShieldsModel");
         word modelType(critShieldsDict.lookup("type"));
-        if (modelType != "readFromFile")
-        {
-            critShieldsModelPtr.reset
-                (
-                    criticalShieldsModels::criticalShieldsModel::New
-                    (
-                        critShieldsDict
-                    )
-                );
-            Info << "critical Shields number base value: "
-                << critShieldsModelPtr->criticalShields0(Dstar).value()
-                << endl;
-        }
-        else
+        if (modelType == "readFromFile")
         {
             readCritShields = true;
             Info << "critical Shields number set by user as "
                 << " a non uniform scalar field" << endl;
         }
     }
-    else
+    if (not readCritShields)
     {
-        critShieldsModelPtr.reset
-        (
-            criticalShieldsModels::criticalShieldsModel::New
-            (
-                defaultCritShieldsDict
-            )
-        );
         Info << "critical Shields number base value: "
-            << critShieldsModelPtr->criticalShields0(Dstar).value()
+            << critShieldsMod.criticalShields0(Dstar).value()
             << endl;
-    }
-
-    // model for bedload
-    dictionary defaultBedloadDict;
-    defaultBedloadDict.add(keyType("type"), "MeyerPeter");
-    // if dictionary not present, defaultBedloadDict is applied
-    // default is formula from Meyer Peter
-    if (bedloadProperties.found("bedloadModel"))
-    {
-        const dictionary bedloadModelDict =
-            bedloadProperties.subDict("bedloadModel");
-
-        bedloadModelPtr.reset
-        (
-            bedloadModels::bedloadModel::New
-            (
-                bedloadModelDict
-            )
-        );
-    }
-    else
-    {
-        bedloadModelPtr.reset(
-            bedloadModels::bedloadModel::New
-            (
-                defaultBedloadDict
-            )
-        );
     }
 
     // choose time scheme for Exner equation, default is euler explicit
@@ -300,6 +255,47 @@ if (bed.exist())
             dimensionedVector(dimless, Zero)
         )
     );
+
+    if (readCritShields)
+    {
+        Info << "critical Shields number read from /finite-area/critShields"
+            << "\nno criticalShieldsModel used" << endl;
+
+        critShieldsPtr.reset
+            (
+                new areaScalarField
+                (
+                    IOobject
+                    (
+                        "critShields",
+                        runTime.timeName(),
+                        bed.aMesh(),
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    bed.aMesh()
+                )
+            );
+    }
+    else
+    {
+        critShieldsPtr.reset
+            (
+                new areaScalarField
+                (
+                    IOobject
+                    (
+                        "critShields",
+                        runTime.timeName(),
+                        bed.aMesh(),
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    bed.aMesh(),
+                    critShieldsMod.criticalShields0(Dstar)
+                )
+            );
+    }
 
     qsatPtr.reset
     (
@@ -406,47 +402,6 @@ if (bed.exist())
             dimensionedScalar(dimVelocity, Zero)
         )
     );
-
-    if (readCritShields)
-    {
-        Info << "critical Shields number read from /finite-area/critShields"
-            << "\nno criticalShieldsModel used" << endl;
-
-        critShieldsPtr.reset
-            (
-                new areaScalarField
-                (
-                    IOobject
-                    (
-                        "critShields",
-                        runTime.timeName(),
-                        bed.aMesh(),
-                        IOobject::MUST_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    bed.aMesh()
-                )
-            );
-    }
-    else
-    {
-        critShieldsPtr.reset
-            (
-                new areaScalarField
-                (
-                    IOobject
-                    (
-                        "critShields",
-                        runTime.timeName(),
-                        bed.aMesh(),
-                        IOobject::NO_READ,
-                        IOobject::NO_WRITE
-                    ),
-                    bed.aMesh(),
-                    critShieldsModelPtr->criticalShields0(Dstar)
-                )
-            );
-    }
 
     // add a turbulent diffusivity for suspended particles near wall
     // initialize a wallDist function for ditance to bed patches

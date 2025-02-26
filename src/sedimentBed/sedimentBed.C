@@ -42,10 +42,11 @@ Foam::sedimentBed::sedimentBed
     bedMotion_(false),
     rigidBed_(false),
     mesh_(mesh),
+    bedloadModel_(nullptr),
     g_(g),
     eg_((g_ / Foam::mag(g)).value())
 {
-    checkBedExistence_();
+    checkBedExistence();
     if (bedExist_)
     {
         Info << "create finite-area mesh" << endl;
@@ -53,9 +54,13 @@ Foam::sedimentBed::sedimentBed
         vsm.reset(new volSurfaceMapping(aMesh_));
         getPatchesID();
         // check if bed inclination consistent with gravity
-        checkFaMeshOrientation_();
+        checkFaMeshOrientation();
         // instantiate projected finite-area mesh
         aProjMesh_.reset(new faMeshProjection(aMesh_.ref(), eg_));
+        // instantiate bedloadModel
+        getBedloadModel();
+        // instantiate criticalShieldsModel
+        getCritShieldsModel();
 
         // activate/deactivate presence of a rigid bed below sediment layer
         word switchRigidBed =
@@ -85,6 +90,18 @@ const faMesh& Foam::sedimentBed::aMesh()
 const Foam::faMeshProjection& Foam::sedimentBed::aProjMesh()
 {
     return aProjMesh_.ref();
+}
+
+const Foam::bedloadModels::bedloadModel&
+Foam::sedimentBed::bedloadModel()
+{
+    return bedloadModel_.ref();
+}
+
+Foam::criticalShieldsModels::criticalShieldsModel&
+Foam::sedimentBed::critShieldsModel()
+{
+    return critShieldsModel_.ref();
 }
 
 labelList Foam::sedimentBed::bedPatchesID()
@@ -206,13 +223,13 @@ void Foam::sedimentBed::interpFaceToVertices
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-void Foam::sedimentBed::checkBedExistence_()
+void Foam::sedimentBed::checkBedExistence()
 {
     word isBed(dict_.lookup("sedimentBed"));
     if (isBed=="on")
     {
         bedExist_ = true;
-        checkBedMotion_();
+        checkBedMotion();
         //checkAvalancheModel_();
     }
     else if (isBed=="off")
@@ -227,7 +244,7 @@ void Foam::sedimentBed::checkBedExistence_()
     }
 }
 
-void Foam::sedimentBed::checkFaMeshOrientation_() const
+void Foam::sedimentBed::checkFaMeshOrientation() const
 {
     if (not bedExist_)
     {
@@ -269,7 +286,7 @@ void Foam::sedimentBed::getPatchesID()
     }
 }
 
-void Foam::sedimentBed::checkBedMotion_()
+void Foam::sedimentBed::checkBedMotion()
 {
     if (dict_.found("bedMotion"))
     {
@@ -297,6 +314,70 @@ void Foam::sedimentBed::checkBedMotion_()
     else
     {
         bedMotion_ = true;
+    }
+}
+
+void Foam::sedimentBed::getBedloadModel()
+{
+    // default dict in case bedloadModel not specified
+    dictionary defaultBedloadDict;
+    defaultBedloadDict.add(keyType("type"), "MeyerPeter");
+
+    if (dict_.found("bedloadModel"))
+    {
+        const dictionary bedloadModelDict =
+            dict_.subDict("bedloadModel");
+
+        bedloadModel_.reset
+        (
+            bedloadModels::bedloadModel::New
+            (
+                bedloadModelDict
+            )
+        );
+    }
+    else
+    {
+        bedloadModel_.reset(
+            bedloadModels::bedloadModel::New
+            (
+                defaultBedloadDict
+            )
+        );
+    }
+}
+
+void Foam::sedimentBed::getCritShieldsModel()
+{
+    // default dict in case criticalShieldsModel not specified
+    dictionary defaultCritShieldsDict;
+    defaultCritShieldsDict.add(keyType("type"), "fixedValue");
+    defaultCritShieldsDict.add(keyType("value"), 0.047);
+    if (dict_.found("criticalShieldsModel"))
+    {
+        const dictionary& critShieldsDict =
+            dict_.subDict("criticalShieldsModel");
+        word modelType(critShieldsDict.lookup("type"));
+        if (modelType != "readFromFile")
+        {
+            critShieldsModel_.reset
+                (
+                    criticalShieldsModels::criticalShieldsModel::New
+                    (
+                        critShieldsDict
+                    )
+                );
+        }
+    }
+    else
+    {
+        critShieldsModel_.reset
+        (
+            criticalShieldsModels::criticalShieldsModel::New
+            (
+                defaultCritShieldsDict
+            )
+        );
     }
 }
 
