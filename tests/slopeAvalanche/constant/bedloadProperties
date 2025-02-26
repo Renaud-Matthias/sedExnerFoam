@@ -27,6 +27,7 @@ bedloadModel
     type               none;
     avalanche          on;
     Qav                5e-3;
+    onEdge             off;
 }
 
 // ************************************************************************* //
