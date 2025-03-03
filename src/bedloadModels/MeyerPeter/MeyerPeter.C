@@ -60,7 +60,8 @@ Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::MeyerPeter::qb
     const dimensionedScalar& rhoS,
     const dimensionedScalar& rhoF,
     const dimensionedScalar& g,
-    const dimensionedScalar& dS
+    const dimensionedScalar& dS,
+    const dimensionedScalar& nuF
 ) const
 {
     // compute einstein number

@@ -12,6 +12,7 @@ print(" --- running 1D erosion slope bed test --- ")
 success = True
 tolMass = 1e-7
 tolCritSh = 1e-3
+tolQb = 1e-5
 
 foamTimes = os.popen("foamListTimes -withZero").read()
 timeList = foamTimes.split("\n")[:-1]
@@ -28,6 +29,14 @@ g = 9.81  # gravity acceleration
 betaRep = 32 * np.pi / 180
 # dimless diameter
 Dstar = dS * (((rhoS/rhoF - 1) * g) / nuF**2)**(1/3)
+# Einstein number
+EinNum = np.sqrt((rhoS/rhoF - 1) * g * dS**3)
+
+
+def qbVanRijn(sh, csh):
+    Tshear = (sh / csh - 1)
+    return EinNum * 0.035 * Tshear**2.1 / Dstar**0.3
+
 
 # domain and mesh dimensions
 domHeight = 1.
@@ -52,6 +61,17 @@ critShields = rdf.readscalar(
     "./", "latestTime", "critShieldsVf",
     boundary="bed", verbose=False)[0]
 
+
+# Shields number
+shields = rdf.readvector(
+    "./", "10", "shieldsVf", boundary="bed", verbose=False)[0]
+
+# bedload
+qb = rdf.readvector(
+    "./", "10", "qbVf", boundary="bed", verbose=False)[0]
+
+qbVR = qbVanRijn(shields, critShields)
+
 # relative error on critical Shields
 errCritSh = (critShields - critShSlopeCorr) / critShSlopeCorr
 if errCritSh > tolCritSh:
@@ -62,6 +82,19 @@ if errCritSh > tolCritSh:
     print(f"tolerance is {100*tolCritSh} %")
 else:
     print("critical Shields value OK")
+
+
+# relative error on bedload
+errQb = (qb - qbVR) / qbVR
+if errQb > tolQb:
+    success = False
+    print(
+        "error! maximum relative error on bedload: "
+        + f"{100*errQb} %")
+    print(f"tolerance is {100*tolQb} %")
+else:
+    print("bedload value OK")
+
 
 for i, t in enumerate(timeList):
     zb = rdf.readmesh("./", t, boundary="bed", verbose=False)[2][0]

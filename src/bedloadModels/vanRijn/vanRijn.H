@@ -19,8 +19,8 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#ifndef custom_H
-#define custom_H
+#ifndef vanRijn_H
+#define vanRijn_H
 
 #include "bedloadModel.H"
 
@@ -29,7 +29,7 @@ namespace Foam
 namespace bedloadModels
 {
 
-class custom
+class vanRijn
 :
     public bedloadModel
 {
@@ -44,14 +44,14 @@ protected:
 public:
 
     // Runtime type information
-    TypeName("custom");
+    TypeName("vanRijn");
 
     //- Construct from components
-    custom(const dictionary& dict);
+    vanRijn(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~custom();
+    virtual ~vanRijn();
 
 
     // Member functions

@@ -24,12 +24,13 @@ boundaryField
     inletFa
     {
         type        fixedValue;
-        value       uniform (0 0 0);
+	value       uniform (0 0 0);
     }
 
     outletFa
     {
-        type        zeroGradient;
+        type        fixedValue;
+	value       uniform (0 0 0);
     }
 
     sidesFa

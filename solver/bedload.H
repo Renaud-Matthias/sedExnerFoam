@@ -55,13 +55,12 @@ if (not readCritShields)
 }
 
 // compute bedload from Shields number
-qsat = bedloadMod.qb(shields, critShields, rhoS, rhoF, mag(g), dS);
+qsat = bedloadMod.qb(shields, critShields, rhoS, rhoF, mag(g), dS, nuF);
 
 // apply saturation time to compute bedload
 const scalar& deltaT = runTime.time().deltaT().value();
 if (Tsat)
 {
-    Info << "Tsat: " << Tsat << endl;
     if (Tsat->value() > deltaT)
     {
         qb += (deltaT / Tsat->value()) * (qsat - qb);

@@ -19,7 +19,7 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Camenen.H"
+#include "vanRijn.H"
 #include "addToRunTimeSelectionTable.H"
 
 
@@ -29,32 +29,32 @@ namespace Foam
 {
 namespace bedloadModels
 {
-    defineTypeNameAndDebug(Camenen, 0);
-    addToRunTimeSelectionTable(bedloadModel, Camenen, dictionary);
+    defineTypeNameAndDebug(vanRijn, 0);
+    addToRunTimeSelectionTable(bedloadModel, vanRijn, dictionary);
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::bedloadModels::Camenen::Camenen(const dictionary& dict)
+Foam::bedloadModels::vanRijn::vanRijn(const dictionary& dict)
 :
     bedloadModel(dict),
-    alpha_(12),
-    aExp_(1.5),
-    bCoef_(-4.5)
+    alpha_(0.035),
+    aExp_(2.1),
+    bExp_(-0.3)
 {
-     Info << "bedload model type: Camenen" << endl
-         << "qb* = 12 shields^1.5 e^(-4.5 critShields/shields)" << endl;
+     Info << "bedload model type: vanRijn" << endl
+         << "qb* = 0.035 (shields/critShields - 1)**2.1 / Dstar**0.3" << endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::bedloadModels::Camenen::~Camenen()
+Foam::bedloadModels::vanRijn::~vanRijn()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Camenen::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::vanRijn::qb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,
@@ -69,12 +69,24 @@ Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Camenen::qb
     dimensionedScalar numEin =
         einsteinNumber(rhoS, rhoF, g, dS);
 
+    // compute dimless diameter
+    dimensionedScalar Dstar = dS * Foam::pow(
+        ((rhoS/rhoF - 1) * g) / Foam::pow(nuF, 2),
+        1.0/3.0
+    );
+
     dimensionedScalar smallVal(dimless, SMALL);
 
+    scalarField Tshear = Foam::mag(shields)/(critShields + SMALL) - 1;
+
     return alpha_ * numEin
-        * (shields / (Foam::mag(shields) + smallVal))
-        * Foam::pow(Foam::mag(shields), aExp_)
-        * Foam::exp(
-            bCoef_ * critShields / (Foam::mag(shields) + smallVal)
-        );
+        * (shields / (mag(shields) + smallVal))
+        * Foam::pow
+        (
+            (Foam::mag(shields)/(critShields + smallVal) - 1)
+            * Foam::pos(Foam::mag(shields)/(critShields + smallVal) - 1),
+            aExp_
+        )
+        * Foam::pow(Dstar, bExp_);
 }
+//* Foam::pow(Tshear * Foam::pos(Tshear), aExp_).internalFieldRef()

@@ -65,6 +65,7 @@ bool onEdgeAvalanche = false;
 
 // saturated length and time
 dimensionedScalar* Tsat = nullptr;  // pointer to saturation time
+dimensionedScalar* Lsat = nullptr;  // pointer to saturation length
 if (bedloadProperties.found("saturation"))
 {
     const dictionary& satDict = bedloadProperties.subDict("saturation");
@@ -72,6 +73,10 @@ if (bedloadProperties.found("saturation"))
         dimensionSet(0, 0, 1, 0, 0, 0, 0),
         readScalar(satDict.lookup("Tsat")));
     Info << "saturation time, Tsat = " << Tsat->value() << " s" << endl;
+    Lsat = new dimensionedScalar(
+        dimensionSet(0, 1, 0, 0, 0, 0, 0),
+        readScalar(satDict.lookup("Lsat")));
+    Info << "saturation length, Lsat = " << Lsat->value() << " s" << endl;
 }
 
 scalar betaRepDeg =
@@ -213,6 +218,7 @@ if (bed.exist())
     {
         ABorder = readLabel(
             bedloadProperties.lookup("ABorder"));
+        Info << "Exner equation: Adams-Bashforth order " << ABorder << endl;
         if (ABorder!=0 and ABorder!=1)
         {
             FatalError << "in bedloadProperties,"
