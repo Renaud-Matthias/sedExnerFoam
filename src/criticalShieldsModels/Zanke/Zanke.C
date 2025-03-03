@@ -70,9 +70,9 @@ void Foam::criticalShieldsModels::Zanke::calcCriticalShields0
         );
     dimensionedScalar& critShields0 = critShields0_.ref();
     critShields0 =
-        (0.0145 / Foam::pow(Dstar, 0.5))
-        + Foam::pow(
-            0.04510,
-            1100 * Foam::pow(Dstar, -2.25)
+        (0.145 / Foam::pow(Dstar, 0.5))
+        + 0.045 * Foam::pow(
+            10,
+            -1100 * Foam::pow(Dstar, -2.25)
         );
 }
