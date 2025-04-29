@@ -21,11 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 
-// Access to bedload variable
+// Access to shear stress induced bedload and avalanche related bedload
 areaVectorField& qb = qbPtr.ref();
+areaVectorField& qav = qavPtr.ref();
 
-// project qb on horizontal plane
+// project qb/qav on horizontal plane
 vectorField qbProj = meshProj.project(qb);
+vectorField qavProj = meshProj.project(qav);
 
 // projected bedload flux through projected faMesh edges
 scalarField& phiqbProj = phiqbProjPtr.ref();
@@ -58,19 +60,23 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         )
         * (1 / (distOwner + distNeighbour));
 
-    if (qbUpwind)
+    // linear interpolation for avalanche bedload
+    vector qavEdgei =
+        (
+            distNeighbour * qavProj[owner[edgei]]
+            + distOwner * qavProj[neighbour[edgei]]
+        )
+        * (1 / (distOwner + distNeighbour));
+    /*if ((qavEdgei & LeProj[edgei]) > 0)
     {
-        if ((qbEdgei & LeProj[edgei]) > 0)
-        {
-            qbEdgei = qbProj[owner[edgei]];
-        }
-        else
-        {
-            qbEdgei = qbProj[neighbour[edgei]];
-        }
+        qavEdgei = qavProj[owner[edgei]];
     }
+    else
+    {
+        qavEdgei = qavProj[neighbour[edgei]];
+        }*/
 
-    phiqbProj[edgei] += qbEdgei & LeProj[edgei];
+    phiqbProj[edgei] += (qbEdgei+qavEdgei) & LeProj[edgei];
 }
 
 // compute bedload flux on through internal edges
@@ -92,6 +98,7 @@ forAll(aMesh.boundary(), patchi)
                     aMesh.Le().boundaryField()[patchi][patchEdgei]
                 );
 
+            // linear interpolation from face to edge
             vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
 
             phiqbProj[edgei] += qbEdgei & edgeLeProj;
@@ -114,9 +121,9 @@ if (bed.rigidBed())
     {
         if (phiqbProj[edgei]>0)
         {
-            //scalar phiqbMax =
-            //    HsedBed[owner[edgei]] * SfProj[owner[edgei]] / deltaT;
-            //phiqbProj[edgei] = min(phiqbProj[edgei], phiqbMax);
+            /*scalar phiqbMax =
+                HsedBed[owner[edgei]] * SfProj[owner[edgei]] / deltaT;
+                phiqbProj[edgei] = min(phiqbProj[edgei], phiqbMax);*/
             if (HsedBed[owner[edgei]]<=1e-4)
             {
                 phiqbProj[edgei] = 0;
@@ -124,16 +131,17 @@ if (bed.rigidBed())
         }
         else
         {
-            //scalar phiqbMin =
-            //    - HsedBed[neighbour[edgei]]
-            //    * SfProj[neighbour[edgei]] / deltaT;
-            //phiqbProj[edgei] = max(phiqbProj[edgei], phiqbMin);
+            /*scalar phiqbMin =
+                - HsedBed[neighbour[edgei]]
+                * SfProj[neighbour[edgei]] / deltaT;
+                phiqbProj[edgei] = max(phiqbProj[edgei], phiqbMin);*/
             if (HsedBed[neighbour[edgei]]<=1e-4)
             {
                 phiqbProj[edgei] = 0;
             }
         }
     }
+    // rigid bed treatment on boundaries
     for (
     label edgei = meshProj.nInternalEdges();
     edgei < meshProj.nEdges();

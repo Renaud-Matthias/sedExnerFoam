@@ -46,7 +46,14 @@ slopeDir /= (Foam::mag(slopeDir) + SMALL);
 
 gradZb.primitiveFieldRef() = -slopeAngle * slopeDir;
 
+// compute bed angle beta
+areaScalarField& beta = betaPtr.ref();
+beta = Foam::mag(gradZb);
+
 areaVectorField& shields = shieldsPtr.ref();
+
+// access bedloadModel
+const bedloadModels::bedloadModel& bedloadMod = bed.bedloadModel();
 
 // compute wallShearStress on each patch belonging to sediment bed
 for (const label patchID : bed.bedPatchesID())
@@ -65,8 +72,15 @@ for (const label patchID : bed.bedPatchesID())
         / (mag(g).value() * dS.value()
         * (rhoS.value() - rhoF.value()));
 
-    // remove bed normal component, shear stress only
+    // remove bed normal component, tangential component only
     ssp += (ssp & (-Sfp / magSfp)) * (Sfp / magSfp);
+
+    if (filterShields)
+    {
+        #include "filterShields.H"
+        // remove bed normal component, tangential component only
+        ssp += (ssp & (-Sfp / magSfp)) * (Sfp / magSfp);
+    }
 }
 
 // map volumic shields number to area shields number

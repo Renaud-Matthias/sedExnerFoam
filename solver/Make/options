@@ -28,7 +28,7 @@ EXE_INC = \
     -I../src/criticalShieldsModels/lnInclude \
     -I../src/bedloadModels/lnInclude \
     -I../src/sedimentBed/lnInclude \
-    -I../src/faMeshProjection/lnInclude
+    -I../src/projectedFiniteArea/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -36,7 +36,7 @@ EXE_LIBS = \
     -lcriticalShieldsModels \
     -lbedloadModels \
     -lsedimentBed \
-    -lfaMeshProjection \
+    -lprojectedFiniteArea \
     -lfiniteVolume \
     -lfiniteArea \
     -lfvOptions \
