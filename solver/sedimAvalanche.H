@@ -20,8 +20,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// unit vector gravity oriented
-vector eg = (g/mag(g)).value();
+// access to projected faMesh
+const projectedFaMesh& meshProj = bed.aProjMesh();
+
+// access bedloadModel
+const bedloadModels::bedloadModel& bedloadMod = bed.bedloadModel();
+
+// access to avalanche bedload
+areaVectorField& qav = qavPtr.ref();
 
 if (not onEdgeAvalanche)
 {
@@ -29,22 +35,20 @@ if (not onEdgeAvalanche)
     const vectorField& nFaces =
         bed.aMesh().faceAreaNormals().internalField();
 
-    // bed faces angle
-    scalarField slopeAngle = Foam::acos(nFaces & eg);
-
-    // slope direction
+    // slope direction, align with bed
     vectorField slopeDir = eg - nFaces * (eg & nFaces);
     slopeDir /= (Foam::mag(slopeDir) + SMALL);
 
+    scalarField& betaIntern = betaPtr.ref().primitiveFieldRef();
+
     // Vinent law (2019), additional bedload corresponding to avalanche
-    vectorField& qbIntern = qb.primitiveFieldRef();
-    qbIntern += bedloadMod.qbAvalanche(slopeAngle, slopeDir, betaRep);
+    vectorField& qavIntern = qav.primitiveFieldRef();
+    qavIntern = bedloadMod.qbAvalanche(betaIntern, slopeDir, betaRep);
+
+    //qb.primitiveFieldRef() += qavIntern;
 }
 else
 {
-    // access to projected faMesh
-    const faMeshProjection& meshProj = bed.aProjMesh();
-
     // projected bedload flux through projected faMesh edges
     scalarField& phiqbProj = phiqbProjPtr.ref();
 

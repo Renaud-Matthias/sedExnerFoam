@@ -57,6 +57,7 @@ Info << "Reading/calculating face flux field phi\n" << endl;
 #include "readGravitationalAcceleration.H"
 
 vector eg = (g / Foam::mag(g)).value();
+Info << "unit vector oriented with gradvity: eg = " << eg << endl;
 
 Info<< "Reading transportProperties\n" << endl;
 IOdictionary transportProperties
@@ -372,11 +373,81 @@ volScalarField critShieldsVf
     dimensionedScalar(dimless, Zero)
 );
 
+volVectorField qsatVf
+(
+    IOobject
+    (
+        "qsatVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
+
+volVectorField qavVf
+(
+    IOobject
+    (
+        "qavVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
+
 volVectorField qbVf
 (
     IOobject
     (
         "qbVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+);
+
+volScalarField betaVf
+(
+     IOobject
+    (
+        "betaVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero)
+);
+
+volScalarField betaTildeVf
+(
+     IOobject
+    (
+        "betaTildeVf",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero)
+);
+
+volVectorField VelBfVf
+(
+    IOobject
+    (
+        "VelBfVf",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,

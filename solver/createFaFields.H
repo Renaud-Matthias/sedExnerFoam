@@ -43,14 +43,18 @@ autoPtr<vectorField> dispValsPtr;
 
 // fields, variables for bedload and morphology
 autoPtr<areaVectorField> gradZbPtr;  // gradient of Zb, bed slope
+autoPtr<areaScalarField> betaPtr;  // bed slope, faMesh faces angles
 autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaScalarField> critShieldsPtr;  // critical shields number
-autoPtr<areaVectorField> qsatPtr;  // saturated bedload
-autoPtr<areaVectorField> qbPtr;  // bedload
+autoPtr<areaVectorField> qsatPtr;  // saturated bedload, due to shear stress
+autoPtr<areaVectorField> qavPtr;  // avalanche related bedload
+autoPtr<areaVectorField> qbPtr;  // total bedload
 autoPtr<areaScalarField> dHptr;  // bed elevation increment on faces
 autoPtr<scalarField> dHpointsPtr; // bed elevation increment on points
 autoPtr<areaScalarField> DEptr;  // deposition/erosion source term
 autoPtr<scalarField> phiqbProjPtr;  // projected bedload flux through edges
+//autoPtr<areaVectorField> VelBfPtr;  // bed form velocity field
+//autoPtr<vectorField> VelBfEdgesPtr;  // bed form velocity on edges
 autoPtr<areaScalarField> dVsedPtr;  // volumic variation, face displacements
 autoPtr<surfaceScalarField> bedPhiPtr;  // mesh flux on bed patch
 autoPtr<areaVectorField> rigidBedPtr;  // rigid bed coordinates
@@ -117,12 +121,57 @@ autoPtr<labelList> fixedPatchPointLabelsPtr;
 // order for explicit Adams-Bashforth time scheme
 // default is 0, euler explicit
 label ABorder = 0;
-word qbInterpScheme = "linear";
-bool qbUpwind = false;
+
+// filter or not different bed variables, on off in bedloadProperties
+bool filterShields = false;
+bool filterExner = false;
+
+// for exner equation, filterering bed elevation increment 
+scalar alphaExn = 0;
+label NExn = 0;
+
+if (bed.exist())
+{
+    word switchFilterShields =
+        bedloadProperties.lookupOrDefault<word>("filterShields", "off");
+    if (switchFilterShields == "on")
+    {
+        filterShields = true;
+    }
+    else if (switchFilterShields != "off")
+    {
+        FatalError << "in bedloadProperties,"
+            << "wrong keyword for entry filterShields "
+            << switchFilterShields
+            << "\nvalid options are: on off" << endl;
+            Info << abort(FatalError) << endl;
+    }
+    
+    word switchFilterExner =
+        bedloadProperties.lookupOrDefault<word>("filterExner", "off");
+    if (switchFilterShields == "on")
+    {
+        filterExner = true;
+        alphaExn = bedloadProperties.lookupOrDefault<scalar>(
+            "alphaFiltExner", 0.1);
+        NExn = bedloadProperties.lookupOrDefault<label>(
+            "NfiltExner", 1);
+        
+    }
+    else if (switchFilterExner != "off")
+    {
+        FatalError << "in bedloadProperties,"
+            << "wrong keyword for entry filterExner "
+            << switchFilterShields
+            << "\nvalid options are: on off" << endl;
+            Info << abort(FatalError) << endl;
+    }
+}
 
 // create fa fields if morphology on
 if (bed.exist())
 {
+    // option to fixed some faPatches, nullify displacements from Exner
     const faBoundaryMesh& faBounds = bed.aMesh().boundary();
     const uindirectPrimitivePatch& bp = bed.aMesh().patch();
     label nFixedPatches = fixedFaPatchNames.size();
@@ -185,6 +234,7 @@ if (bed.exist())
     {
         const dictionary& bedloadDict =
             bedloadProperties.subDict("bedloadModel");
+        // option to compute avalanche flux on edges
         word onEdgeQav(
             bedloadDict.lookupOrDefault<word>("onEdge", "off"));
         if (onEdgeQav == "on")
@@ -228,21 +278,25 @@ if (bed.exist())
             Info << abort(FatalError) << endl;
         }
     }
-    // choose face to edges interpolation scheme for bedload
-    qbInterpScheme =
-        bedloadProperties.lookupOrDefault<word>(
-            "bedloadInterpolation", "linear");
-    if (qbInterpScheme != "linear" and qbInterpScheme != "upwind")
-    {
-        FatalError << "in bedloadProperties,"
-            << "wrong entry for bedloadInterpolation " << qbInterpScheme
-            << "\nvalid options are: linear upwind" << endl;
-        Info << abort(FatalError) << endl;
-    }
-    if (qbInterpScheme == "upwind")
-    {
-        qbUpwind = true;
-    }
+
+    // instantiate fields for bed form velocity
+    VelBfPtr.reset
+    (
+        new areaVectorField
+        (
+            IOobject
+            (
+                "VelBf",
+                runTime.timeName(),
+                bed.aMesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedVector(dimensionSet(0, 1, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+    VelBfEdgesPtr.reset(new vectorField(bed.aMesh().nInternalEdges()));
     
 
     Info << "Instantiate finite area fields" << endl;
@@ -254,12 +308,29 @@ if (bed.exist())
             (
                 "gradZb",
                 runTime.timeName(),
-                mesh,
+                bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
             bed.aMesh(),
             dimensionedVector(dimless, Zero)
+        )
+    );
+
+    betaPtr.reset
+    (
+        new areaScalarField
+        (
+            IOobject
+            (
+                "beta",
+                runTime.timeName(),
+                bed.aMesh(),
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedScalar(dimless, Zero)
         )
     );
 
@@ -332,6 +403,23 @@ if (bed.exist())
                 bed.aMesh(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)
+        )
+    );
+
+    qavPtr.reset
+    (
+        new areaVectorField
+        (
+            IOobject
+            (
+                "qav",
+                runTime.timeName(),
+                bed.aMesh(),
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
             ),
             bed.aMesh(),
             dimensionedVector(dimensionSet(0, 2, -1, 0, 0, 0, 0), Zero)

@@ -26,17 +26,22 @@ areaScalarField& dH = dHptr.ref();
 areaScalarField& dVsed = dVsedPtr.ref();
 
 // faMesh horizontal projection
-const faMeshProjection& meshProj = bed.aProjMesh();
+const projectedFaMesh& meshProj = bed.aProjMesh();
 // area of projected mesh faces
 const scalarField& SfProj = meshProj.S();
 
 #include "balanceBedload.H"
 
+Info << "bedload balanced" << endl;
+
+//#include "bedFormVelocity.H"
+
+Info << "bedform velocity computed" << endl;
+
 if (switchSuspension=="on")
 {
     #include "erosionDeposition.H"
 }
-
 
 scalar deltaT = runTime.time().deltaT().value();  // current time step
 
@@ -68,6 +73,48 @@ else if (ABorder==1)
             * (1/CsMax.value())
             * (coefT0 * dVsed[facei] + coefT00 * dVsed.oldTime()[facei])
             * (1 / SfProj[facei]);
+    }
+}
+
+if (filterExner)
+{
+    scalar dl = 0;
+    for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+    {
+        scalar newdl = Foam::mag(
+            xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]]);
+        if (newdl>dl)
+        {
+            dl = newdl;
+        }
+    }
+    
+    scalar Kex = Foam::pow(dl, 2) * 0.1;
+    label NfiltZb = 3;
+
+    for (label j=0; j<NfiltZb; j++)
+    {
+        scalarField lapldH(bed.aMesh().nFaces());
+
+        for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+        {
+            vector Xon =
+                xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]];
+            //scalar w = (ne & Xen) / (ne & Xon);
+            scalar graddHe =
+                (
+                    (
+                        dH[neighbour[edgei]]
+                        - dH[owner[edgei]]
+                    ) * (Xon & LeProj[edgei])
+                ) / Foam::pow(Foam::mag(Xon), 2);
+
+            lapldH[owner[edgei]] =
+                (Kex / SfProj[owner[edgei]]) * graddHe;
+            lapldH[neighbour[edgei]] =
+                -(Kex / SfProj[neighbour[edgei]]) * graddHe;
+        }
+        dH.primitiveFieldRef() += lapldH;
     }
 }
 
