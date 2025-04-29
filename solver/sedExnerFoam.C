@@ -77,11 +77,14 @@ Description
 #include "pointPatchField.H"
 #include "wallDist.H"
 
+#include "MatrixTools.H"
+#include "LUscalarMatrix.H"
+
 #include "settlingModel.H"
 #include "criticalShieldsModel.H"
 #include "bedloadModel.H"
 #include "sedimentBed.H"
-#include "faMeshProjection.H"
+#include "projectedFaMesh.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -205,9 +208,6 @@ int main(int argc, char *argv[])
 
         if (bed.exist())
         {
-            // access bedloadModel
-            const bedloadModels::bedloadModel& bedloadMod = bed.bedloadModel();
-
             #include "bedShearStress.H"
 
             #include "bedload.H"
@@ -229,7 +229,11 @@ int main(int argc, char *argv[])
             {
                 areaVectorField& shields = shieldsPtr.ref();
                 areaScalarField& critShields = critShieldsPtr.ref();
+                areaVectorField& qsat = qsatPtr.ref();
+                areaVectorField& qav = qavPtr.ref();
                 areaVectorField& qb = qbPtr.ref();
+                areaVectorField& VelBf = VelBfPtr.ref();
+                areaScalarField& beta = betaPtr.ref();
                 
                 // map areaFields to volFields for vizualisation
                 bed.vsm.ref().mapToVolume
@@ -244,8 +248,28 @@ int main(int argc, char *argv[])
                     );
                 bed.vsm.ref().mapToVolume
                     (
+                        qsat,
+                        qsatVf.boundaryFieldRef()
+                    );
+                bed.vsm.ref().mapToVolume
+                    (
+                        qav,
+                        qavVf.boundaryFieldRef()
+                    );
+                bed.vsm.ref().mapToVolume
+                    (
                         qb,
                         qbVf.boundaryFieldRef()
+                    );
+                bed.vsm.ref().mapToVolume
+                    (
+                        beta,
+                        betaVf.boundaryFieldRef()
+                    );
+                bed.vsm.ref().mapToVolume
+                    (
+                        VelBf,
+                        VelBfVf.boundaryFieldRef()
                     );
             }
             runTime.write();
