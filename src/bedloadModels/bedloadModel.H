@@ -55,6 +55,12 @@ protected:
     // bedload due slope exceeding angle of repose
     autoPtr<avalancheVinent> avalancheModel_;
 
+    //- true if slope correction on Shields is applied
+    bool slopeCorr_;
+
+    //- coefficient for slope correction
+    scalar gamma_;
+
 
 public:
 
@@ -92,7 +98,20 @@ public:
     // Member functions
 
     //- Compute bedload from base Shields and sediment properties
-    virtual tmp<areaVectorField> qb
+    tmp<areaVectorField> qb
+    (
+        const areaVectorField& shields,
+        const areaScalarField& critShields,
+        const areaVectorField& gradZb,
+        const dimensionedScalar& rhoS,
+        const dimensionedScalar& rhoF,
+        const dimensionedScalar& g,
+        const dimensionedScalar& dS,
+        const dimensionedScalar& nuF
+    ) const;
+
+    //- Compute bedload from base Shields and sediment properties
+    virtual tmp<areaVectorField> getQb
     (
         const areaVectorField& shields,
         const areaScalarField& critShields,
@@ -103,6 +122,7 @@ public:
         const dimensionedScalar& nuF
     ) const = 0;
 
+    // compute and return the Einstein number
     dimensionedScalar einsteinNumber
     (
         const dimensionedScalar& rhoS,
@@ -116,6 +136,9 @@ public:
 
     //- Return true if avalanche is on
     bool avalanche() const;
+
+    //- Return true if slope correction on Shields is applied
+    bool slopeCorrection() const;
 
     //- Return avalanche related bedload
     tmp<vectorField> qbAvalanche

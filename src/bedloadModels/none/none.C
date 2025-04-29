@@ -50,7 +50,7 @@ Foam::bedloadModels::none::~none()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::none::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::none::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,

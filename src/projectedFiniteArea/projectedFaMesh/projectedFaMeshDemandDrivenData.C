@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "faMeshProjection.H"
+#include "projectedFaMesh.H"
 
 // * * * * * * * * * * * * * * * Local Functions * * * * * * * * * * * * * * //
 
@@ -43,7 +43,7 @@ vector projectHPlane
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::faMeshProjection::calcLe() const
+void Foam::projectedFaMesh::calcLe() const
 {
     if (LePtr_)
     {
@@ -77,7 +77,7 @@ void Foam::faMeshProjection::calcLe() const
     }
 }
 
-void Foam::faMeshProjection::calcMagLe() const
+void Foam::projectedFaMesh::calcMagLe() const
 {
     if (magLePtr_)
     {
@@ -98,7 +98,7 @@ void Foam::faMeshProjection::calcMagLe() const
     }
 }
 
-void Foam::faMeshProjection::calcAreaCentres() const
+void Foam::projectedFaMesh::calcAreaCentres() const
 {
     if (areaCentresPtr_)
     {
@@ -121,7 +121,7 @@ void Foam::faMeshProjection::calcAreaCentres() const
     }
 }
 
-void Foam::faMeshProjection::calcEdgeCentres() const
+void Foam::projectedFaMesh::calcEdgeCentres() const
 {
     if (edgeCentresPtr_)
     {
@@ -144,7 +144,7 @@ void Foam::faMeshProjection::calcEdgeCentres() const
     }
 }
 
-void Foam::faMeshProjection::calcPointCoords() const
+void Foam::projectedFaMesh::calcPointCoords() const
 {
     if (pointCoordsPtr_)
     {
@@ -168,7 +168,7 @@ void Foam::faMeshProjection::calcPointCoords() const
     }
 }
 
-void Foam::faMeshProjection::calcS() const
+void Foam::projectedFaMesh::calcS() const
 {
     if (SPtr_)
     {

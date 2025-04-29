@@ -54,7 +54,7 @@ Foam::bedloadModels::Nielsen::~Nielsen()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Nielsen::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Nielsen::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,

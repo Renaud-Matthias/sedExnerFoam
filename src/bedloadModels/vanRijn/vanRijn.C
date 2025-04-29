@@ -39,12 +39,12 @@ namespace bedloadModels
 Foam::bedloadModels::vanRijn::vanRijn(const dictionary& dict)
 :
     bedloadModel(dict),
-    alpha_(0.035),
+    alpha_(0.053),
     aExp_(2.1),
     bExp_(-0.3)
 {
      Info << "bedload model type: vanRijn" << endl
-         << "qb* = 0.035 (shields/critShields - 1)**2.1 / Dstar**0.3" << endl;
+         << "qb* = 0.053 (shields/critShields - 1)**2.1 / Dstar**0.3" << endl;
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -54,7 +54,7 @@ Foam::bedloadModels::vanRijn::~vanRijn()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::vanRijn::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::vanRijn::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,
@@ -77,8 +77,6 @@ Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::vanRijn::qb
 
     dimensionedScalar smallVal(dimless, SMALL);
 
-    scalarField Tshear = Foam::mag(shields)/(critShields + SMALL) - 1;
-
     return alpha_ * numEin
         * (shields / (mag(shields) + smallVal))
         * Foam::pow
@@ -89,4 +87,3 @@ Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::vanRijn::qb
         )
         * Foam::pow(Dstar, bExp_);
 }
-//* Foam::pow(Tshear * Foam::pos(Tshear), aExp_).internalFieldRef()

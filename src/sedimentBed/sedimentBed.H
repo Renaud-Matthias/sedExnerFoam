@@ -42,7 +42,7 @@ SourceFiles
 #include "pointMesh.H"
 #include "pointPatchField.H"
 
-#include "faMeshProjection.H"
+#include "projectedFaMesh.H"
 #include "bedloadModel.H"
 #include "criticalShieldsModel.H"
 
@@ -76,7 +76,7 @@ public:
     const faMesh& aMesh();
 
     //- Return const reference to faMeshProjection
-    const faMeshProjection& aProjMesh();
+    const projectedFaMesh& aProjMesh();
     
     //- Avalanche module activated or not
     //bool isAvalanche() const;
@@ -132,7 +132,7 @@ protected:
 
     autoPtr<faMesh> aMesh_;
 
-    autoPtr<faMeshProjection> aProjMesh_;
+    autoPtr<projectedFaMesh> aProjMesh_;
 
     autoPtr<bedloadModels::bedloadModel> bedloadModel_;
 

@@ -71,8 +71,8 @@ void Foam::criticalShieldsModels::Brownlie::calcCriticalShields0
     dimensionedScalar& critShields0 = critShields0_.ref();
     critShields0 =
         (0.22 / Foam::pow(Dstar, 0.9))
-        + Foam::pow(
-            0.0610,
+        + 0.06 * Foam::pow(
+            10,
             -7.7 * Foam::pow(Dstar, -0.9)
         );
 }

@@ -1,4 +1,0 @@
-faMeshProjection.C
-faMeshProjectionDemandDrivenData.C
-
-LIB = $(FOAM_USER_LIBBIN)/libfaMeshProjection

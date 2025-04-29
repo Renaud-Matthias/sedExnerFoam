@@ -53,7 +53,7 @@ Foam::bedloadModels::MeyerPeter::~MeyerPeter()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::MeyerPeter::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::MeyerPeter::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,

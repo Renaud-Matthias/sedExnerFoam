@@ -56,7 +56,7 @@ Foam::bedloadModels::custom::~custom()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::custom::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::custom::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,

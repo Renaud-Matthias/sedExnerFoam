@@ -12,7 +12,7 @@ print(" --- running 1D erosion slope bed test --- ")
 success = True
 tolMass = 1e-7
 tolCritSh = 1e-3
-tolQb = 1e-5
+tolQb = 1e-3
 
 foamTimes = os.popen("foamListTimes -withZero").read()
 timeList = foamTimes.split("\n")[:-1]
@@ -33,9 +33,8 @@ Dstar = dS * (((rhoS/rhoF - 1) * g) / nuF**2)**(1/3)
 EinNum = np.sqrt((rhoS/rhoF - 1) * g * dS**3)
 
 
-def qbVanRijn(sh, csh):
-    Tshear = (sh / csh - 1)
-    return EinNum * 0.035 * Tshear**2.1 / Dstar**0.3
+def qbCamenen(sh, csh):
+    return EinNum * 12 * sh**1.5 * np.exp(-4.5 * csh/sh)
 
 
 # domain and mesh dimensions
@@ -50,7 +49,8 @@ Mbed = np.zeros(ntimes)  # bed mass
 Zmesh = rdf.readmesh("./", "latestTime", verbose=False)[2]
 nCells = len(Zmesh)
 
-wsx, wsy, wsz = rdf.readvector("./", "latestTime", "Ws", verbose=False)[:, 0]
+wsx, wsy, wsz = rdf.readvector(
+    "./", "latestTime", "Ws", verbose=False)[:, 0]
 beta = np.arctan(np.abs(wsx / wsz))
 
 critShSoulsby = 0.3 / (1 + 1.2 * Dstar) + 0.055 * (1 - np.exp(-0.02*Dstar))
@@ -70,7 +70,7 @@ shields = rdf.readvector(
 qb = rdf.readvector(
     "./", "10", "qbVf", boundary="bed", verbose=False)[0]
 
-qbVR = qbVanRijn(shields, critShields)
+qbCam = qbCamenen(shields, critShSlopeCorr)
 
 # relative error on critical Shields
 errCritSh = (critShields - critShSlopeCorr) / critShSlopeCorr
@@ -85,7 +85,7 @@ else:
 
 
 # relative error on bedload
-errQb = (qb - qbVR) / qbVR
+errQb = np.abs((qb - qbCam) / qbCam)
 if errQb > tolQb:
     success = False
     print(

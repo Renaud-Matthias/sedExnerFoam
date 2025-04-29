@@ -32,6 +32,20 @@ forAll(bed.aMesh().areaCentres(), facei)
     dVsed[facei] = 0;
 }
 
+// compute gradient of bed level, slope
+areaVectorField& gradZb = gradZbPtr.ref();
+
+// slope direction
+const vectorField& nFaces =
+    bed.aMesh().faceAreaNormals().internalField();
+// bed faces angle
+scalarField slopeAngle = Foam::acos(nFaces & eg);
+// slope direction
+vectorField slopeDir = eg - nFaces * (eg & nFaces);
+slopeDir /= (Foam::mag(slopeDir) + SMALL);
+
+gradZb.primitiveFieldRef() = -slopeAngle * slopeDir;
+
 areaVectorField& shields = shieldsPtr.ref();
 
 // compute wallShearStress on each patch belonging to sediment bed

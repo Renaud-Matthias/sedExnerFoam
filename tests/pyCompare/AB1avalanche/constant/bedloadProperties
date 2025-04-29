@@ -26,10 +26,4 @@ ABorder                1;
 
 sedimentBedPatches     (bed);
 
-avalanche              on;
-
-Qav                    1e-3;
-
-reposeAngle            32;
-
 // ************************************************************************* //

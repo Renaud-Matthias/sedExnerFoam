@@ -54,7 +54,7 @@ Foam::bedloadModels::Camenen::~Camenen()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Camenen::qb
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::Camenen::getQb
 (
     const areaVectorField& shields,
     const areaScalarField& critShields,

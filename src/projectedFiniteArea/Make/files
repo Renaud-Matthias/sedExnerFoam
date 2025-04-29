@@ -1,0 +1,6 @@
+projectedFaMesh/projectedFaMesh.C
+projectedFaMesh/projectedFaMeshDemandDrivenData.C
+
+projectedFiniteArea/pfa/pfa.C
+
+LIB = $(FOAM_USER_LIBBIN)/libprojectedFiniteArea

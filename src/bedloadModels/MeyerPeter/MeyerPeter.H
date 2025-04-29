@@ -55,7 +55,7 @@ public:
     // Member functions
 
     //- Compute bedload from Shields and sediment properties
-    tmp<areaVectorField> qb
+    tmp<areaVectorField> getQb
     (
         const areaVectorField& shields,
         const areaScalarField& critShields,

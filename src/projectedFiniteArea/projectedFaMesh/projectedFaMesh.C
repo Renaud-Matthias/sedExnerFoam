@@ -20,11 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "faMeshProjection.H"
+#include "projectedFaMesh.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::faMeshProjection::clearGeom() const
+void Foam::projectedFaMesh::clearGeom() const
 {
     deleteDemandDrivenData(areaCentresPtr_);
     deleteDemandDrivenData(edgeCentresPtr_);
@@ -32,7 +32,7 @@ void Foam::faMeshProjection::clearGeom() const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::faMeshProjection::faMeshProjection
+Foam::projectedFaMesh::projectedFaMesh
 (
     const faMesh& aMesh,
     vector projectNormal
@@ -52,49 +52,49 @@ Foam::faMeshProjection::faMeshProjection
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::faMeshProjection::~faMeshProjection()
+Foam::projectedFaMesh::~projectedFaMesh()
 {
     clearGeom();
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const faMesh& Foam::faMeshProjection::mesh() const
+const faMesh& Foam::projectedFaMesh::mesh() const
 {
     return mesh_;
 }
 
-label Foam::faMeshProjection::nPoints() const
+label Foam::projectedFaMesh::nPoints() const
 {
     return nPoints_;
 }
 
-label Foam::faMeshProjection::nEdges() const
+label Foam::projectedFaMesh::nEdges() const
 {
     return nEdges_;
 }
 
-label Foam::faMeshProjection::nInternalEdges() const
+label Foam::projectedFaMesh::nInternalEdges() const
 {
     return nInternalEdges_;
 }
 
-label Foam::faMeshProjection::nFaces() const
+label Foam::projectedFaMesh::nFaces() const
 {
     return nFaces_;
 }
 
-const labelList Foam::faMeshProjection::edgeOwner() const
+const labelList Foam::projectedFaMesh::edgeOwner() const
 {
     return edgeOwner_;
 }
 
-const labelList Foam::faMeshProjection::edgeNeighbour() const
+const labelList Foam::projectedFaMesh::edgeNeighbour() const
 {
     return edgeNeighbour_;
 }
 
-const vectorField& Foam::faMeshProjection::Le() const
+const vectorField& Foam::projectedFaMesh::Le() const
 {
     if (LePtr_==nullptr)
     {
@@ -104,7 +104,7 @@ const vectorField& Foam::faMeshProjection::Le() const
     return *LePtr_;
 }
 
-const scalarField& Foam::faMeshProjection::magLe() const
+const scalarField& Foam::projectedFaMesh::magLe() const
 {
     if (magLePtr_==nullptr)
     {
@@ -114,7 +114,7 @@ const scalarField& Foam::faMeshProjection::magLe() const
     return *magLePtr_;
 }
 
-const vectorField& Foam::faMeshProjection::areaCentres() const
+const vectorField& Foam::projectedFaMesh::areaCentres() const
 {
     if (areaCentresPtr_==nullptr)
     {
@@ -124,7 +124,7 @@ const vectorField& Foam::faMeshProjection::areaCentres() const
     return *areaCentresPtr_;
 }
 
-const vectorField& Foam::faMeshProjection::edgeCentres() const
+const vectorField& Foam::projectedFaMesh::edgeCentres() const
 {
     if (edgeCentresPtr_==nullptr)
     {
@@ -134,7 +134,7 @@ const vectorField& Foam::faMeshProjection::edgeCentres() const
     return *edgeCentresPtr_;
 }
 
-const vectorField& Foam::faMeshProjection::pointCoords() const
+const vectorField& Foam::projectedFaMesh::pointCoords() const
 {
     if (pointCoordsPtr_==nullptr)
     {
@@ -145,7 +145,7 @@ const vectorField& Foam::faMeshProjection::pointCoords() const
 }
 
 
-const scalarField& Foam::faMeshProjection::S() const
+const scalarField& Foam::projectedFaMesh::S() const
 {
     if (SPtr_==nullptr)
     {
@@ -155,7 +155,7 @@ const scalarField& Foam::faMeshProjection::S() const
     return *SPtr_;
 }
 
-vectorField Foam::faMeshProjection::project
+vectorField Foam::projectedFaMesh::project
 (
     vectorField field
 ) const
@@ -163,7 +163,7 @@ vectorField Foam::faMeshProjection::project
     return field - (field & projectNormal_) * projectNormal_;
 }
 
-vector Foam::faMeshProjection::project
+vector Foam::projectedFaMesh::project
 (
     vector vec
 ) const

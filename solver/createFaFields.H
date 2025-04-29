@@ -42,6 +42,7 @@ sedimentBed bed(bedloadProperties, mesh, g);
 autoPtr<vectorField> dispValsPtr;
 
 // fields, variables for bedload and morphology
+autoPtr<areaVectorField> gradZbPtr;  // gradient of Zb, bed slope
 autoPtr<areaVectorField> shieldsPtr;  // shields number
 autoPtr<areaScalarField> critShieldsPtr;  // critical shields number
 autoPtr<areaVectorField> qsatPtr;  // saturated bedload
@@ -245,6 +246,23 @@ if (bed.exist())
     
 
     Info << "Instantiate finite area fields" << endl;
+    gradZbPtr.reset
+    (
+        new areaVectorField
+        (
+            IOobject
+            (
+                "gradZb",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            bed.aMesh(),
+            dimensionedVector(dimless, Zero)
+        )
+    );
+
     shieldsPtr.reset
     (
         new areaVectorField

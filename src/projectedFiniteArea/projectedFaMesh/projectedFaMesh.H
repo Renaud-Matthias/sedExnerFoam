@@ -29,8 +29,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef faMeshProjection_H
-#define faMeshProjection_H
+#ifndef projectedFaMesh_H
+#define projectedFaMesh_H
 
 #include "faCFD.H"
 #include "demandDrivenData.H"
@@ -39,8 +39,7 @@ SourceFiles
 
 namespace Foam
 {
-
-class faMeshProjection
+class projectedFaMesh
 {
 
 private:
@@ -119,11 +118,11 @@ public:
     // Constructors
 
     //- Construct from finite area mesh
-    faMeshProjection(const faMesh& mesh, vector projector);
+    projectedFaMesh(const faMesh& mesh, vector projector);
 
     // Destructors
     
-    ~faMeshProjection();
+    ~projectedFaMesh();
 
     // Member functions
 

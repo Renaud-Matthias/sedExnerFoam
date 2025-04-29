@@ -43,7 +43,8 @@ Foam::bedloadModels::bedloadModel::bedloadModel
     dict_(dict),
     coefShields_(1),
     avalanche_(true),
-    avalancheModel_(nullptr)
+    avalancheModel_(nullptr),
+    slopeCorr_(false)
 {
     if (dict_.found("coefShields"))
     {
@@ -59,15 +60,47 @@ Foam::bedloadModels::bedloadModel::bedloadModel
         Info << abort(FatalError) << endl;
     }
 
+    // slope correction
+    word switchSlopeCorr(
+        dict_.lookupOrDefault<word>("slopeCorrection", "off"));
+    if (switchSlopeCorr == "on")
+    {
+        slopeCorr_ = true;
+        gamma_ = dict_.lookupOrDefault<scalar>("gamma", 0.1);;
+        Info << "slope correction for bedload model: on" << endl
+            << "gamma coefficient: " << gamma_ << endl;
+        if (gamma_<0)
+        {
+            FatalError
+                << "gamma value must be positive" << endl;
+            Info << abort(FatalError) << endl;
+        }
+    }
+    else if (switchSlopeCorr == "off")
+    {
+        slopeCorr_ = false;
+        Info << "slope correction for bedload model: off" << endl;
+    }
+    else
+    {
+        FatalError
+            << "wrong entry for keyword slopeCorrection"
+                << "possible options are: on off" << endl;
+        Info << abort(FatalError) << endl;
+    }
+
+    
     // initialize or not avalancheModel
     word switchAv(dict_.lookupOrDefault<word>("avalanche", "on"));
     if (switchAv == "on")
     {
         avalanche_ = true;
+        Info << "avalanche model: on" << endl;
     }
     else if (switchAv == "off")
     {
         avalanche_ = false;
+        Info << "avalanche model: off" << endl;
     }
     else
     {
@@ -153,6 +186,18 @@ bool Foam::bedloadModels::bedloadModel::avalanche() const
     }
 }
 
+bool Foam::bedloadModels::bedloadModel::slopeCorrection() const
+{
+    if (slopeCorr_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 Foam::tmp<Foam::vectorField>
 Foam::bedloadModels::bedloadModel::qbAvalanche
 (
@@ -169,4 +214,28 @@ Foam::bedloadModels::bedloadModel::qbAvalanche
         Info << abort(FatalError) << endl;
     }
     return avalancheModel_->avalanche(beta, slopeDir, betaRep);
+}
+
+Foam::tmp<Foam::areaVectorField> Foam::bedloadModels::bedloadModel::qb
+(
+    const areaVectorField& shields,
+    const areaScalarField& critShields,
+    const areaVectorField& gradZb,
+    const dimensionedScalar& rhoS,
+    const dimensionedScalar& rhoF,
+    const dimensionedScalar& g,
+    const dimensionedScalar& dS,
+    const dimensionedScalar& nuF
+) const
+{
+    if (slopeCorrection())
+    {
+        return getQb(
+            shields - gamma_*gradZb, critShields, rhoS, rhoF, g, dS, nuF)
+            * Foam::pos(Foam::mag(shields)-critShields);
+    }
+    else
+    {
+        return getQb(shields, critShields, rhoS, rhoF, g, dS, nuF);
+    }
 }

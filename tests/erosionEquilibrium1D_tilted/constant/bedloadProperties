@@ -24,7 +24,7 @@ sedimentBedPatches     (bed);
 
 bedloadModel
 {
-    type               vanRijn;
+    type               Camenen;
 
     avalanche          off;
 }

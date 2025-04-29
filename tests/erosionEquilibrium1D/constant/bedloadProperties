@@ -24,9 +24,15 @@ sedimentBedPatches     (bed);
 
 bedloadModel
 {
-    type               none;
+    type               vanRijn;
 
     avalanche          off;
+}
+
+criticalShieldsModel
+{
+    type               Miedema;
+    slopeCorrection    off;
 }
 
 // ************************************************************************* //

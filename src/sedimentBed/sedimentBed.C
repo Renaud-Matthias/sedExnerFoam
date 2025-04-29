@@ -56,7 +56,7 @@ Foam::sedimentBed::sedimentBed
         // check if bed inclination consistent with gravity
         checkFaMeshOrientation();
         // instantiate projected finite-area mesh
-        aProjMesh_.reset(new faMeshProjection(aMesh_.ref(), eg_));
+        aProjMesh_.reset(new projectedFaMesh(aMesh_.ref(), eg_));
         // instantiate bedloadModel
         getBedloadModel();
         // instantiate criticalShieldsModel
@@ -87,7 +87,7 @@ const faMesh& Foam::sedimentBed::aMesh()
     return aMesh_.ref();
 }
 
-const Foam::faMeshProjection& Foam::sedimentBed::aProjMesh()
+const Foam::projectedFaMesh& Foam::sedimentBed::aProjMesh()
 {
     return aProjMesh_.ref();
 }

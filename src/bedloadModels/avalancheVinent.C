@@ -45,7 +45,7 @@ Foam::bedloadModels::avalancheVinent::~avalancheVinent()
 
 void Foam::bedloadModels::avalancheVinent::setAvalanche()
 {
-    Qav_.value() = dict_.lookupOrDefault<scalar>("Qav", 0.01);
+    Qav_.value() = dict_.lookupOrDefault<scalar>("Qav", 1e-3);
     if (Qav_.value() < 0)
     {
         FatalError

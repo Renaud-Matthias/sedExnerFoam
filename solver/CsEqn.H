@@ -91,7 +91,7 @@ if (bed.exist())
             scalar cbRef =
                 Foam::min(
                     0.015 * (dS.value()/zbRef)
-                  * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
+                    * Foam::pow(Tshear * Foam::pos(Tshear), 1.5)
                     * Foam::pow(Dstar.value(), -0.3),
                     CsbMax.value()
                 );
