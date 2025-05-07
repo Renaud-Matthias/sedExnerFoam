@@ -22,7 +22,7 @@ set -x
 
 wmake libso settlingModels
 wmake libso sedimentBed
-wmake libso faMeshProjection
+wmake libso projectedFiniteArea
 wmake libso bedloadModels
 wmake libso criticalShieldsModels
 
