@@ -31,7 +31,7 @@ Xedges[-1] = Xfaces[-1] + (Xfaces[-1] - Xedges[-2])
 # faces width
 dX = Xedges[1:] - Xedges[:-1]
 
-qbEdges = np.zeros(nEdges)
+qavEdges = np.zeros(nEdges)
 dzEdges = np.zeros(nEdges)
 
 success = True
@@ -48,14 +48,14 @@ for i in range(ntimes-1):
     zbFaces_tnext = rdf.readmesh(
         "./", tnext, boundary="bed", verbose=False)[2]
     dzbOF = zbFaces_tnext - zbFaces_t
-    qb_x = rdf.readvector(
-        "./", t, "qbVf", boundary="bed", verbose=False)[0]
+    qav_x = rdf.readvector(
+        "./", t, "qavVf", boundary="bed", verbose=False)[0]
     # qb on edges, linear interpolation
-    qbEdges[1:-1] = 0.5 * (qb_x[1:] + qb_x[:-1])
+    qavEdges[1:-1] = 0.5 * (qav_x[1:] + qav_x[:-1])
     # zero flux boundary condition for qb
-    qbEdges[0], qbEdges[-1] = 0, 0
+    qavEdges[0], qavEdges[-1] = 0, 0
     # bed level increment between t and t+dt, exner equation
-    dzb = (1/CsMax) * (qbEdges[:-1] - qbEdges[1:]) * dt / dX
+    dzb = (1/CsMax) * (qavEdges[:-1] - qavEdges[1:]) * dt / dX
     # bed level increment on edges, linear interpolation
     dzEdges[1:-1] = 0.5 * (dzb[1:] + dzb[:-1])
     dzEdges[0], dzEdges[-1] = dzb[0], dzb[-1]
@@ -66,8 +66,8 @@ for i in range(ntimes-1):
     zBedErr = 100 * np.abs(dzbOF - dzb)/np.max(np.abs(dzb))
     maxErr = np.max(zBedErr)
     if verbose:
-        print(f"max relative error on bed increment = {round(maxErr, 5)} %")
-
+        print(
+            f"max relative error on bed increment = {round(maxErr, 5)} %")
     if (maxErr > tol):
         success = False
         print(

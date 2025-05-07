@@ -70,9 +70,12 @@ betaEff = np.where(np.abs(beta) < betaRep, np.abs(beta), betaRep)
 slopeCorr = np.cos(betaEff) - cosAlpha * np.sin(betaEff)/np.tan(betaRep)
 critShCorr = critShSoulsby * slopeCorr
 
+# read bedload flux from OpenFOAM simulation
 qbX, qbY, qbZ = rdf.readvector(
     "./", time, "qbVf", boundary="bed", verbose=False)
-magQb = np.sqrt(qbX**2 + qbZ**2)
+qavX, qavY, qavZ = rdf.readvector(
+    "./", time, "qavVf", boundary="bed", verbose=False)
+magQb = np.sqrt((qbX+qavX)**2 + (qbZ+qavZ)**2)
 
 # bedload from Meyer-Peter & Müller formula
 qbMPM = einNum * 8 * np.where(

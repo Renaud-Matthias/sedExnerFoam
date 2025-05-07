@@ -21,12 +21,16 @@ FoamFile
 sedimentBed            on;  // on or off
 
 // list of patches corresponding to the sediment bed
-// cannot be empty of sedimentBed is on
-sedimentBedPatches     (sedimentBed);
+// cannot be empty if sedimentBed is on
+sedimentBedPatches     (bed);
 
 // activate/deactivate bed motion
 // if off the Exner equation is not solved
 bedMotion              off;  // on/off, default is on
+
+// order of explicit Adams bashforth scheme
+// options are 0 or 1, 0 is euler explicit, default is 0
+ABorder                1;
 
 // faPatches can be fixed, displacement canceled
 fixedFaPatches         ();
@@ -44,11 +48,21 @@ bedloadModel
     alpha              7.2;
     aExp               0.5;
     bExp               1;
+    
+    // slope correction for bedload as defined in Besio et. al (2003)
+    // default is off
+    slopeCorrecton     off;
+    gamma              0.1;  // coefficient for correction, default is 0.1
 
     // switch on/off the avalanche model
     // avalanche based on Vinent (2019)
     avalanche          on;  // default is on
-    Qav                1e-2;  // default is 1e-2
+    Qav                1e-3;  // default is 1e-3
+    alphaFiltBeta      0.1;
+    NfiltBeta          1;
+    
+    // amplification coefficient for Shields number
+    coefShields        1;
 }
 
 // model for critical Shields number
@@ -77,6 +91,11 @@ saturation
 
 // morphological acceleration factor
 morphoAccFactor        1;
+
+// filter Exner equation bed elevation increment
+filterExner            off;  // options are on, off, default is off
+alphaFiltExner         0.1;  // must not exceeds 0.25, default is 0.1
+NfiltExner             1;  // apply filter N times, default is 1
 
 // presence of a rigid bed below the sediment layer, default is off
 rigidBed               on;

@@ -30,7 +30,7 @@ Xedges[-1] = Xfaces[-1] + (Xfaces[-1] - Xedges[-2])
 # faces width
 dX = Xedges[1:] - Xedges[:-1]
 
-qbEdges = np.zeros(nEdges)
+qavEdges = np.zeros(nEdges)
 dzEdges = np.zeros(nEdges)
 
 success = True
@@ -47,14 +47,14 @@ for i in range(ntimes-1):
     zbFaces_tnext = rdf.readmesh(
         "./", tnext, boundary="bed", verbose=False)[2]
     dzbOF = zbFaces_tnext - zbFaces_t
-    qb_x = rdf.readvector(
-        "./", t, "qbVf", boundary="bed", verbose=False)[0]
+    qav_x = rdf.readvector(
+        "./", t, "qavVf", boundary="bed", verbose=False)[0]
     # qb on edges, linear interpolation
-    qbEdges[1:-1] = 0.5 * (qb_x[1:] + qb_x[:-1])
+    qavEdges[1:-1] = 0.5 * (qav_x[1:] + qav_x[:-1])
     # zero flux boundary condition for qb
-    qbEdges[0], qbEdges[-1] = 0, 0
+    qavEdges[0], qavEdges[-1] = 0, 0
     # rate of sediment volume variation, m2/s
-    dVsed = qbEdges[:-1] - qbEdges[1:]
+    dVsed = qavEdges[:-1] - qavEdges[1:]
     if i == 0:
         dt0 = dt
         dVsed0 = np.copy(dVsed)

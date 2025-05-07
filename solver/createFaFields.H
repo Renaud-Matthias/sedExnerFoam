@@ -126,7 +126,7 @@ label ABorder = 0;
 bool filterShields = false;
 bool filterExner = false;
 
-// for exner equation, filterering bed elevation increment 
+// for exner equation, filterering bed elevation increment
 scalar alphaExn = 0;
 label NExn = 0;
 
@@ -156,7 +156,6 @@ if (bed.exist())
             "alphaFiltExner", 0.1);
         NExn = bedloadProperties.lookupOrDefault<label>(
             "NfiltExner", 1);
-        
     }
     else if (switchFilterExner != "off")
     {
@@ -280,7 +279,7 @@ if (bed.exist())
     }
 
     // instantiate fields for bed form velocity
-    VelBfPtr.reset
+    /*VelBfPtr.reset
     (
         new areaVectorField
         (
@@ -296,8 +295,8 @@ if (bed.exist())
             dimensionedVector(dimensionSet(0, 1, -1, 0, 0, 0, 0), Zero)
         )
     );
-    VelBfEdgesPtr.reset(new vectorField(bed.aMesh().nInternalEdges()));
-    
+    VelBfEdgesPtr.reset(new vectorField(bed.aMesh().nInternalEdges()));*/
+
 
     Info << "Instantiate finite area fields" << endl;
     gradZbPtr.reset

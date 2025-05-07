@@ -98,8 +98,8 @@ Info << "dimensionless diameter, Dstar = " << Dstar.value() << endl;
 
 // maximum sediment volumic fraction (1 - porosity)
 dimensionedScalar CsMax("CsMax", dimless, transportProperties);
-// porosity of granular material
-dimensionedScalar porosity(dimless, 1/CsMax.value());
+Info << "maximum possible sediment volume fraction: "
+    << CsMax.value() << endl;
 // Nikuradse equivalent roughness height, skin friction
 dimensionedScalar ks =  2.5 * dS;
 // Schmidt number, default value 1

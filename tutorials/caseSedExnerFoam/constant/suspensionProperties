@@ -32,6 +32,14 @@ hindranceModel
     n      4.65;
 }
 
+// near wall additional diffusivity for Cs (saltation effect)
+// 
+wallDiffusivity
+{
+    alpha  5e-6;  //
+    beta   5;  //
+}
+
 // maximum possible value of reference concentration for erosion
 // default is 0.3, acceptable values are 0.1 - 0.3
 CsbMax     0.3;

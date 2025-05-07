@@ -232,7 +232,6 @@ int main(int argc, char *argv[])
                 areaVectorField& qsat = qsatPtr.ref();
                 areaVectorField& qav = qavPtr.ref();
                 areaVectorField& qb = qbPtr.ref();
-                areaVectorField& VelBf = VelBfPtr.ref();
                 areaScalarField& beta = betaPtr.ref();
                 
                 // map areaFields to volFields for vizualisation
@@ -265,11 +264,6 @@ int main(int argc, char *argv[])
                     (
                         beta,
                         betaVf.boundaryFieldRef()
-                    );
-                bed.vsm.ref().mapToVolume
-                    (
-                        VelBf,
-                        VelBfVf.boundaryFieldRef()
                     );
             }
             runTime.write();

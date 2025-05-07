@@ -88,8 +88,6 @@ Foam::bedloadModels::bedloadModel::bedloadModel
                 << "possible options are: on off" << endl;
         Info << abort(FatalError) << endl;
     }
-
-    
     // initialize or not avalancheModel
     word switchAv(dict_.lookupOrDefault<word>("avalanche", "on"));
     if (switchAv == "on")

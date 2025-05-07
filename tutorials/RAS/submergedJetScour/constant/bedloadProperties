@@ -18,7 +18,7 @@ FoamFile
 
 sedimentBed            on;  // on or off
 
-bedMotion              off;
+bedMotion              on;
 
 sedimentBedPatches     (bed);
 
@@ -29,7 +29,7 @@ bedloadModel
 
 avalanche              on;
 
-reposeAngle            32;  // repose angle in degrees, default is 32
+reposeAngle            28;  // repose angle in degrees, default is 32
 
 // coef for avalanche additional bedload, default is 0.01
 Qav                    0.005;

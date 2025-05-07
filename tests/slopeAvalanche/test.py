@@ -38,16 +38,16 @@ else:
     print("bed slope OK")
 
 # test value of avalanche
-Qav = 5e-3
+Qav0 = 5e-3
 betaRep = repAngle * np.pi / 180
-qbX, qbY, qbZ = rdf.readvector(
-    "./", "0.1", "qbVf", boundary="bed", verbose=False)
-magQb = np.sqrt(qbX**2 + qbZ**2)
-beta = np.arctan(np.abs(qbZ/qbX))
-qavVinent = Qav * (np.tanh(np.tan(beta)) - np.tanh(np.tan(betaRep)))
+qavX, qavY, qavZ = rdf.readvector(
+    "./", "0.1", "qavVf", boundary="bed", verbose=False)
+magQav = np.sqrt(qavX**2 + qavZ**2)
+beta = np.arctan(np.abs(qavZ/qavX))
+qavVinent = Qav0 * (np.tanh(np.tan(beta)) - np.tanh(np.tan(betaRep)))
 qavVinent /= (1 - np.tanh(np.tan(betaRep)))
 
-relErrQav = np.max(np.abs(magQb - qavVinent) / np.max(qavVinent))
+relErrQav = np.max(np.abs(magQav - qavVinent) / np.max(qavVinent))
 if relErrQav > tolQav:
     success = False
     print(
