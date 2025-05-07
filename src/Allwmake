@@ -20,10 +20,10 @@ export OF_VERSION="$foam_api"
 
 set -x
 
-wmake libso settlingModels
-wmake libso sedimentBed
 wmake libso projectedFiniteArea
+wmake libso settlingModels
 wmake libso bedloadModels
 wmake libso criticalShieldsModels
+wmake libso sedimentBed
 
 #------------------------------------------------------------------------------

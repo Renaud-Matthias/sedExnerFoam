@@ -7,6 +7,6 @@ wclean libso settlingModels
 wclean libso sedimentBed
 wclean libso projectedFiniteArea
 wclean libso bedloadModels
-wclean libso criticalShieldsModel
+wclean libso criticalShieldsModels
 
 #------------------------------------------------------------------------------
