@@ -30,10 +30,10 @@ def polCrest(x):
 
 def getZb(x):
     zb = np.where(
-        x>Xd, Hd - (x-Xd)*slope, Hd + (x-Xd)*slope)
-    zb = np.where(zb>0, zb, 0)
+        x > Xd, Hd - (x-Xd)*slope, Hd + (x-Xd)*slope)
+    zb = np.where(zb > 0, zb, 0)
     zb = np.where(
-        x<Xd+0.5*dxd and x>Xd-0.5*dxd,
+        x < Xd+0.5*dxd and x > Xd-0.5*dxd,
         polCrest(x), zb
     )
     return zb
@@ -47,9 +47,8 @@ newPoints = open(f"{path}/newPoints", "w")
 with open(f"{path}/points", "r") as f:
     for line in f:
         newline = line
-        if line[0]=="(" and line[-2:]==")\n":
+        if line[0] == "(" and line[-2:] == ")\n":
             xs, ys, zs = line[:-1].strip("()").split(" ")
-            #print(xs, ys, zs)
             x, z = float(xs), float(zs)
             zb = getZb(x)
             z = zb + z * (1 - zb / Hz)
