@@ -5,7 +5,7 @@ blockMesh
 makeFaMesh
 
 # create the initial dune geometry
-python coneCreateGeom.py
+python createGeometry.py
 
 # create the initial time folder
 cp -r 0_org 0
