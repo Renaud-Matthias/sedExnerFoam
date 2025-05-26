@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    cellDisplacement
+    {
+        solver          GAMG;
+        tolerance       1e-5;
+        relTol          0;
+        smoother        GaussSeidel;
+        minIter         1;
+    }
+    cellDisplacementFinal
+    {
+        $cellDisplacement;
+        tolerance      1e-6;
+        relTol         0;
+    }
+
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-05;
+        relTol          0.0001;
+        maxIter         30;
+        smoother        DIC;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        nFinestSweeps   2;
+        cacheAgglomeration true;
+        nCellsInCoarsestLevel 10;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+    }
+
+    pFinal
+    {
+        $p;
+        tolerance       1e-5;
+        relTol          0;
+    }
+
+    pcorrFinal
+    {
+        $p;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    Cs
+    {
+        nAlphaCorr      2;
+        nAlphaSubCycles 1;
+
+        MULESCorr       yes;
+        nLimiterIter    3;
+        alphaApplyPrevCorr  no;
+
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0;
+        minIter         1;
+    }
+
+    CsFinal
+    {
+        $Cs;
+    }
+}
+
+
+PIMPLE
+{
+    momentumPredictor 0;
+    nOuterCorrectors  1;
+    nCorrectors     1;
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               0.3;
+    }
+    equations
+    {
+        U            0.7;
+    }
+}
+
+
+// ************************************************************************* //

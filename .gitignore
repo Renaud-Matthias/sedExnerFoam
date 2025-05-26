@@ -19,6 +19,7 @@ tutorials/PY/Figures
 tutorials/laminar/**/*.py
 tutorials/RAS/**/*.py
 tests/**/*.py
+!tests/**/plotTest.py
 !tests/**/test.py
 doc/html
 doc/latex

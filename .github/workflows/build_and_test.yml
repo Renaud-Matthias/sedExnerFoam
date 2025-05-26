@@ -114,6 +114,14 @@ jobs:
           cd tests/pyCompare/AB1avalanche
           runuser -u sudofoam -- ./Allrun > /dev/null
           python3 test.py
+      
+      - name: Test pyCompare_sedim2D
+        run: |
+          source /openfoam/bash.rc
+          source /home/sudofoam/pyenv/bin/activate
+          cd tests/pyCompare/sedim2D
+          runuser -u sudofoam -- ./Allrun > /dev/null
+          python3 test.py
 
       - name: Test erosionEquilibrium1D
         run: |
