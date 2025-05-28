@@ -1,0 +1,7 @@
+foamListTimes -withZero -rm
+
+foamCleanPolyMesh
+
+rm -r postProcessing
+
+rm log

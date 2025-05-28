@@ -35,7 +35,7 @@ if relAngleError > tolBetaRep:
         + f"({repAngle} deg) and maximum slope angle ({maxAngle} deg) "
         + f"is {relAngleError*100} %\ntolerance is {tolBetaRep*100} %")
 else:
-    print("bed slope OK")
+    print(f"bed slope OK, maximum slope is {round(maxAngle, 5)}°")
 
 # test value of avalanche
 Qav0 = 5e-3
@@ -51,7 +51,7 @@ relErrQav = np.max(np.abs(magQav - qavVinent) / np.max(qavVinent))
 if relErrQav > tolQav:
     success = False
     print(
-        f"error! relative error on avalanche bedload flux value: "
+        f"ERROR! relative error on avalanche bedload flux value: "
         + f"{relErrQav*100} %\ntolerance is {tolQav*100} %")
 else:
     print("avalanche flux OK")

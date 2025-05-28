@@ -7,6 +7,12 @@ from fluidfoam import readof as rdf
 
 print(" --- running test equilibrium channel --- ")
 
+success = True
+
+tolSh = 1e-5
+tolQb = 1e-5
+tolCs = 1e-5
+
 time = "50"
 
 dS = 0.2e-3  # sediment diameter
@@ -28,36 +34,43 @@ Zmesh = rdf.readmesh("./", verbose=False)[2]
 
 Cs = rdf.readscalar("./", time, "Cs", verbose=False)
 
+# Shields number from sedExnerFoam
 shieldsSolv = rdf.readvector(
     "./", time, "shieldsVf", verbose=False, boundary="bed")[0, 0]
 qbSolv = rdf.readvector(
     "./", time, "qbVf", verbose=False, boundary="bed")[0, 0]
 tauOf = -rdf.readvector(
     "./", time, "wallShearStress", verbose=False, boundary="bed")[0, 0]
-
+# Shields number from wallShearStress function
 shieldsOf = tauOf / ((rhoS/rhoF - 1) * g * dS)
 
-success = True
-tol = 1e-5
-
-err = np.abs((shieldsSolv - shieldsOf) / shieldsSolv)
+errSh = np.abs((shieldsSolv - shieldsOf) / shieldsSolv)
 # test shields value
-if err > tol:
+if errSh > tolSh:
     success = False
-    print("problem in shields number value")
+    print(
+        "ERROR! Shields number values from sedExnerFoam and "
+        + "wallShearStress utility are not matching"
+        + f"\nrelative error on Sields number: {errSh}")
+else:
+    print(f"Shields number value OK, relative error {errSh}")
+
 # test qb value with Meyer-Peter law
 qbTest = bedloadMPM(shieldsOf)
-err = np.abs((qbSolv - qbTest) / qbSolv)
-if err > tol and success is True:
+errQb = np.abs((qbSolv - qbTest) / qbSolv)
+if errQb > tolQb:
     success = False
-    print("error, bedload value != Meyer-Peter formula")
+    print("error, sedExnerFoam bedload value != Meyer-Peter formula")
+else:
+    print(f"bedload value OK, relative error {errQb}")
 
-
+# load results from prevous simulation
 zDatat, CsData = np.loadtxt("./dataCs_50s.txt", unpack=True, delimiter=";")
-for csim, cdat in zip(Cs, CsData):
-    err = np.abs(csim - cdat)
-    if err > tol:
-        success = False
-        print("error, new results differs from old simulation")
+errCs = np.abs(Cs - CsData) / CsData
+if np.any(errCs > tolCs):
+    success = False
+    print("ERROR! Cs profile differs from previous reults")
+else:
+    print(f"Cs profile OK, maximum relative error {np.max(errCs)}")
 
 assert success

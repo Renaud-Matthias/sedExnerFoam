@@ -3,34 +3,36 @@ Compare sedimentation simulation results with data stored
 in data.txt files
 
 Return error if results and data do not match
+the data is the results of a previous simulation
 """
 
 import numpy as np
 from fluidfoam import readof as rdf
+import os
 
 print(" --- running test 1DSedimentation (MULES formulation) --- ")
 
+success = True
+tol = 1e-6
+
 Ysimu = rdf.readmesh('./', verbose=False)[1]
 
-timeList = ['500', '1000', '1500']
+foamTimes = os.popen("foamListTimes").read()
+timeList = foamTimes.split("\n")[:-1]
 
-Csimu = []
+# load results from previous simulation
+Ydata, *csData = np.loadtxt(
+    "dataSedim.txt", delimiter=";", unpack=True)
 
-for t in timeList:
-    Csimu.append(rdf.readscalar('./', time_name=t, name='Cs', verbose=False))
-
-Ydata, c500, c1000, c1500 = np.loadtxt(
-    'dataSedim.txt', delimiter=';', unpack=True)
-
-Cdata = [c500, c1000, c1500]
-
-
-tol = 1e-6
-success = True
-
-for cs, cd in zip(Csimu, Cdata):
-    err = np.max(np.abs(cs - cd) / np.std(cd))
-    if err > tol:
+for i, t in enumerate(timeList):
+    Cs = rdf.readscalar(
+        "./", time_name=t, name="Cs", verbose=False)
+    
+    err = (Cs - csData[i])
+    if np.any(err > tol):
         success = False
+        print(
+            "ERROR! results not matching previous simulation\n"
+            + f"maximum error on volume fraction: {np.max(err)}")
 
 assert success

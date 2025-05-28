@@ -1,0 +1,145 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2406                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     sedExnerFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         50;
+
+deltaT          0.5e-3;
+
+writeControl    adjustableRunTime;
+
+writeInterval   5;
+
+purgeWrite      3;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable on;
+
+adjustTimeStep  on;
+
+maxCo           0.8;
+
+maxAlphaCo      0.3;
+
+maxDeltaT       1e0;
+
+libs
+(
+     "libWilcoxOmegaWallFunction.so"
+     "libGroovyBC.so"
+     "libgroovyStandardBCs.so"
+);
+
+functions
+{
+    wallShearStress1
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+
+        patches         (bed);
+
+        writePrecision  8;
+        executeControl  writeTime;
+        writeControl    writeTime;
+
+}
+    linesample
+    {
+        type                  sets;
+        libs                  ("libsampling.so");
+        writeControl          writeTime;
+        interpolationScheme   cellPoint;
+
+        setFormat             raw;
+
+        fields       (U k nut Cs);
+
+        sets
+        (
+            zline10H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (1. 0.005 0);
+                end           (1. 0.005 0.1);
+                nPoints       200;
+            }
+            
+            zline25H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (2.5 0.005 0);
+                end           (2.5 0.005 0.1);
+                nPoints       200;
+            }
+            
+            zline50H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (5. 0.005 0);
+                end           (5. 0.005 0.1);
+                nPoints       200;
+            }
+
+            zline75H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (7.5 0.005 0);
+                end           (7.5 0.005 0.1);
+                nPoints       200;
+            }
+            
+            zline100H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (10. 0.005 0);
+                end           (10. 0.005 0.1);
+                nPoints       200;
+            }
+
+            zline125H
+            {
+                type          uniform;
+                axis          xyz;
+                start         (12.5 0.005 0);
+                end           (12.5 0.005 0.1);
+                nPoints       200;
+            }
+        );
+    }
+}
+
+// ************************************************************************* //

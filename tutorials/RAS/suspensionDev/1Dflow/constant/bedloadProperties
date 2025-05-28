@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      bedloadProperties;
+}
+
+// ************************** sediment properties ************************** //
+
+sedimentBed            on;  // on or off
+
+bedMotion              off;
+
+sedimentBedPatches     (bed);
+
+bedload                on;
+
+bedloadModel
+{
+    // type of formula for bedload, defaut is Meyer-Peter
+    // qb* = alpha * shields^aExp * (shields - critShields)^bExp
+    type                 MeyerPeter; // Meyer-Peter, Nielsen, custom
+    
+    //alpha              7.2;
+
+    //aExp               0.5;
+
+    //bExp               1;
+
+    //criticalShields    0.05;  // default value 0.047
+
+}
+
+avalanche              off;
+
+// ************************************************************************* //
