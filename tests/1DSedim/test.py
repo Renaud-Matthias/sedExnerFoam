@@ -27,7 +27,7 @@ Ydata, *csData = np.loadtxt(
 for i, t in enumerate(timeList):
     Cs = rdf.readscalar(
         "./", time_name=t, name="Cs", verbose=False)
-    
+
     err = (Cs - csData[i])
     if np.any(err > tol):
         success = False

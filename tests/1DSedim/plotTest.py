@@ -14,7 +14,7 @@ plt.rcParams["font.size"] = 15
 
 foamTimes = os.popen("foamListTimes -withZero").read()
 timeList = foamTimes.split("\n")[:-1]
-ntimes  = len(timeList)
+ntimes = len(timeList)
 
 # color list for results
 colors = ["#0072B2", "#D55E00"]
