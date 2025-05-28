@@ -121,7 +121,8 @@ jobs:
       - name: chmod sedExnerFoam binary
         run: chmod a+x -R *
         working-directory: /usr/lib/openfoam/openfoam2412/site
-            - name: Test pyCompare_duneTransport
+
+      - name: Test pyCompare_duneTransport
         run: |
           source /openfoam/bash.rc
           source /home/sudofoam/pyenv/bin/activate
