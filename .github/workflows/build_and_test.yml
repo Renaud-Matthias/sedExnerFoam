@@ -126,6 +126,7 @@ jobs:
         run: |
           source /openfoam/bash.rc
           source /home/sudofoam/pyenv/bin/activate
+          sudo chmod -R a+rwX tests
           cd tests/pyCompare/duneTransport
           runuser -u sudofoam -- ./Allrun > /dev/null
           python3 test.py
