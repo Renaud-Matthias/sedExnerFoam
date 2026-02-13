@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laminar flow tutorials | sedExnerFoam</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600&amp;subset=latin-ext" />
+  <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
+  <link rel="icon" href="sedExnerFoam_favicon.png" type="image/png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#22272e" />
+</head>
+<body>
+<header><nav id="navigation">
+  <div class="m-container">
+    <div class="m-row">
+      <a href="index.html" id="m-navbar-brand" class="m-col-t-8 m-col-m-none m-left-m"><img src="sedExnerFoam_favicon.png" alt="" />sedExnerFoam</a>
+      <div class="m-col-t-4 m-hide-m m-text-right m-nopadr">
+        <a href="#search" class="m-doc-search-icon" title="Search" onclick="return showSearch()"><svg style="height: 0.9rem;" viewBox="0 0 16 16">
+          <path id="m-doc-search-icon-path" d="m6 0c-3.31 0-6 2.69-6 6 0 3.31 2.69 6 6 6 1.49 0 2.85-0.541 3.89-1.44-0.0164 0.338 0.147 0.759 0.5 1.15l3.22 3.79c0.552 0.614 1.45 0.665 2 0.115 0.55-0.55 0.499-1.45-0.115-2l-3.79-3.22c-0.392-0.353-0.812-0.515-1.15-0.5 0.895-1.05 1.44-2.41 1.44-3.89 0-3.31-2.69-6-6-6zm0 1.56a4.44 4.44 0 0 1 4.44 4.44 4.44 4.44 0 0 1-4.44 4.44 4.44 4.44 0 0 1-4.44-4.44 4.44 4.44 0 0 1 4.44-4.44z"/>
+        </svg></a>
+        <a id="m-navbar-show" href="#navigation" title="Show navigation"></a>
+        <a id="m-navbar-hide" href="#" title="Hide navigation"></a>
+      </div>
+      <div id="m-navbar-collapse" class="m-col-t-12 m-show-m m-col-m-none m-right-m">
+        <div class="m-row">
+          <ol class="m-col-t-6 m-col-m-none">
+            <li>
+              <a href="pages.html">Pages</a>
+              <ol>
+                <li><a href="index.html">About sedExnerFoam</a></li>
+                <li><a href="install.html">Installation</a></li>
+                <li><a href="howtodocker.html">How To work with sedExnerFoam container</a></li>
+                <li><a href="howtogit.html">How To work with github</a></li>
+                <li><a href="faq.html">Frequently Asked Questions</a></li>
+              </ol>
+            </li>
+            <li>
+              <a href="pages.html">Tutorials</a>
+              <ol>
+                <li><a href="tutorials_laminar.html" id="m-navbar-current">Laminar flow tutorials</a></li>
+              </ol>
+            </li>
+          </ol>
+          <ol class="m-col-t-6 m-col-m-none" start="3">
+            <li>
+              <a href="governingEq.html">Governing equations</a>
+              <ol>
+                <li><a href="governingEq.html">Governing equations</a></li>
+              </ol>
+            </li>
+            <li><a href="annotated.html">Classes</a></li>
+            <li><a href="files.html">Files</a></li>
+            <li class="m-show-m"><a href="#search" class="m-doc-search-icon" title="Search" onclick="return showSearch()"><svg style="height: 0.9rem;" viewBox="0 0 16 16">
+              <use href="#m-doc-search-icon-path" />
+            </svg></a></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav></header>
+<main><article>
+  <div class="m-container m-container-inflatable">
+    <div class="m-row">
+      <div class="m-col-l-10 m-push-l-1">
+        <h1>
+          Laminar flow tutorials
+        </h1>
+        <nav class="m-block m-default">
+          <h3>Contents</h3>
+          <ul>
+            <li>
+              <a href="#Sedim_testcase">1DSedim: Pure sedimentation</a>
+              <ul>
+                <li>
+                  <a href="#preproc">Pre-processing</a>
+                  <ul>
+                    <li><a href="#meshgen">Mesh generation</a></li>
+                    <li><a href="#BC_init">Boundary and initial conditions</a></li>
+                    <li><a href="#PhysProp">Physical properties</a></li>
+                    <li><a href="#control_sedExnerFoam">Control</a></li>
+                    <li><a href="#Disc_solv">Discretisation and linear-solver settings</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+<p>In this chapter we shall describe in detail the process of setup, simulation and post-processing for sedExnerFoam test cases in the laminar flow regime. All the tutorial cases are in the <em>tutorials/laminar</em> directory. The text herein is highly inspired from the OpenFOAM user-guide for the cavity tutorial available at <a href="http://cfd.direct/openfoam/user-guide/cavity/">http:/<wbr />/<wbr />cfd.direct/<wbr />openfoam/<wbr />user-guide/<wbr />cavity/<wbr /></a> but is adapted to the specificity of sedExnerFoam.</p><p>The test cases provided with sedExnerFoam are aimed to facilitate the learning as well as the development of new configurations. If you develop new feature do not hesitate to share your development with us so that we can incorporate them in the github repository and others will benefit from your work the way you benefited from the original sedExnerFoam version!</p><p>A number of one-dimensional test cases are provided with reference solutions, analytical, experimental or numerical, to validate sedExnerFoam implementation and developments. Most of these test cases are used in the contiunous integration procedure to verify new developments in sedExnerFoam.</p><section id="Sedim_testcase"><h2><a href="#Sedim_testcase">1DSedim: Pure sedimentation</a></h2><p>This tutorial will describe how to pre-process, run and post-process a case corresponding to a pure sedimentation problem in a one-dimensional configuration using the two-phase flow equations. The geometry is shown in Figure 1 in which bottom boundary is a wall and the top boundary is an open boundary. Initially, the flow is at rest and will be solved on a uniform mesh using the sedExnerFoam solver for laminar, isothermal, incompressible flow. The numerical results are compared with experiments to validate the model in terms of settling curves, time evolution of concentration interface, and concentration profiles.</p><section id="preproc"><h3><a href="#preproc">Pre-processing</a></h3><p>Like in OpenFOAM, cases are setup by editing case files using a text editor such as atome, vscode/vscodium, emacs, vi, gedit, nedit, etc. The I/O uses a dictionary format with keywords. A case involves data for mesh, fields, properties, control parameters, etc that are stored in a set of files within a case directory rather than in a single case file. The case directory is given a suitably descriptive name. This tutorial consists of a set of cases located in the sedExnerFoam distribution under the folder <em>sedExnerFoamDirectory/turheolotorials/laminar/1DSedim</em>.</p><section id="meshgen"><h5><a href="#meshgen">Mesh generation</a></h5><p>OpenFOAM always operates in a 3 dimensional Cartesian coordinate system and all geometries are generated in 3 dimensions. OpenFOAM solves the case in 3 dimensions by default but can be instructed to solve in 2 dimensions by specifying a ‘special’ empty boundary condition on boundaries normal to the (3rd) dimension for which no solution is required. In 2 dimensions, the directions x and y are always chosen even if the mesh is given in the x-z plane.</p><p>The sedimentation domain consists of a rectangle of side length L = 0.006 m in the x–y plane and of height h=0.06 m in the vertical direction z. The side length is chosen to ensure a unity cell aspect ratio. A uniform mesh of 1 by 1 by 300 cells will be used. The block structure is shown in Figure 1.</p><p>The mesh generator supplied with OpenFOAM, blockMesh, generates meshes from a description specified in an input dictionary, blockMeshDict located in the <em>constant/polyMesh</em> directory for a given case. The <em>blockMeshDict</em> entries for this case are as follows:</p><pre>/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 0.06;
+
+vertices
+(
+    (-0.005 0   0.005) //0
+    ( 0.005 0   0.005) //1
+    ( 0.005 1.  0.005) //2
+    (-0.005 1.  0.005) //3
+    (-0.005 0  -0.005) //4
+    ( 0.005 0  -0.005) //5
+    ( 0.005 1. -0.005) //6
+    (-0.005 1. -0.005) //7
+);
+
+blocks
+(
+    hex (0 1 5 4 3 2 6 7) (1 1 300) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+     type   cyclic;
+     neighbourPatch outlet;
+     faces ((0 3 7 4));
+    }
+    outlet
+    {
+     type   cyclic;
+     neighbourPatch  inlet;
+     faces  ((1 5 6 2));
+    }
+    top
+    {
+     type wall;
+        faces ((7 6 2 3));
+    }
+    bottom
+    {
+     type wall;
+     faces ((0 4 5 1));
+    }
+    frontAndBackPlanes
+    {
+    type empty;
+    faces (
+           (0 1 2 3)
+           (4 7 6 5)
+          );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //</pre><p>The file first contains header information in the form of a banner (lines 1-7), then file information contained in a FoamFile sub-dictionary, delimited by curly braces ({…}).</p><p>The file specifies coordinates of the block vertices; then, it defines the blocks (here, only 1) from the vertex labels and the number of cells within it; and finally, it defines the boundary patches. The user is encouraged to consult the official documentation <a href="http://cfd.direct/openfoam/user-guide/blockMesh/#x25-1750005.3">here</a> to understand the meaning of the entries in the <em>blockMeshDict</em> file.</p><p>The mesh is generated by running the command blockMesh. This is done simply by typing in the terminal:</p><pre>blockMesh
+</pre><p>The running status of blockMesh is reported in the terminal window. Any mistakes in the <em>blockMeshDict</em> file are picked up by blockMesh and the resulting error message directs the user to the line in the file where the problem occurred. There should be no error messages at this stage.</p></section><section id="BC_init"><h5><a href="#BC_init">Boundary and initial conditions</a></h5><p>Once the mesh generation is complete, the user can look at this initial fields set up for this case. The case is set up to start at time t = 0 s, so the initial field data is stored in a 0_org sub-directory of the 1DSedim directory. The 0_org sub-directory contains several files: Cs the concentration, U the velocity, p the pressure and Ws the settling velocity whose initial values and boundary conditions must be set. Let us examine file U:</p><pre>dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            cyclic;
+    }
+    outlet
+    {
+        type            cyclic;
+    }
+    top
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    bottom
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    frontAndBackPlanes
+    {
+        type            empty;
+    }
+}</pre><p>There are 3 principal entries in field data files:</p><p>-dimensions: specifies the dimensions of the field, here velocity, i.e. m s <svg class="m-math" style="width: 1.127em; height: 0.622em; vertical-align: -0.000em;" viewBox="0 -9.474739 10.82069 5.966563">
+<title>
+$^{-1}$
+</title>
+<defs>
+<path id='eq1-g1-49' d='M2.502615-5.076961C2.502615-5.292154 2.486675-5.300125 2.271482-5.300125C1.944707-4.98132 1.522291-4.790037 .765131-4.790037V-4.527024C.980324-4.527024 1.41071-4.527024 1.872976-4.742217V-.653549C1.872976-.358655 1.849066-.263014 1.091905-.263014H.812951V0C1.139726-.02391 1.825156-.02391 2.183811-.02391S3.235866-.02391 3.56264 0V-.263014H3.283686C2.526526-.263014 2.502615-.358655 2.502615-.653549V-5.076961Z'/>
+<path id='eq1-g0-0' d='M5.571108-1.809215C5.69863-1.809215 5.873973-1.809215 5.873973-1.992528S5.69863-2.175841 5.571108-2.175841H1.004234C.876712-2.175841 .70137-2.175841 .70137-1.992528S.876712-1.809215 1.004234-1.809215H5.571108Z'/>
+</defs>
+<g id='eq1-page1'>
+<use x='0' y='-4.338437' xlink:href='#eq1-g0-0'/>
+<use x='6.586507' y='-4.338437' xlink:href='#eq1-g1-49'/>
+</g>
+</svg> ;</p><p>-internalField: the internal field data which are set to be uniform;</p><p>-boundaryField: the boundary field data that includes boundary conditions and data for all the boundary patches.</p><p>The solid volume fraction has 0 fixedValue boundary condition at the top boundary condition and zeroGradient at the bottom. The pressure has a slip boundary condition at the top boundary and a zeroGradient at the bottom boundary.</p></section><section id="PhysProp"><h5><a href="#PhysProp">Physical properties</a></h5><p>The physical properties for the case are stored in dictionaries whose names are given the suffix …Properties, located in the Dictionaries directory tree. For a sedExnerFoam case, there are 4 property files: transportProperties, bedloadProperties, suspensionProperties, turbulenceProperties</p><p>In the transport property file, the physical properties of the solid and fluid phases are set, such as density, kinematic viscosity and particle diameter.</p><pre>// * * * * * * * * * * * * sediment properties * * * * * * * * * * * * //
+
+rhoS    [1 -3 0 0 0 0 0] 1050; // sediment density
+
+dS      [0 1 0 0 0 0 0] 2.9e-4; // sediment diameter
+
+CsMax    [0 0 0 0 0 0 0] 0.6; // max volumic sediment concentration
+
+// ************************************************************************* //
+
+transportModel  Newtonian;
+
+nu      nu [ 0 2 -1 0 0 0 0 ] 2.105e-05;
+
+Sc      1; // Schmidt number</pre><p>The dictionary <em>bedloadProperties</em> allows to activate or not the moving bed model:</p><pre>sedimentBed       off;
+</pre><p>In the present case (1DSedim), it is desactivated.</p><p>The dictionary <em>suspensionProperties</em> contains the parameters of the suspension model.</p><pre>suspension        on;
+
+MULESformulation  on;
+
+fallModel
+{
+    type   Stokes;
+}
+
+hindranceModel
+{
+    type   ZakiModified;
+    n      3.45;
+}</pre></section><section id="control_sedExnerFoam"><h5><a href="#control_sedExnerFoam">Control</a></h5><p>Input data related to the control of time and reading and writing of the solution data are read from the controlDict dictionary. The user should view this file as a case control file, it is located in the <em>system</em> directory.</p><p>The start/stop times and the time step for the run must be set. In this tutorial we wish to start the run at time t = 0 which means that OpenFOAM needs to read field data from a directory named 0. Therefore we set the startFrom keyword to startTime and then specify the startTime keyword to be 0.</p><p>As the simulation progresses we wish to write results at certain intervals of time that we can later view with a post-processing package. The writeControl keyword presents several options for setting the time at which the results are written; here we select the adjustableRunTime option which specifies that results are written every writeInterval seconds of simulated time, adjusting the time steps to coincide with the writeInterval if necessary and the time step is adjusted using deltaT value.</p><p>OpenFOAM creates a new directory named after the current time, e.g. 20 s, on each occasion that it writes a set of data. For this case, the entries in the controlDict are shown below:</p><pre>application     sedExnerFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1800;
+
+deltaT          1e-5;
+
+writeControl    adjustableRunTime;
+
+writeInterval   20;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable on;
+
+adjustTimeStep  off;
+
+maxCo           0.3;
+
+maxAlphaCo      0.3;
+
+maxDeltaT       2e-1;</pre></section><section id="Disc_solv"><h5><a href="#Disc_solv">Discretisation and linear-solver settings</a></h5><p>The numerical schemes and linear solvers are set in the <em>system/fvSchemes</em> and <em>system/fvSolution</em> files respectively.</p><p>Concerning the numerical schemes, the time discretisation is an Euler implicit scheme, the divergence terms are of Gauss limitedLinear type (2nd order centered schemes with a Sweby limiter) and the laplacian scheme is Gauss linear corrected for all terms.</p><p>In the <em>system/fvSolution</em> file, the user can specify the linear solver he/she wants to use for each equation and the tolerance for the resolution. The user can also control the number of corrector steps and non-orthogonal correctors (useless for cartesian grids) for the PIMPLE algorithm. In the present case, a single PIMPLE corrector is enough the residual of the pressure equation is shown to converge well.</p></section></section></section>
+      </div>
+    </div>
+  </div>
+</article></main>
+<div class="m-doc-search" id="search">
+  <a href="#!" onclick="return hideSearch()"></a>
+  <div class="m-container">
+    <div class="m-row">
+      <div class="m-col-m-8 m-push-m-2">
+        <div class="m-doc-search-header m-text m-small">
+          <div><span class="m-label m-default">Tab</span> / <span class="m-label m-default">T</span> to search, <span class="m-label m-default">Esc</span> to close</div>
+          <div id="search-symbolcount">&hellip;</div>
+        </div>
+        <div class="m-doc-search-content">
+          <form>
+            <input type="search" name="q" id="search-input" placeholder="Loading &hellip;" disabled="disabled" autofocus="autofocus" autocomplete="off" spellcheck="false" />
+          </form>
+          <noscript class="m-text m-danger m-text-center">Unlike everything else in the docs, the search functionality <em>requires</em> JavaScript.</noscript>
+          <div id="search-help" class="m-text m-dim m-text-center">
+            <p class="m-noindent">Search for symbols, directories, files, pages, OpenGL, GLSL, Vulkan and OpenAL APIs. You can omit any prefix from the symbol or file path; adding a <code>:</code> or <code>/</code> suffix lists all members of given symbol or directory.</p> <p class="m-noindent">Use <span class="m-label m-dim">&darr;</span> / <span class="m-label m-dim">&uarr;</span> to navigate through the list, <span class="m-label m-dim">Enter</span> to go. <span class="m-label m-dim">Tab</span> autocompletes common prefix, you can copy a link to the result using <span class="m-label m-dim">⌘</span> <span class="m-label m-dim">L</span> while <span class="m-label m-dim">⌘</span> <span class="m-label m-dim">M</span> produces a Markdown link.</p>
+          </div>
+          <div id="search-notfound" class="m-text m-warning m-text-center">Sorry, nothing was found.</div>
+          <ul id="search-results"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="search-v2.js"></script>
+<script src="searchdata-v2.js" async="async"></script>
+<footer><nav>
+  <div class="m-container">
+    <div class="m-row">
+      <div class="m-col-l-10 m-push-l-1">
+        <p>sedExnerFoam docs. Part of the <a href="https://github.com/SedFoam/sedExnerFoam">sedExnerFoam project</a>, copyright © <a href="cyrille.bonamy@univ-grenoble-alpes.fr/">Cyrille Bonamy</a> and <a href="credits-contributors.html">contributors</a>, 2015&ndash;2021.<br />Generated by <a href="https://doxygen.org/">Doxygen</a> 1.9.3 and <a href="https://mcss.mosra.cz/">m.css</a>. Contact the team via <a href="https://github.com/SedFoam/sedExnerFoam">GitHub</a>, <a href="mailto:cyrille.bonamy@univ-grenoble-alpes.fr">e-mail</a> or <a href="https://twitter.com/sedfoam">Twitter</a>.</p>
+      </div>
+    </div>
+  </div>
+</nav></footer>
+</body>
+</html>
