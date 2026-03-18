@@ -8,10 +8,8 @@ from fluidfoam import readof as rdf
 from scipy.optimize import minimize
 import sys
 import os
-
-sys.path.append("../DATA/dataLyn1988")
-
 from readExpData import readExpParameters
+
 
 time = "latestTime"
 
@@ -20,27 +18,27 @@ saveFig = False
 pathCases = "../RAS/equilibriumChannel/"
 
 colorDict = {
-    "1565":"#009E73",
-    "1965":"#D55E00",
-    "2565":"#0072B2",
-    "1957":"#CC79A7"
+    "1565": "#009E73",
+    "1965": "#D55E00",
+    "2565": "#0072B2",
+    "1957": "#CC79A7"
 }
 
 lineStyleDict = {
-    "1565":"solid",
-    "1965":"dashed",
-    "2565":"dashdot",
-    "1957":"solid"
+    "1565": "solid",
+    "1965": "dashed",
+    "2565": "dashdot",
+    "1957": "solid"
 }
 
-expMarkerDict = {"1565":"P", "1965":"^", "2565":"x", "1957":"s"}
+expMarkerDict = {"1565": "P", "1965": "^", "2565": "x", "1957": "s"}
 
 caseList = os.popen(f"ls {pathCases}").read().split("\n")[:-1]
 
 dirToPop = []
 
 for name in caseList:
-    if name[:4]!="case" or len(name)>10:
+    if name[:4] != "case" or len(name) > 10:
         dirToPop.append(name)
 
 for name in dirToPop:
@@ -83,15 +81,16 @@ fig, (axU, axC) = plt.subplots(
 for i, caseName in enumerate(caseList):
     expCase = caseName[4:]  # experiment from Lyn 1988
     print("\n\n - case: ", expCase)
-    
+
     # read experimental data
-    case = readExpParameters(pathData + "parametersExpLyn.txt", caseName=expCase)
+    case = readExpParameters(
+        pathData + "parametersExpLyn.txt", caseName=expCase)
     print(expCase)
-    expMarker = expMarkerDict[expCase]  # marker for scatter plot experimental data
+    # marker for scatter plot experimental data
+    expMarker = expMarkerDict[expCase]
     col = colorDict[expCase]
     ls = lineStyleDict[expCase]
 
-    
     # simulation parameters
     Hwater = case["Hwater"]  # water depth
     dS = case["dS"]  # sand particle diameter (m)
@@ -127,7 +126,7 @@ for i, caseName in enumerate(caseList):
     # x component of velocity field
     UxField = rdf.readfield(pathOF, time, "U", verbose=False)[0]
 
-       # concentration Cs
+    # concentration Cs
     CsField = rdf.readscalar(pathOF, time, "Cs", verbose=False)
     if CsField.shape == (1,):
         CsField = CsField * np.zeros_like(Zmesh)
