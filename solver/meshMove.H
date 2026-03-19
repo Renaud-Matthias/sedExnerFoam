@@ -57,8 +57,8 @@ dispVals -= eg * dHpoints;
 
 for (const label patchID : bed.bedPatchesID())
 {
-    Info << "mesh vertices motion, max:" << max(mag(dispVals));
-    Info << " m , min:" << min(mag(dispVals));
-    Info << " m , mean:" << average(mag(dispVals)) << " m" << endl;
+    Info << "mesh vertices motion, max:" << gMax(mag(dispVals));
+    Info << " m , min:" << gMin(mag(dispVals));
+    Info << " m , mean:" << gAverage(mag(dispVals)) << " m" << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
 }
