@@ -17,13 +17,13 @@ FoamFile
 
 application     sedExnerFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
-startTime       0;
+startTime       9;
 
 stopAt          endTime;
 
-endTime         21;
+endTime         10;
 
 deltaT          4e-4;
 

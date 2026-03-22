@@ -179,9 +179,9 @@ if (isWallDiff)
 {
     Info << "wall diffusivity (saltation) enabled, "
         << "alpha = " << epsWall0.value()
-        << ", beta = " << betaWall.value() 
-	<< ", gamma = " << gammaWall.value() 
-	<< endl;
+        << ", beta = " << betaWall.value()
+        << ", gamma = " << gammaWall.value()
+        << endl;
 }
 else
 {

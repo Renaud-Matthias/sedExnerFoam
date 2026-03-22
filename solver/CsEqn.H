@@ -134,7 +134,7 @@ if (bed.exist())
                 const scalar Sface = aMesh.S()[facei];
                 const scalar Vcell = mesh.V()[idNCell];
                 
-                if(HsedBed[facei]<=0)
+                if (HsedBed[facei]<=0)
                 {
                     Ep[facei] = 0;
                 }
@@ -229,7 +229,7 @@ if (switchMULES=="on")
 
     fvOptions.correct(Cs);
 
-    // Add Boussinesq term 
+    // Add Boussinesq term
     // moved to Seqn rhok = 1 + Cs * (rhoS - rhoF) / rhoF ;
 }
 
@@ -253,9 +253,6 @@ else if (switchMULES=="off")
     Cs.correctBoundaryConditions();
 
     fvOptions.correct(Cs);
-    
-    // Add Boussinesq term 
-    // moved to Seqn rhok = Cs * (rhoS - rhoF) / rhoF ; // +1 // remove +1 corresponding to hydrostatic contribution
 }
 
 Ws = settlingModelPtr->Ufall(

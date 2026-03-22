@@ -17,7 +17,7 @@ plt.rcParams["font.size"] = 15
 saveFig = True
 
 tmin, tmax = 0, 40
-xmax = 400 # 250
+xmax = 400  # 250
 expMarkSize = 50
 
 dataPath = "../DATA/Sandoungout2019/"
@@ -25,26 +25,26 @@ dataPath = "../DATA/Sandoungout2019/"
 plotExp = True
 labelExp = "Sandoungout 2019, V = 8.61 mm/s"
 LogScale = False
-plotLinRegress = True #False  # plot or not linear regression line
+plotLinRegress = True  # False  # plot or not linear regression line
 
 config = 1
 
-if (config==0):
+if (config == 0):
     caseList = [
         {"path": "../RAS/duneMigration/",
          "color": "#0072B2",
-        "marker":"o",
-        "markersize":50,
+         "marker": "o",
+         "markersize": 50,
          "ls": "solid",
          "label": r"2D: suspension on"}
     ]
     figName = "morphoParamsRegLin2D"
-elif (config==1):
+elif (config == 1):
     caseList = [
         {"path": "../RAS/duneMigration3D/",
          "color": "#E69F00",
-         "marker":"s",
-         "markersize":40,
+         "marker": "s",
+         "markersize": 40,
          "ls": "solid",
          "label": r"3D: suspension on"}
     ]
@@ -55,6 +55,7 @@ Heq = 16.6e-3  # dune height at equilibrium
 Vdune = 8.61e-3  # xh position velocity in m/s
 betaRep = 28 * np.pi / 180
 t0 = 10
+
 
 def findXh(Xb, Zb):
     """find middle of downstream slope"""
@@ -130,7 +131,7 @@ axL = fig.add_subplot(gs[2])
 if plotExp:
     # xh in function of time, from experiment
     texpXh, xhExp = np.loadtxt(
-        dataPath+"xht_u0_43_M0_10g.txt", unpack=True, delimiter=";")
+        dataPath + "xht_u0_43_M0_10g.txt", unpack=True, delimiter=";")
     xhExp -= 77
     axXh.scatter(
         texpXh, xhExp, s=expMarkSize, marker="o",
@@ -139,13 +140,13 @@ if plotExp:
 
     # dune height in function of time, from experiment
     texpH, HtExp = np.loadtxt(
-        dataPath+"Ht_u0_43_M0_10g.txt", unpack=True, delimiter=";")
+        dataPath + "Ht_u0_43_M0_10g.txt", unpack=True, delimiter=";")
     axH.scatter(
         texpH, HtExp, s=expMarkSize, marker="o",
         color="whitesmoke", edgecolors="black", label=labelExp)
     # dune length in function of time, from experiment
     texpL, LtExp = np.loadtxt(
-        dataPath+"L_u0_43_M0_10g.txt", unpack=True, delimiter=";")
+        dataPath + "L_u0_43_M0_10g.txt", unpack=True, delimiter=";")
     axL.scatter(
         texpL, LtExp, s=expMarkSize, marker="o",
         color="whitesmoke", edgecolors="black",
@@ -162,7 +163,7 @@ for i, case in enumerate(caseList):
     if marker == "*":
         edgecolors = "whitesmoke"
     print(f"\ncase {pathNum}")
-    
+
     foamTimes = os.popen(
         f"foamListTimes -case {pathNum} -withZero").read()
     numTimeList = foamTimes.split("\n")[:-1]
@@ -173,7 +174,7 @@ for i, case in enumerate(caseList):
     XhArr = np.zeros(ntimes)
     Harr = np.zeros(ntimes)
     Larr = np.zeros(ntimes)
-     
+
     for j, time in enumerate(numTimeList):
         if float(time) > tmax:
             timeArr = timeArr[:j]
@@ -185,9 +186,9 @@ for i, case in enumerate(caseList):
         Xb, Yb, Zb = rdf.readmesh(
             pathNum, time, boundary="bed", verbose=False)
         nx = np.size(Xb)
-        if j==0:
-            Zbt = np.zeros((nx,ntimes))
-        Zbt[:,j]=Zb[:]
+        if j == 0:
+            Zbt = np.zeros((nx, ntimes))
+        Zbt[:, j] = Zb[:]
         izbMax = np.argmax(Zb)
         Harr[j] = Zb[izbMax]
         xh, zh, slope = findXh(Xb, Zb)
@@ -198,7 +199,7 @@ for i, case in enumerate(caseList):
     aFit, bFit = np.polyfit(timeArr[1:], XhArr[1:], deg=1) * 1000
     print(f"velocity: {round(aFit, 3)} mm/s")
     label += f", V = {round(aFit, 2)} mm/s"
-    
+
     # NetCDF file creation
     rootgrp = Dataset(pathNum + "duneParameters.nc", "w")
 
@@ -206,7 +207,7 @@ for i, case in enumerate(caseList):
     rootgrp.createDimension("scalar", 1)
     rootgrp.createDimension("nt", np.size(timeArr))
     rootgrp.createDimension("nx", nx)
-    
+
     # Variables creation
     V_file = rootgrp.createVariable("Vdune", np.float64, "scalar")
     b_file = rootgrp.createVariable("b", np.float64, "scalar")
@@ -217,7 +218,7 @@ for i, case in enumerate(caseList):
     H_file = rootgrp.createVariable("Hdune", np.float64, "nt")
     L_file = rootgrp.createVariable("Ldune", np.float64, "nt")
     Xb_file = rootgrp.createVariable("Xb", np.float64, "nx")
-    Zb_file = rootgrp.createVariable("Zb", np.float64, ("nx","nt"))
+    Zb_file = rootgrp.createVariable("Zb", np.float64, ("nx", "nt"))
     # Writing variables
     V_file[:] = aFit
     b_file[:] = bFit
@@ -228,34 +229,34 @@ for i, case in enumerate(caseList):
     H_file[:] = Harr[:]
     L_file[:] = Larr[:]
     Xb_file[:] = Xb[:]
-    Zb_file[:,:] = Zbt[:,:]
-    
+    Zb_file[:, :] = Zbt[:, :]
+
     # File closing
     rootgrp.close()
-    
-    #axXh.text(
+
+    # axXh.text(
     #    5, aFit*5 + bFit + 5, rotation=slopeDegree,
     #    s=r"$c_h =$" + f"{round(aFit, 2)}" + r" $mm/s$",
     #    fontsize=12)
-        
+
     axXh.scatter(
-        timeArr-t0, XhArr*1000, s=numMarkSize, marker=marker,
+        timeArr - t0, XhArr * 1000, s=numMarkSize, marker=marker,
         color=color, zorder=3., edgecolors=edgecolors, label=label)
     if plotLinRegress:
         axXh.plot(
-            timeArr-t0, aFit*timeArr + bFit, color=edgecolors, linestyle='--', zorder=1.5)
+            timeArr - t0, aFit * timeArr + bFit, color=edgecolors, linestyle='--', zorder=1.5)
 
     axH.scatter(
-        timeArr-t0, Harr*1000, s=numMarkSize, marker=marker,
+        timeArr - t0, Harr * 1000, s=numMarkSize, marker=marker,
         color=color, edgecolors=edgecolors, label=label)
 
     axL.scatter(
-        timeArr-t0, Larr*1000, s=numMarkSize, marker=marker,
+        timeArr - t0, Larr * 1000, s=numMarkSize, marker=marker,
         color=color, edgecolors=edgecolors, label=label)
-    #axH.axhline(Heq*1000, color="black")
+    # axH.axhline(Heq*1000, color="black")
 
 axXh.set_ylabel(r"$x_h\,[mm]$")
-if (LogScale==False):
+if (LogScale == False):
     axXh.set_ylim(0, xmax)
 else:
     axXh.set_yscale("log")
@@ -265,8 +266,8 @@ axXh.tick_params(bottom=False, labelbottom=False)
 
 
 axH.set_ylabel(r"$h_d\,[mm]$")
-#axH.legend(fontsize=12)
-#axH.set_ylim(15, 25)
+# axH.legend(fontsize=12)
+# axH.set_ylim(15, 25)
 axH.set_ylim(0, 30)
 axH.tick_params(bottom=False, labelbottom=False)
 
@@ -280,18 +281,18 @@ if plotExp:
     axL.axhline(116, color="grey", ls="dashed")
 
 for ax in fig.axes:
-    #ax.set_xlim(tmin-0.5, tmax+0.5)
-    ax.set_xlim(0, tmax-t0)
+    # ax.set_xlim(tmin-0.5, tmax+0.5)
+    ax.set_xlim(0, tmax - t0)
     ax.grid()
     ax.tick_params(
         axis="both", which="major")
 
-#fig.suptitle(r"saturation length, $L_{sat}=1\,cm$")
+# fig.suptitle(r"saturation length, $L_{sat}=1\,cm$")
 
 fig.tight_layout()
 
 plt.show()
 
 if saveFig:
-    fig.savefig("./Figures/"+figName+".eps", format="eps")
+    fig.savefig("./Figures/" + figName + ".eps", format="eps")
     print("figure saved")

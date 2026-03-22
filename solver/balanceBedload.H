@@ -97,7 +97,7 @@ if (qbScheme == "centered")
     }
 }
 else if (qbScheme == "upwind")
-{    
+{
     // compute bedload flux on through internal edges
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {

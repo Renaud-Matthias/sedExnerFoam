@@ -65,7 +65,7 @@ qsat.correctBoundaryConditions();
 /*
 qsat.correctBoundaryConditions();
 // access to projected faMesh
-const projectedFaMesh& meshProj = bed.aProjMesh(); 
+const projectedFaMesh& meshProj = bed.aProjMesh();
 forAll(meshProj.S(), facei)
 {
     qsat[facei].y() = 0;
@@ -177,19 +177,19 @@ else if (saturationType == "explicit")
             Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
         // linear interpolate qb on edge i (centered scheme)
         /*
-	vector qbEdgei =
+        vector qbEdgei =
             (
                 distNeighbour * qbProjOld[owner[edgei]]
                 + distOwner * qbProjOld[neighbour[edgei]]
             )
             * (1 / (distOwner + distNeighbour));
-	*/
+       */
         // upwind interpolate qb on edge i
-	vector qbEdgei = qbProjOld[owner[edgei]];
-	if ((qbProjOld[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
-	{
-	    qbEdgei = qbProjOld[neighbour[edgei]];
-	}
+        vector qbEdgei = qbProjOld[owner[edgei]];
+    if ((qbProjOld[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
+    {
+        qbEdgei = qbProjOld[neighbour[edgei]];
+    }
         vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
@@ -206,9 +206,8 @@ else if (saturationType == "explicit")
     {
         const faPatchField<Vector<scalar>>& QbBound =
             qb.boundaryField()[patchi];
-
-        if (bed.aMesh().boundary()[patchi].type() != "empty") 
-	{
+        if (bed.aMesh().boundary()[patchi].type() != "empty")
+        {
             // faMesh edge adressing
             label edgei = bed.aMesh().boundary()[patchi].start();
             forAll(bed.aMesh().boundary()[patchi], patchEdgei)
@@ -281,8 +280,7 @@ else if (saturationType == "semiimplicit")
                 + distOwner * qbProjOld[neighbour[edgei]]
             )
             * (1 / (distOwner + distNeighbour));
-
-        vector divLsQb = Lsat->value() 
+        vector divLsQb = Lsat->value()
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
 
@@ -306,9 +304,10 @@ else if (saturationType == "semiimplicit")
             {
                 // linear interpolation from face to edge
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
-                // Matthias vesrsion: vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
-                vector divLsQb = Lsat->value() 
-		    * (qbEdgei & LeProj[edgei])
+                // Matthias vesrsion: 
+                // vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
+                vector divLsQb = Lsat->value()
+                    * (qbEdgei & LeProj[edgei])
                     * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
                 qbProj[owner[edgei]] -= divLsQb / SfProj[owner[edgei]];
                 edgei++;

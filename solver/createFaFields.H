@@ -93,11 +93,12 @@ word qavScheme("centered");  // "centered" or "upwind"
 
 if (bedloadProperties.found("exnerAdvection"))
 {
-    const dictionary& exnerAdvectionDict = bedloadProperties.subDict("exnerAdvection");
-    qbScheme = exnerAdvectionDict.lookupOrDefault<word>("qbScheme", "upwind");
-    qavScheme = exnerAdvectionDict.lookupOrDefault<word>("qavScheme", "centered");
-    //satScheme = satDict.lookupOrDefault<word>("satScheme", "centered");
-
+    const dictionary& exnerAdvectionDict = 
+                    bedloadProperties.subDict("exnerAdvection");
+    qbScheme = 
+        exnerAdvectionDict.lookupOrDefault<word>("qbScheme", "upwind");
+    qavScheme = 
+     exnerAdvectionDict.lookupOrDefault<word>("qavScheme", "centered");
     Info << "qb scheme         : " << qbScheme << endl;
     Info << "qav scheme        : " << qavScheme << endl;
     //Info << "saturation scheme : " << satScheme << endl;

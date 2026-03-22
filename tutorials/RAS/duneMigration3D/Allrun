@@ -10,6 +10,8 @@ python createGeometry.py
 # create the initial time folder
 cp -r 0_org 0
 
+mapFields ../duneMigration -sourceTime 10
+
 topoSet
 decomposePar
 
