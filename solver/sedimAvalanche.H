@@ -46,6 +46,7 @@ if (not onEdgeAvalanche)
     qavIntern = bedloadMod.qbAvalanche(betaIntern, slopeDir, betaRep);
 
     //qb.primitiveFieldRef() += qavIntern;
+    Info<<"Max diffusion due to avalanche:"<<gMax(mag(qavIntern)/(betaIntern+SMALL))<<endl;
 }
 else
 {

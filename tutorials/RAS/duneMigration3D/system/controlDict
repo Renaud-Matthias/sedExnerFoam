@@ -19,21 +19,21 @@ application     sedExnerFoam;
 
 startFrom       latestTime;
 
-startTime       10;
+startTime       0;
 
 stopAt          endTime;
 
-endTime         30;
+endTime         21;
 
-deltaT          1e-3;
+deltaT          4e-4;
 
-writeControl    adjustableRunTime;
+writeControl    runTime;
 
 writeInterval   1;
 
 purgeWrite      0;
 
-writeFormat     ascii; //ascii;//binary;
+writeFormat     ascii; //ascii; //binary;
 
 writePrecision  6;
 
@@ -43,13 +43,13 @@ timePrecision   6;
 
 runTimeModifiable on;
 
-adjustTimeStep  on;
+adjustTimeStep  off;
 
 maxCo           0.8;
 
 maxAlphaCo      0.3;
 
-maxDeltaT       1e0;
+maxDeltaT       1e-3;
 
 libs
 (

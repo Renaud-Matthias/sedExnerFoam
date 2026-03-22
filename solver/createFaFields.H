@@ -87,6 +87,22 @@ if (bedloadProperties.found("saturation"))
     Info << "saturation length, Lsat = " << Lsat->value() << " s" << endl;
 }
 
+// qbScheme choice
+word qbScheme("upwind");  // "centered" or "upwind"
+word qavScheme("centered");  // "centered" or "upwind"
+
+if (bedloadProperties.found("exnerAdvection"))
+{
+    const dictionary& exnerAdvectionDict = bedloadProperties.subDict("exnerAdvection");
+    qbScheme = exnerAdvectionDict.lookupOrDefault<word>("qbScheme", "upwind");
+    qavScheme = exnerAdvectionDict.lookupOrDefault<word>("qavScheme", "centered");
+    //satScheme = satDict.lookupOrDefault<word>("satScheme", "centered");
+
+    Info << "qb scheme         : " << qbScheme << endl;
+    Info << "qav scheme        : " << qavScheme << endl;
+    //Info << "saturation scheme : " << satScheme << endl;
+}
+
 scalar betaRepDeg =
     (
         transportProperties.lookupOrDefault<scalar>("reposeAngle", 32)

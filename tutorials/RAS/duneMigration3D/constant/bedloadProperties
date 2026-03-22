@@ -18,13 +18,13 @@ FoamFile
 
 sedimentBed             on;  // on or off
 
-bedMotion               on;
+bedMotion               on; //on
 
 sedimentBedPatches     (bed);
 
-ABorder                1;
-
 fixedFaPatches         (inletFa outletFa);
+
+ABorder                1;
 
 bedloadModel
 {
@@ -48,12 +48,13 @@ criticalShieldsModel
 exnerAdvection
 {
    qbScheme           "upwind";
-   qavScheme          "centered"; 
+   qavScheme          "centered"; //"upwind";
+   //satScheme          "upwind";
 }
 
 saturation
 {
-    type               "explicit"; //"none", "explicit", "implicit1D";
+    type               "explicit";//"none", "explicit", "implicit1D";
     Tsat               0.01;
     Lsat               0.005;
 }

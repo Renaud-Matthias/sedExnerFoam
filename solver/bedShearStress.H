@@ -81,6 +81,10 @@ for (const label patchID : bed.bedPatchesID())
         // remove bed normal component, tangential component only
         ssp += (ssp & (-Sfp / magSfp)) * (Sfp / magSfp);
     }
+
+    // print min/max of Shields number
+    Info << "Shields number: max:" << gMax(mag(ssp));
+    Info << " min:" << gMin(mag(ssp)) << endl;
 }
 
 // map volumic shields number to area shields number

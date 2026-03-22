@@ -3,7 +3,6 @@
 # Create the vol and fa meshes
 blockMesh
 makeFaMesh
-#print ('have you changed the file format from ascii to binary in system/controlDict')
 
 # create the initial dune geometry
 python createGeometry.py
@@ -11,7 +10,8 @@ python createGeometry.py
 # create the initial time folder
 cp -r 0_org 0
 
-
+topoSet
+decomposePar
 
 # Run sedExnerFoam
-sedExnerFoam > log
+#sedExnerFoam > log

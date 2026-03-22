@@ -35,7 +35,6 @@ for (const label patchID : bed.bedPatchesID())
         pointDisplacement.boundaryFieldRef()[patchID].patchInternalField();
 }
 
-
 scalarField& dHpoints = dHpointsPtr.ref();
 dHpoints = Zero;
 
