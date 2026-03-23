@@ -166,7 +166,8 @@ for i, case in enumerate(caseList):
         # Xb, Yb, Zb = rdf.readmesh(pathNum, timeNumRead, boundary="bed")
         if time == "0":
             axZb.plot(
-                Xb * 1000, Zb[:, 0] * 1000, color=color, ls=ls, lw=lw, label=label)
+                Xb * 1000, Zb[:, 0] * 1000, color=color, ls=ls,
+                lw=lw, label=label)
         else:
             axZb.plot(
                 Xb * 1000, Zb[:, index] * 1000, color=color, ls=ls, lw=lw)
@@ -175,11 +176,6 @@ for i, case in enumerate(caseList):
             xtext, ztext = 1000 * Xb[izbMax] + 5, 1000 * Zb[izbMax] + 2
             axZb.text(
                 xtext, ztext, f"t = {time} s")
-
-# legend_elements = [
-#    Line2D([0], [0], ls="solid", color="grey", label="no saturation"),
-#    Line2D([0], [0], ls="dashed", color="grey", label=r"$L_{sat}=5\,mm$")
-# ]
 
 handles, labels = axZb.get_legend_handles_labels()
 

@@ -304,7 +304,7 @@ else if (saturationType == "semiimplicit")
             {
                 // linear interpolation from face to edge
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
-                // Matthias vesrsion: 
+                // Matthias vesrsion:
                 // vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
                 vector divLsQb = Lsat->value()
                     * (qbEdgei & LeProj[edgei])
