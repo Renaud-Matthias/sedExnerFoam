@@ -130,7 +130,8 @@ for i, case in enumerate(caseList):
         color=color, zorder=3., edgecolors=edgecolors, label=label)
     if plotLinRegress:
         axXh.plot(
-            timeArr - t0, aFit * timeArr + bFit, color=edgecolors, linestyle='--', zorder=1.5)
+            timeArr - t0, aFit * timeArr + bFit, color=edgecolors,
+            linestyle='--', zorder=1.5)
 
     axH.scatter(
         timeArr - t0, Harr * 1000, s=numMarkSize, marker=marker,
@@ -139,10 +140,9 @@ for i, case in enumerate(caseList):
     axL.scatter(
         timeArr - t0, Larr * 1000, s=numMarkSize, marker=marker,
         color=color, edgecolors=edgecolors, label=label)
-# axH.axhline(Heq*1000, color="black")
 
 axXh.set_ylabel(r"$x_h\,[mm]$")
-if (LogScale == False):
+if (LogScale is False):
     axXh.set_ylim(0, xmax)
 else:
     axXh.set_yscale("log")
@@ -167,13 +167,10 @@ if plotExp:
     axL.axhline(116, color="grey", ls="dashed")
 
 for ax in fig.axes:
-    # ax.set_xlim(tmin-0.5, tmax+0.5)
     ax.set_xlim(0, tmax - t0)
     ax.grid()
     ax.tick_params(
         axis="both", which="major")
-
-# fig.suptitle(r"saturation length, $L_{sat}=1\,cm$")
 
 fig.tight_layout()
 
