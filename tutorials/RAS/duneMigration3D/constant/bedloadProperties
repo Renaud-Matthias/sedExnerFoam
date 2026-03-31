@@ -18,7 +18,7 @@ FoamFile
 
 sedimentBed             on;  // on or off
 
-bedMotion               on; //on
+bedMotion               off; //on
 
 sedimentBedPatches     (bed);
 
@@ -48,8 +48,7 @@ criticalShieldsModel
 exnerAdvection
 {
    qbScheme           "upwind";
-   qavScheme          "centered"; //"upwind";
-   //satScheme          "upwind";
+   qavScheme          "centered"; 
 }
 
 saturation
