@@ -159,14 +159,14 @@ else
     Info << abort(FatalError) << endl;
 }
 
-// /* test JC
+///* test JC
 // compute bedload flux on through boundary edges
 forAll(aMesh.boundary(), patchi)
 {
     const faPatchField<Vector<double>>& QbBound =
         qb.boundaryField()[patchi];
-
-    if (aMesh.boundary()[patchi].type()!="empty")
+    
+    if (aMesh.boundary()[patchi].type()=="patch")
     {
         // faMesh edge adressing
         label edgei = aMesh.boundary()[patchi].start();
