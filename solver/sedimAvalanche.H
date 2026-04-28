@@ -48,7 +48,9 @@ if (not onEdgeAvalanche)
     //qb.primitiveFieldRef() += qavIntern;
     Info<<"Max diffusion due to avalanche:"
         <<gMax(mag(qavIntern)/(betaIntern+SMALL))<<endl;
-}
+
+    qav.correctBoundaryConditions();
+ }
 else
 {
     // projected bedload flux through projected faMesh edges

@@ -200,7 +200,7 @@ else if (saturationType == "explicit")
     }
     qbProj += (deltaT / TsatCorr) * (qsatProj - qbProjOld);
 
-    /* test JC
+    // test JC
     // saturation equation, boundary edges contribution, BC
     forAll(bed.aMesh().boundary(), patchi)
     {
@@ -222,7 +222,7 @@ else if (saturationType == "explicit")
             }
         }
     }
-    */
+    //*/
     // normal to faMesh faces
     const vectorField& nFaces =
         bed.aMesh().faceAreaNormals().internalField();
@@ -344,6 +344,7 @@ else
 }
 
 qb.correctBoundaryConditions();
+
 Info<<"Avalanche calculation"<<endl;
 // additional bedload due to avalanche
 if (bedloadMod.avalanche())
