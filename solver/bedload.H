@@ -200,14 +200,15 @@ else if (saturationType == "explicit")
     }
     qbProj += (deltaT / TsatCorr) * (qsatProj - qbProjOld);
 
-    // test JC
+    /* test JC
     // saturation equation, boundary edges contribution, BC
     forAll(bed.aMesh().boundary(), patchi)
     {
         const faPatchField<Vector<scalar>>& QbBound =
             qb.boundaryField()[patchi];
-        if (bed.aMesh().boundary()[patchi].type() != "empty")
-        {
+
+        if (bed.aMesh().boundary()[patchi].type() != "empty") 
+	{
             // faMesh edge adressing
             label edgei = bed.aMesh().boundary()[patchi].start();
             forAll(bed.aMesh().boundary()[patchi], patchEdgei)
@@ -222,7 +223,7 @@ else if (saturationType == "explicit")
             }
         }
     }
-    //*/
+    */
     // normal to faMesh faces
     const vectorField& nFaces =
         bed.aMesh().faceAreaNormals().internalField();
