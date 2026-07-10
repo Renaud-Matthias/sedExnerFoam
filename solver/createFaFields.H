@@ -69,22 +69,36 @@ bool readCritShields = false;
 bool onEdgeAvalanche = false;
 
 // saturated length and time
-word saturationType("none");  // implicit1D or explicit
+word saturationType("none");  // implicit1D or explicit or semiImplicit
 dimensionedScalar* Tsat = nullptr;  // pointer to saturation time
 dimensionedScalar* Lsat = nullptr;  // pointer to saturation length
+
 if (bedloadProperties.found("saturation"))
 {
     const dictionary& satDict = bedloadProperties.subDict("saturation");
     saturationType = satDict.lookupOrDefault<word>("type", "explicit");
-    Info << "saturation on, " << saturationType << endl;
-    Tsat = new dimensionedScalar(
+    
+    if (saturationType != "none")
+    {
+    
+        Info << "saturation on: " << saturationType << endl;
+        
+        Tsat = new dimensionedScalar(
         dimensionSet(0, 0, 1, 0, 0, 0, 0),
         readScalar(satDict.lookup("Tsat")));
-    Info << "saturation time, Tsat = " << Tsat->value() << " s" << endl;
-    Lsat = new dimensionedScalar(
+        Info << "saturation time, Tsat = " << Tsat->value() << " s" << endl;
+    
+        Lsat = new dimensionedScalar(
         dimensionSet(0, 1, 0, 0, 0, 0, 0),
         readScalar(satDict.lookup("Lsat")));
-    Info << "saturation length, Lsat = " << Lsat->value() << " s" << endl;
+        Info << "saturation length, Lsat = " << Lsat->value() << " m" << endl;
+    
+    }
+    else
+    {
+        Info << "no saturation length or time used" << endl;
+        
+    }
 }
 
 // qbScheme choice
