@@ -135,8 +135,8 @@ else if (saturationType == "explicit")
     Info<<"Explicit saturation"<<endl;
     // time step
     const scalar& deltaT = runTime.time().deltaT().value();
-    scalar TsatLim = 1 * deltaT;
-    scalar TsatCorr = max(Tsat->value(), 1 * deltaT);
+    scalar TsatLim = 2 * deltaT;
+    scalar TsatCorr = max(Tsat->value(), TsatLim);
     if (Tsat->value() < TsatLim)
     {
         Info << "WARNING: Tsat < TsatLim, new Tsat = " << TsatCorr << endl;
@@ -190,6 +190,14 @@ else if (saturationType == "explicit")
     {
         qbEdgei = qbProjOld[neighbour[edgei]];
     }
+
+        // upwind interpolate qsat on edge i
+        vector qsatEdgei = qsatProj[owner[edgei]];
+    if ((qsatProj[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
+    {
+        qsatEdgei = qsatProj[neighbour[edgei]];
+    }
+
         vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
@@ -206,14 +214,18 @@ else if (saturationType == "explicit")
     {
         const faPatchField<Vector<scalar>>& QbBound =
             qb.boundaryField()[patchi];
+
         if (bed.aMesh().boundary()[patchi].type() != "empty")
         {
             // faMesh edge adressing
             label edgei = bed.aMesh().boundary()[patchi].start();
+            
             forAll(bed.aMesh().boundary()[patchi], patchEdgei)
             {
+
                 // linear interpolation from face to edge
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
+
                 vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
                     * (qbEdgei & LeProj[edgei])
                     * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
@@ -230,15 +242,22 @@ else if (saturationType == "explicit")
     // reconstruct qb from qbProj on bed surface
     forAll(meshProj.S(), facei)
     {
-        /*const vector& nf = nFaces[facei];
+        /*
+        const vector& nf = nFaces[facei];
         vector qbReproj = qbProj[facei] - nf * (qbProj[facei] & nf);
         qbReproj *= Foam::mag(qbProj[facei]) / (Foam::mag(qbReproj) + SMALL);
-            qb[facei] = qbReproj;*/
+            qb[facei] = qbReproj;
+        */
+
         qb[facei] = qbProj[facei];
     }
+
 }
-else if (saturationType == "semiimplicit")
+else if (saturationType == "semiImplicit")
 {
+
+    const scalar& deltaT = runTime.time().deltaT().value();
+
     // access to projected faMesh
     const projectedFaMesh& meshProj = bed.aProjMesh();
     // projected face centers coordinates
@@ -264,9 +283,17 @@ else if (saturationType == "semiimplicit")
     // new projected bedload values
     vectorField qbProj = meshProj.project(qb);
 
+    scalar localMaxCFL = -1;
+
     // saturation equation, internal edges contribution
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {
+
+        scalar localCFL = Lsat->value()/Tsat->value() * deltaT 
+            * Foam::mag(LeProj[edgei]) / SfProj[owner[edgei]];
+
+        localMaxCFL = max(localMaxCFL, localCFL);
+
         // distance between edgei center and owner face center
         scalar distOwner =
             Foam::mag(xFacesProj[owner[edgei]] - xEdgesProj[edgei]);
@@ -274,13 +301,20 @@ else if (saturationType == "semiimplicit")
         scalar distNeighbour =
             Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
         // linear interpolate qb on edge i
-        vector qbEdgei =
-            (
-                distNeighbour * qbProjOld[owner[edgei]]
-                + distOwner * qbProjOld[neighbour[edgei]]
-            )
-            * (1 / (distOwner + distNeighbour));
-        vector divLsQb = Lsat->value()
+        // vector qbEdgei =
+        //     (
+        //         distNeighbour * qbProjOld[owner[edgei]]
+        //         + distOwner * qbProjOld[neighbour[edgei]]
+        //     )
+        //     * (1 / (distOwner + distNeighbour));
+
+        vector qbEdgei = qbProjOld[owner[edgei]];
+        if ((qbProjOld[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
+        {
+            qbEdgei = qbProjOld[neighbour[edgei]];
+        }
+
+        vector divLsQb = (Lsat->value()*deltaT / (deltaT + Tsat->value()))
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
 
@@ -288,7 +322,8 @@ else if (saturationType == "semiimplicit")
 
         qbProj[neighbour[edgei]] += divLsQb / SfProj[neighbour[edgei]];
     }
-    qbProj += qsatProj;
+    qbProj += ((1/(1 + deltaT / Tsat->value())) - 1)
+        * qbProjOld + (deltaT / (deltaT + Tsat->value())) * qsatProj;
 
     // saturation equation, boundary edges contribution, BC
     forAll(bed.aMesh().boundary(), patchi)
@@ -305,8 +340,8 @@ else if (saturationType == "semiimplicit")
                 // linear interpolation from face to edge
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
                 // Matthias vesrsion:
-                // vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
-                vector divLsQb = Lsat->value()
+                // vector divLsQb = (deltaT * Lsat->value() / Tsat->value())
+                vector divLsQb = (Lsat->value()*deltaT / (deltaT + Tsat->value()))
                     * (qbEdgei & LeProj[edgei])
                     * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
                 qbProj[owner[edgei]] -= divLsQb / SfProj[owner[edgei]];
@@ -326,8 +361,15 @@ else if (saturationType == "semiimplicit")
         vector qbReproj = qbProj[facei] - nf * (qbProj[facei] & nf);
         qbReproj *= Foam::mag(qbProj[facei]) / (Foam::mag(qbReproj) + SMALL);
             qb[facei] = qbReproj;*/
+
+
         qb[facei] = qbProj[facei];
     }
+
+    reduce(localMaxCFL, maxOp<scalar>());
+
+    Info << "max saturation CFL = " << localMaxCFL << endl;
+
 }
 else if (saturationType == "none")
 {
@@ -339,7 +381,7 @@ else
     FatalError << "in bedloadProperties/saturation,"
         << "wrong keyword for entry type "
         << saturationType
-        << "\nvalid options are: 1Dimplicit explicit" << endl;
+        << "\nvalid options are: 1Dimplicit explicit semiImplicit" << endl;
     Info << abort(FatalError) << endl;
 }
 
