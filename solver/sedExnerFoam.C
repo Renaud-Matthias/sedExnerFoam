@@ -85,7 +85,7 @@ Description
 #include "bedloadModel.H"
 #include "sedimentBed.H"
 #include "projectedFaMesh.H"
-
+#include "filter.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])

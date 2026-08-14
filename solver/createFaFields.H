@@ -160,12 +160,64 @@ label ABorder = 0;
 bool filterShields = false;
 bool filterExner = false;
 
-// for exner equation, filterering bed elevation increment
-//scalar alphaExn = 0;
-//label NExn = 0;
+scalar alphaExn = 0.1;  // filter coefficient for bed elevation increment
+label NExn = 3;  // number of filtering iterations for bed elevation increment
+
+word filterExnerType("none");
 
 if (bed.exist())
 {
+
+    if (bedloadProperties.found("filterExner"))
+    {
+
+        const dictionary& filterExnerDict = bedloadProperties.subDict("filterExner");
+        filterExnerType = filterExnerDict.lookupOrDefault<word>("type", "dZDiffusive");
+        
+        if (filterExnerType != "none") 
+        {   
+
+            filterExner = true;         
+
+            if (filterExnerType == "dZDiffusive")
+
+            {
+
+                alphaExn = filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
+                NExn = filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
+
+                Info << "filterExner type: bed Increment Diffusion with : alpha = " << alphaExn << ", Nfilt = " << NExn << endl;
+
+            }
+            else if (filterExnerType == "JohnsonZyserman")
+            {
+
+                alphaExn = filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
+                NExn = filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
+
+                Info << "filterExner type: Johnson and Zyserman with : alpha = " << alphaExn << ", Nfilt = " << NExn << endl;
+            } else
+            {
+                FatalError << "in bedloadProperties/filterExner,"
+                    << "wrong keyword for entry type "
+                    << filterExnerType
+                    << "\nvalid options are: none, dZDiffusive JohnsonZyserman" << endl;
+                Info << abort(FatalError) << endl;
+            }
+            
+        }
+        else
+        {
+            Info << "no filtering of bed elevation increment" << endl;
+
+        }
+
+    }else
+    {
+        Info << "no filtering of bed elevation increment" << endl;
+
+    }
+
     word switchFilterShields =
         bedloadProperties.lookupOrDefault<word>("filterShields", "off");
     if (switchFilterShields == "on")
@@ -180,25 +232,7 @@ if (bed.exist())
             << "\nvalid options are: on off" << endl;
             Info << abort(FatalError) << endl;
     }
-    
-    word switchFilterExner =
-        bedloadProperties.lookupOrDefault<word>("filterExner", "off");
-    if (switchFilterShields == "on")
-    {
-        filterExner = true;
-        //alphaExn = bedloadProperties.lookupOrDefault<scalar>(
-        //    "alphaFiltExner", 0.1);
-        //NExn = bedloadProperties.lookupOrDefault<label>(
-        //    "NfiltExner", 1);
-    }
-    else if (switchFilterExner != "off")
-    {
-        FatalError << "in bedloadProperties,"
-            << "wrong keyword for entry filterExner "
-            << switchFilterShields
-            << "\nvalid options are: on off" << endl;
-            Info << abort(FatalError) << endl;
-    }
+
 }
 
 // create fa fields if morphology on
