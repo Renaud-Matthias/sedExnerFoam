@@ -78,45 +78,49 @@ for (const label patchID : bed.bedPatchesID())
     if (filterShields)
     {
 
-	// access to projected faMesh
-	const projectedFaMesh& meshProj = bed.aProjMesh();
+        // access to projected faMesh
+        const projectedFaMesh& meshProj = bed.aProjMesh();
 
-	// projected face centers coordinates
-	const vectorField& xFacesProj = meshProj.areaCentres();
-	// face owner list
-	const labelList& owner = meshProj.edgeOwner();
-	// face neighbour list
-	const labelList& neighbour = meshProj.edgeNeighbour();
+        // projected face centers coordinates
+        const vectorField& xFacesProj = meshProj.areaCentres();
+        // face owner list
+        const labelList& owner = meshProj.edgeOwner();
+        // face neighbour list
+        const labelList& neighbour = meshProj.edgeNeighbour();
 
-    const scalarField& SfProj = meshProj.S();
-    const vectorField& LeProj = meshProj.Le();
+        const scalarField& SfProj = meshProj.S();
+        const vectorField& LeProj = meshProj.Le();
 
-	if (meshProj.nInternalEdges() > 0) {
+        if (meshProj.nInternalEdges() > 0)
+        {
 
-           scalar dl = Foam::VGREAT;
+            scalar dl = Foam::VGREAT;
 
-           for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
-           {
-               scalar newdl = Foam::mag(
-               xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]]);
+            for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
+            {
+                scalar newdl = Foam::mag(
+                xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]]);
 
-               if (newdl < dl) dl = newdl;
+                if (newdl < dl)
+                {
+                    dl = newdl;
+                }
 
-           }
+            }
 
-           scalar Kex = Foam::sqr(dl) * alphaShields;
+            scalar Kex = Foam::sqr(dl) * alphaShields;
 
 
-            ssp = filterField(
-                NShields,
-                Kex,
-                ssp,
-                meshProj,
-                SfProj,
-                xFacesProj,
-                LeProj,
-                owner,
-                neighbour);
+                ssp = filterField(
+                    NShields,
+                    Kex,
+                    ssp,
+                    meshProj,
+                    SfProj,
+                    xFacesProj,
+                    LeProj,
+                    owner,
+                    neighbour);
 
         }
 

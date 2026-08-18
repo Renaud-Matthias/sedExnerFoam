@@ -80,24 +80,24 @@ if (bedloadProperties.found("saturation"))
     
     if (saturationType != "none")
     {
-    
+
         Info << "saturation on: " << saturationType << endl;
-        
+
         Tsat = new dimensionedScalar(
         dimensionSet(0, 0, 1, 0, 0, 0, 0),
         readScalar(satDict.lookup("Tsat")));
         Info << "saturation time, Tsat = " << Tsat->value() << " s" << endl;
-    
+
         Lsat = new dimensionedScalar(
         dimensionSet(0, 1, 0, 0, 0, 0, 0),
         readScalar(satDict.lookup("Lsat")));
         Info << "saturation length, Lsat = " << Lsat->value() << " m" << endl;
-    
+
     }
     else
     {
         Info << "no saturation length or time used" << endl;
-        
+
     }
 }
 
@@ -177,37 +177,50 @@ if (bed.exist())
     if (bedloadProperties.found("filterExner"))
     {
 
-        const dictionary& filterExnerDict = bedloadProperties.subDict("filterExner");
-        filterExnerType = filterExnerDict.lookupOrDefault<word>("type", "dZDiffusive");
-        
-        if (filterExnerType != "none") 
-        {   
+        const dictionary& filterExnerDict =
+            bedloadProperties.subDict("filterExner");
 
-            filterExner = true;         
+        filterExnerType =
+            filterExnerDict.lookupOrDefault<word>("type", "dZDiffusive");
+
+        if (filterExnerType != "none")
+        {
+
+            filterExner = true;
 
             if (filterExnerType == "dZDiffusive")
 
             {
 
-                alphaExn = filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
-                NExn = filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
+                alphaExn =
+                    filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
+                NExn =
+                    filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
 
-                Info << "filterExner type: bed Increment Diffusion with : alpha = " << alphaExn << ", Nfilt = " << NExn << endl;
+                Info << "filterExner type:"
+                     << " bed Increment Diffusion with : alpha = "
+                     << alphaExn << ", Nfilt = "
+                     << NExn << endl;
 
             }
             else if (filterExnerType == "JohnsonZyserman")
             {
 
-                alphaExn = filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
-                NExn = filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
+                alphaExn =
+                    filterExnerDict.lookupOrDefault<scalar>("alpha", 0.1);
+                NExn =
+                    filterExnerDict.lookupOrDefault<label>("Nfilt", 3);
 
-                Info << "filterExner type: Johnson and Zyserman with : alpha = " << alphaExn << ", Nfilt = " << NExn << endl;
+                Info << "filterExner type:"
+                     << " Johnson and Zyserman with : alpha = "
+                     << alphaExn << ", Nfilt = " << NExn << endl;
             } else
             {
                 FatalError << "in bedloadProperties/filterExner,"
                     << "wrong keyword for entry type "
                     << filterExnerType
-                    << "\nvalid options are: none, dZDiffusive JohnsonZyserman" << endl;
+                    << "\nvalid options are: none, dZDiffusive JohnsonZyserman"
+                    << endl;
                 Info << abort(FatalError) << endl;
             }
             
@@ -227,17 +240,22 @@ if (bed.exist())
     if (bedloadProperties.found("filterShields"))
     {
 
-        const dictionary& filterShieldsDict = bedloadProperties.subDict("filterShields");
-        filterShieldsSwitch = filterShieldsDict.lookupOrDefault<word>("switch", "off");
-        
-        if (filterShieldsSwitch == "on") 
-        {   
+        const dictionary& filterShieldsDict =
+            bedloadProperties.subDict("filterShields");
+        filterShieldsSwitch =
+            filterShieldsDict.lookupOrDefault<word>("switch", "off");
 
-            filterShields = true;         
-            alphaShields = filterShieldsDict.lookupOrDefault<scalar>("alpha", 0.1);
-            NShields = filterShieldsDict.lookupOrDefault<label>("Nfilt", 3);
+        if (filterShieldsSwitch == "on")
+        {
 
-            Info << "filterShields on with : alpha = " << alphaShields << ", Nfilt = " << NShields << endl;
+            filterShields = true;
+            alphaShields =
+                filterShieldsDict.lookupOrDefault<scalar>("alpha", 0.1);
+            NShields =
+                filterShieldsDict.lookupOrDefault<label>("Nfilt", 3);
+
+            Info << "filterShields on with : alpha = "
+                 << alphaShields << ", Nfilt = " << NShields << endl;
 
         }
         else if (filterShieldsSwitch != "off")
@@ -247,7 +265,9 @@ if (bed.exist())
                 << filterShieldsSwitch
                 << "\nvalid options are: on off" << endl;
                 Info << abort(FatalError) << endl;
-        } else {
+        }
+        else
+        {
 
             Info << "filter Shields: off" << endl;
 

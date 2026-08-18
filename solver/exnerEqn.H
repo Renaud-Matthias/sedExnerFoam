@@ -75,24 +75,29 @@ else if (ABorder==1)
 if (filterExner)
 {
 
-    if (meshProj.nInternalEdges() > 0) {
-        
+    if (meshProj.nInternalEdges() > 0)
+    {
+
         scalar dl = Foam::VGREAT;
 
         for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         {
             scalar newdl = Foam::mag(
                 xFacesProj[neighbour[edgei]] - xFacesProj[owner[edgei]]);
-            
-            if (newdl < dl) dl = newdl;
+
+            if (newdl < dl)
+            {
+                dl = newdl;
+            }
 
         }
 
         scalar Kex = Foam::sqr(dl) * alphaExn;
 
-        if (filterExnerType == "dZDiffusive") {
-            
-            dH.primitiveFieldRef() = 
+        if (filterExnerType == "dZDiffusive")
+        {
+
+            dH.primitiveFieldRef() =
             filterField(
                 NExn,
                 Kex,
@@ -104,7 +109,9 @@ if (filterExner)
                 owner,
                 neighbour);
 
-        } else if (filterExnerType == "JohnsonZyserman") {
+        }
+        else if (filterExnerType == "JohnsonZyserman")
+        {
 
             scalarField zB(aMesh.areaCentres().component(vector::Z));
             zB += dH.primitiveFieldRef();

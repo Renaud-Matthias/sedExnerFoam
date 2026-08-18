@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------* \
-Copyright (C) 2026 Arthur Lopez, Matthias Renaud, Cyrille Bonamy, Julien Chauchat
-                   and contributors
+Copyright (C) 2026 Arthur Lopez, Matthias Renaud, Cyrille Bonamy,
+                   Julien Chauchat and contributors
 
 License
     This file is part of ScourFOAM.
@@ -19,8 +19,6 @@ License
     along with ScourFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-// ---- 1. Resolve the bed patch name and options (cached across calls) ---
 
 const polyBoundaryMesh& bMesh = mesh.boundaryMesh();
 
@@ -89,8 +87,7 @@ if (nInverted > 0)
 {
     WarningInFunction
         << "checkCellInversion.H: detected " << nInverted
-        << " inverted cell(s) on patch bed (max penetration = " << maxPenetration << " m)."
+        << " inverted cell(s) on patch bed (max penetration = "
+        << maxPenetration << " m)."
         << endl;
 }
-
-// ************************************************************************* //
