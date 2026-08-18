@@ -157,13 +157,19 @@ autoPtr<labelList> fixedPatchPointLabelsPtr;
 label ABorder = 0;
 
 // filter or not different bed variables, on off in bedloadProperties
-bool filterShields = false;
 bool filterExner = false;
 
 scalar alphaExn = 0.1;  // filter coefficient for bed elevation increment
 label NExn = 3;  // number of filtering iterations for bed elevation increment
 
 word filterExnerType("none");
+
+bool filterShields = false;
+
+scalar alphaShields = 0.1;  // filter coefficient for Shields
+label NShields = 3;  // number of filtering iterations for Shields
+
+word filterShieldsSwitch("off");
 
 if (bed.exist())
 {
@@ -218,19 +224,35 @@ if (bed.exist())
 
     }
 
-    word switchFilterShields =
-        bedloadProperties.lookupOrDefault<word>("filterShields", "off");
-    if (switchFilterShields == "on")
+    if (bedloadProperties.found("filterShields"))
     {
-        filterShields = true;
-    }
-    else if (switchFilterShields != "off")
-    {
-        FatalError << "in bedloadProperties,"
-            << "wrong keyword for entry filterShields "
-            << switchFilterShields
-            << "\nvalid options are: on off" << endl;
-            Info << abort(FatalError) << endl;
+
+        const dictionary& filterShieldsDict = bedloadProperties.subDict("filterShields");
+        filterShieldsSwitch = filterShieldsDict.lookupOrDefault<word>("switch", "off");
+        
+        if (filterShieldsSwitch == "on") 
+        {   
+
+            filterShields = true;         
+            alphaShields = filterShieldsDict.lookupOrDefault<scalar>("alpha", 0.1);
+            NShields = filterShieldsDict.lookupOrDefault<label>("Nfilt", 3);
+
+            Info << "filterShields on with : alpha = " << alphaShields << ", Nfilt = " << NShields << endl;
+
+        }
+        else if (filterShieldsSwitch != "off")
+        {
+            FatalError << "in bedloadProperties,"
+                << "wrong keyword for entry filterShields/switch "
+                << filterShieldsSwitch
+                << "\nvalid options are: on off" << endl;
+                Info << abort(FatalError) << endl;
+        } else {
+
+            Info << "filter Shields: off" << endl;
+
+        }
+
     }
 
 }

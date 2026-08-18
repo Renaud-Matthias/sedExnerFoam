@@ -38,7 +38,8 @@ inline Field filterField(
 
     for (label j = 0; j < N; j++)
     {
-        Field laplValue(value.size(), valueType(0));
+        Field laplValue(value);
+        laplValue = Zero;
 
         for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
         {
