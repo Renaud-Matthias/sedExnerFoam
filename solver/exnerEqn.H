@@ -89,7 +89,6 @@ if (filterExner)
             {
                 dl = newdl;
             }
-
         }
 
         scalar Kex = Foam::sqr(dl) * alphaExn;
@@ -108,7 +107,6 @@ if (filterExner)
                 LeProj,
                 owner,
                 neighbour);
-
         }
         else if (filterExnerType == "JohnsonZyserman")
         {
@@ -140,9 +138,7 @@ if (filterExner)
                 LeProj,
                 owner,
                 neighbour) - dz;
-
         }
-
     }
 }
 

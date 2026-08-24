@@ -22,20 +22,7 @@ License
 
 const polyBoundaryMesh& bMesh = mesh.boundaryMesh();
 
-// TODO, allow different bed patch names
-const label bedPatchID = bMesh.findPatchID("bed");
-
-const polyPatch& bedPatch = bMesh[bedPatchID];
-
 boolList isBedPoint(mesh.nPoints(), false);
-
-const labelList& bedMeshPoints = bedPatch.meshPoints();
-forAll(bedMeshPoints, i)
-{
-    isBedPoint[bedMeshPoints[i]] = true;
-}
-
-const labelList& bedFaceCells = bedPatch.faceCells();
 
 vector upDir = -eg;
 
@@ -45,37 +32,48 @@ const labelListList& cellPointAddr = mesh.cellPoints();
 label nInverted = 0;
 scalar maxPenetration = 0.0;
 
-forAll(bedFaceCells, i)
+for (const label patchID : bed.bedPatchesID())
 {
-    const label cellI = bedFaceCells[i];
-    const labelList& cellNodes = cellPointAddr[cellI];
+    const polyPatch& bedPatch = bMesh[patchID];
 
-    scalar maxBedHeight = -GREAT;
-    scalar minOtherHeight = GREAT;
-
-    forAll(cellNodes, j)
+    const labelList& bedMeshPoints = bedPatch.meshPoints();
+    forAll(bedMeshPoints, i)
     {
-        const label pointI = cellNodes[j];
-        const scalar h = pts[pointI] & upDir;
-
-        if (isBedPoint[pointI])
-        {
-            maxBedHeight = max(maxBedHeight, h);
-        }
-        else
-        {
-            minOtherHeight = min(minOtherHeight, h);
-        }
+        isBedPoint[bedMeshPoints[i]] = true;
     }
 
-    if (maxBedHeight > -GREAT && minOtherHeight < GREAT)
-    {
-        if (maxBedHeight > minOtherHeight)
-        {
-            nInverted++;
-            const scalar penetration = maxBedHeight - minOtherHeight;
-            maxPenetration = max(maxPenetration, penetration);
+    const labelList& bedFaceCells = bedPatch.faceCells();
 
+    forAll(bedFaceCells, i)
+    {
+        const label celli = bedFaceCells[i];
+        const labelList& cellNodes = cellPointAddr[celli];
+        
+        scalar maxBedHeight = -GREAT;
+        scalar minOtherHeight = GREAT;
+        
+        forAll(cellNodes, j)
+        {
+            const label pointi = cellNodes[j];
+            const scalar h = pts[pointi] & upDir;
+            
+            if (isBedPoint[pointi])
+            {
+                maxBedHeight = max(maxBedHeight, h);
+            }
+            else
+            {
+                minOtherHeight = min(minOtherHeight, h);
+            }
+        }
+        if (maxBedHeight > -GREAT && minOtherHeight < GREAT)
+        {
+            if (maxBedHeight > minOtherHeight)
+            {
+                nInverted++;
+                const scalar penetration = maxBedHeight - minOtherHeight;
+                maxPenetration = max(maxPenetration, penetration);
+            }
         }
     }
 }

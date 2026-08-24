@@ -80,7 +80,6 @@ if (bedloadProperties.found("saturation"))
     
     if (saturationType != "none")
     {
-
         Info << "saturation on: " << saturationType << endl;
 
         Tsat = new dimensionedScalar(
@@ -92,12 +91,10 @@ if (bedloadProperties.found("saturation"))
         dimensionSet(0, 1, 0, 0, 0, 0, 0),
         readScalar(satDict.lookup("Lsat")));
         Info << "saturation length, Lsat = " << Lsat->value() << " m" << endl;
-
     }
     else
     {
         Info << "no saturation length or time used" << endl;
-
     }
 }
 
@@ -176,7 +173,6 @@ if (bed.exist())
 
     if (bedloadProperties.found("filterExner"))
     {
-
         const dictionary& filterExnerDict =
             bedloadProperties.subDict("filterExner");
 
@@ -223,7 +219,6 @@ if (bed.exist())
                     << endl;
                 Info << abort(FatalError) << endl;
             }
-            
         }
         else
         {
