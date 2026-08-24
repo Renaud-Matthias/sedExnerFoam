@@ -75,11 +75,7 @@ forAll(meshProj.S(), facei)
 // apply saturation time to compute bedload
 if (saturationType == "implicit1D")
 {
-    Info<<"Implicit saturation"<<endl;
-    //if (Tsat->value() > deltaT)
-    //{
-    //    qb += (deltaT / Tsat->value()) * (qsat - qb);
-    //}
+    Info << "Implicit saturation" << endl;
 
     // access to projected faMesh
     const projectedFaMesh& meshProj = bed.aProjMesh();
@@ -132,7 +128,7 @@ if (saturationType == "implicit1D")
 }
 else if (saturationType == "explicit")
 {
-    Info<<"Explicit saturation"<<endl;
+    Info << "Explicit saturation" << endl;
     // time step
     const scalar& deltaT = runTime.time().deltaT().value();
     scalar TsatLim = 2 * deltaT;
@@ -185,19 +181,15 @@ else if (saturationType == "explicit")
             * (1 / (distOwner + distNeighbour));
        */
         // upwind interpolate qb on edge i
-        vector qbEdgei = qbProjOld[owner[edgei]];
-    if ((qbProjOld[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
-    {
-        qbEdgei = qbProjOld[neighbour[edgei]];
-    }
-
-        // upwind interpolate qsat on edge i
-        vector qsatEdgei = qsatProj[owner[edgei]];
-    if ((qsatProj[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
-    {
-        qsatEdgei = qsatProj[neighbour[edgei]];
-    }
-
+        scalar faceFlux = qbEdgei & LeProj[edgei];
+        if (faceFlux >= 0)
+        {
+            qbEdgei = qbProjOld[owner[edgei]];
+        }
+        else
+        {
+            qbEdgei = qbProjOld[neighbour[edgei]];
+        }
         vector divLsQb = (deltaT * Lsat->value() / TsatCorr)
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
@@ -301,20 +293,22 @@ else if (saturationType == "semiImplicit")
         scalar distNeighbour =
             Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
         // linear interpolate qb on edge i
-        // vector qbEdgei =
-        //     (
-        //         distNeighbour * qbProjOld[owner[edgei]]
-        //         + distOwner * qbProjOld[neighbour[edgei]]
-        //     )
-        //     * (1 / (distOwner + distNeighbour));
-
-        vector qbEdgei = qbProjOld[owner[edgei]];
-        if ((qbProjOld[owner[edgei]] & LeProj[edgei]) < scalar(0.0))
+        vector qbEdgei =
+            (
+                distNeighbour * qbProjOld[owner[edgei]]
+                + distOwner * qbProjOld[neighbour[edgei]]
+            )
+            * (1 / (distOwner + distNeighbour));
+        scalar faceFlux = qbEdgei & LeProj[edgei];
+        if (faceFlux >= 0)
+        {
+            qbEdgei = qbProjOld[owner[edgei]];
+        }
+        else
         {
             qbEdgei = qbProjOld[neighbour[edgei]];
         }
-
-        vector divLsQb = (Lsat->value()*deltaT / (deltaT + Tsat->value()))
+        vector divLsQb = (Lsat->value() / deltaT / (deltaT + Tsat->value()))
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
 
@@ -373,7 +367,7 @@ else if (saturationType == "semiImplicit")
 }
 else if (saturationType == "none")
 {
-    Info<<"No saturation"<<endl;
+    Info << "No saturation" << endl;
     qb = qsat;
 }
 else
@@ -385,9 +379,27 @@ else
     Info << abort(FatalError) << endl;
 }
 
+// if saturation was used, qb need to be reprojected on the faMesh
+if (saturationType != "none")
+{
+    // normal to faMesh faces
+    const vectorField& nFaces =
+    bed.aMesh().faceAreaNormals().internalField();
+
+    // reconstruct qb from qbProj on bed surface
+    forAll(meshProj.S(), facei)
+    {
+        /*const vector& nf = nFaces[facei];
+        vector qbReproj = qbProj[facei] - nf * (qbProj[facei] & nf);
+        qbReproj *= Foam::mag(qbProj[facei]) / (Foam::mag(qbReproj) + SMALL);
+            qb[facei] = qbReproj;*/
+        qb[facei] = qbProj[facei];
+    }
+}
+
 qb.correctBoundaryConditions();
 
-Info<<"Avalanche calculation"<<endl;
+Info << "Avalanche calculation" << endl;
 // additional bedload due to avalanche
 if (bedloadMod.avalanche())
 {
