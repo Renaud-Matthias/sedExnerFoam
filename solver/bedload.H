@@ -281,7 +281,7 @@ else if (saturationType == "semiImplicit")
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {
 
-        scalar localCFL = Lsat->value()/Tsat->value() * deltaT 
+        scalar localCFL = Lsat->value()/Tsat->value() * deltaT
             * Foam::mag(LeProj[edgei]) / SfProj[owner[edgei]];
 
         localMaxCFL = max(localMaxCFL, localCFL);
@@ -335,7 +335,8 @@ else if (saturationType == "semiImplicit")
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
                 // Matthias vesrsion:
                 // vector divLsQb = (deltaT * Lsat->value() / Tsat->value())
-                vector divLsQb = (Lsat->value()*deltaT / (deltaT + Tsat->value()))
+                vector divLsQb = (Lsat->value()*deltaT
+                    / (deltaT + Tsat->value()))
                     * (qbEdgei & LeProj[edgei])
                     * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
                 qbProj[owner[edgei]] -= divLsQb / SfProj[owner[edgei]];
