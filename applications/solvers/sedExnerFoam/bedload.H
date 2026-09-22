@@ -172,14 +172,12 @@ else if (saturationType == "explicit")
         scalar distNeighbour =
             Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
         // linear interpolate qb on edge i (centered scheme)
-        /*
         vector qbEdgei =
             (
                 distNeighbour * qbProjOld[owner[edgei]]
                 + distOwner * qbProjOld[neighbour[edgei]]
             )
             * (1 / (distOwner + distNeighbour));
-       */
         // upwind interpolate qb on edge i
         scalar faceFlux = qbEdgei & LeProj[edgei];
         if (faceFlux >= 0)
@@ -214,7 +212,6 @@ else if (saturationType == "explicit")
             
             forAll(bed.aMesh().boundary()[patchi], patchEdgei)
             {
-
                 // linear interpolation from face to edge
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
 
@@ -247,7 +244,6 @@ else if (saturationType == "explicit")
 }
 else if (saturationType == "semiImplicit")
 {
-
     const scalar& deltaT = runTime.time().deltaT().value();
 
     // access to projected faMesh
@@ -258,7 +254,6 @@ else if (saturationType == "semiImplicit")
     const vectorField& xEdgesProj = meshProj.edgeCentres();
     // projected edge vectors, oriented toward owner face
     const vectorField& LeProj = meshProj.Le();
-    //Info << "Le: " << LeProj << endl;
     // area of projected mesh faces
     const scalarField& SfProj = meshProj.S();
     // face owner list
@@ -378,24 +373,6 @@ else
         << saturationType
         << "\nvalid options are: 1Dimplicit explicit semiImplicit" << endl;
     Info << abort(FatalError) << endl;
-}
-
-// if saturation was used, qb need to be reprojected on the faMesh
-if (saturationType != "none")
-{
-    // normal to faMesh faces
-    const vectorField& nFaces =
-    bed.aMesh().faceAreaNormals().internalField();
-
-    // reconstruct qb from qbProj on bed surface
-    forAll(meshProj.S(), facei)
-    {
-        /*const vector& nf = nFaces[facei];
-        vector qbReproj = qbProj[facei] - nf * (qbProj[facei] & nf);
-        qbReproj *= Foam::mag(qbProj[facei]) / (Foam::mag(qbReproj) + SMALL);
-            qb[facei] = qbReproj;*/
-        qb[facei] = qbProj[facei];
-    }
 }
 
 qb.correctBoundaryConditions();
