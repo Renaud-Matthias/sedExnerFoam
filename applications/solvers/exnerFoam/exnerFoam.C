@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         #include "moveMesh.H"
 
         if (runTime.writeTime())
-        {                
+        {
             // map areaFields to volFields for vizualisation
             bed.vsm.ref().mapToVolume
             (
