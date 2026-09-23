@@ -19,4 +19,3 @@ for time in timeList:
     ax.plot(Xbed, Zbed)
 
 plt.show()
-

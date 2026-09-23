@@ -20,6 +20,10 @@ jobs:
           submodules: recursive
       - name: Build sedExnerFoam
         run: |
+          ls -l applications/Allwmake
+          git ls-files --stage applications/Allwmake
+          file applications/Allwmake
+          head -n 1 applications/Allwmake
           shopt -s expand_aliases && source /openfoam/bash.rc &&
           export FOAM_USER_LIBBIN=$FOAM_SITE_LIBBIN && ./Allwmake -prefix=group
       - uses: actions/upload-artifact@v4
