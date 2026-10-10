@@ -84,8 +84,6 @@ Description
 #include "criticalShieldsModel.H"
 #include "bedloadModel.H"
 #include "sedimentBed.H"
-#include "projectedFaMesh.H"
-#include "filter.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -159,35 +157,11 @@ int main(int argc, char *argv[])
                         phi = mesh.Sf() & Uf();
 
                         #include "correctPhi.H"
-
-                        // Make the flux relative to the mesh motion
-                        fvc::makeRelative(phi, U);
-                        if (switchSuspension=="on")
-                        {
-                            surfaceScalarField& phip = phipPtr.ref();
-                            fvc::makeRelative(phip, U);
-                        }
                     }
 
                     if (checkMeshCourantNo)
                     {
                         #include "meshCourantNo.H"
-                    }
-                    if (bed.rigidBed())
-                    {
-                        areaVectorField& rigidBed = rigidBedPtr.ref();
-                        areaScalarField& HsedBed = HsedBedPtr.ref();
-
-                        HsedBed =
-                            (
-                                rigidBed
-                                - bed.aMesh().areaCentres()
-                            ) & (g/mag(g)).value();
-
-                        Info << "width of sediment layer, max: "
-                            << max(HsedBed).value() << " m, min: "
-                            << min(HsedBed).value() << " m, mean: "
-                            << average(HsedBed).value() << endl;
                     }
                 }
             }
@@ -209,14 +183,11 @@ int main(int argc, char *argv[])
 
         if (bed.exist())
         {
+            Info << "compute bed shear stress" << endl;
             #include "bedShearStress.H"
 
+            Info << "compute bedload" << endl;
             #include "bedload.H"
-        }
-
-        if (switchSuspension=="on")
-        {
-            #include "CsEqn.H"
         }
 
         if (bed.exist())
@@ -230,7 +201,6 @@ int main(int argc, char *argv[])
             {
                 areaVectorField& shields = shieldsPtr.ref();
                 areaScalarField& critShields = critShieldsPtr.ref();
-                areaVectorField& qsat = qsatPtr.ref();
                 areaVectorField& qav = qavPtr.ref();
                 areaVectorField& qb = qbPtr.ref();
                 areaScalarField& beta = betaPtr.ref();
@@ -245,11 +215,6 @@ int main(int argc, char *argv[])
                     (
                         critShields,
                         critShieldsVf.boundaryFieldRef()
-                    );
-                bed.vsm.ref().mapToVolume
-                    (
-                        qsat,
-                        qsatVf.boundaryFieldRef()
                     );
                 bed.vsm.ref().mapToVolume
                     (
