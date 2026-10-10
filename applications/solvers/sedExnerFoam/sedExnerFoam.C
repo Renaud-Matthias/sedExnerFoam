@@ -1,4 +1,9 @@
 /*---------------------------------------------------------------------------*\
+[... même en-tête que Version 1 ...]
+\*---------------------------------------------------------------------------*/
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\nint main(int argc, char *argv[])
+/*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
@@ -97,7 +102,6 @@ int main(int argc, char *argv[])
     );
 
     #include "postProcess.H"
-
     #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
@@ -111,21 +115,16 @@ int main(int argc, char *argv[])
     #include "setInitialDeltaT.H"
 
     turbulence->validate();
-    
+
     if (not LTS)
     {
         #include "CourantNo.H"
         #include "setInitialDeltaT.H"
     }
 
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-    // PIMPLE <-> Exner sub-iteration state. Saved at the beginning of each
-    // time step (see storeBedState.H) so that every outer iteration restarts
-    // from the same state instead of accumulating on the previous one.
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n    // PIMPLE <-> Exner sub-iteration state
     vectorField qbStart;    // bedload at the beginning of the time step
-    vectorField dispVals0;  // bed points displacement at the beginning of
-                            // the time step
+    vectorField dispVals0;  // bed points displacement at the beginning of the time step
     scalarField dHiter;     // bed level increment of previous sub-iteration
     label zbIter = 0;       // sub-iteration counter within the time step
 
@@ -148,9 +147,7 @@ int main(int argc, char *argv[])
     {
         #include "readDyMControls.H"
 
-        // PIMPLE <-> Exner sub-iteration controls (PIMPLE dictionary):
-        //   zbRelax : under-relaxation of the bed level increment, ]0, 1]
-        //   zbTol   : tolerance on max|dH - dH_prev| in m (reporting only)
+        // PIMPLE <-> Exner sub-iteration controls
         const scalar zbRelax
         (
             pimple.dict().getOrDefault<scalar>("zbRelax", 1.0)
@@ -177,6 +174,8 @@ int main(int argc, char *argv[])
             #include "setDeltaT.H"
 
             runTime.setDeltaT(min(runTime.deltaTValue(), deltaTBed));
+            Info << "deltaT (after bed motion constraint) = "
+                 << runTime.deltaTValue() << " s" << endl;
         }
 
         ++runTime;
