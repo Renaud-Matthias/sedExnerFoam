@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
     if
     (
-        bed.exist() && bed.bedMotion() && !moveMeshOuterCorrectors
+        bed.exist() && bed.bedMotion() && not moveMeshOuterCorrectors
      && pimple.dict().getOrDefault<label>("nOuterCorrectors", 1) > 1
     )
     {
