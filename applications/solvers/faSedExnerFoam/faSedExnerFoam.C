@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
                         // from the mapped surface velocity
                         phi = mesh.Sf() & Uf();
 
-                        #include "correctPhi.H"
+                        #include "correctPhiBed.H"
                     }
 
                     if (checkMeshCourantNo)

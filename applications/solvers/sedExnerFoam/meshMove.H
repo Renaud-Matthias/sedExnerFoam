@@ -28,12 +28,12 @@ pointVectorField& pointDisplacement = const_cast<pointVectorField&>
     )
 );
 
+// The imposed displacement is rebuilt at every PIMPLE sub-iteration from the
+// displacement at the beginning of the time step (dispVals0, saved in
+// storeBedState.H) and the current dH. Starting from the current
+// pointDisplacement would add dH once per sub-iteration.
 vectorField& dispVals = dispValsPtr.ref();
-for (const label patchID : bed.bedPatchesID())
-{
-    dispVals =
-        pointDisplacement.boundaryFieldRef()[patchID].patchInternalField();
-}
+dispVals = dispVals0;
 
 scalarField& dHpoints = dHpointsPtr.ref();
 dHpoints = Zero;
@@ -51,6 +51,7 @@ for (const label i : fixedPointsLabels)
 
 dispVals -= eg * dHpoints;
 
+
 // interpolate displacement on points, vertical orientation
 //dispVals -= patchInterp.faceToPointInterpolate(dH) * eg;
 
@@ -60,6 +61,5 @@ for (const label patchID : bed.bedPatchesID())
     Info << " m , min:" << gMin(dispVals & -eg);
     Info << " m , mean:" << gAverage(-dispVals & eg) << " m" << endl;
     pointDisplacement.boundaryFieldRef()[patchID] == dispVals;
+    pointDisplacement.correctBoundaryConditions();
 }
-
-pointDisplacement.correctBoundaryConditions();

@@ -24,20 +24,10 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-<<<<<<< HEAD
     exnerFoam
 
 Description
     Idealized Exner solver.
-=======
-    suspensionFoam
-
-Group
-    grpBasicSolvers
-
-Description
-    Scalar transport and incompressible turbulent flow solver.
->>>>>>> feature/ss-pimple2
 
 \*---------------------------------------------------------------------------*/
 //    \heading Solver details
@@ -106,38 +96,10 @@ int main(int argc, char *argv[])
         // zb match bed level
         zb = - bed.aMesh().areaCentres() & eg;
 
-<<<<<<< HEAD
-        // face normal vectors
-        const vectorField& nFaces = bed.aMesh().faceAreaNormals().internalField();
-
-=======
->>>>>>> feature/ss-pimple2
         // compute bedload flux based on H - zb
         forAll(bed.aMesh().areaCentres(), facei)
         {
             vector ui = Q[facei] / (H[facei] - zb[facei]);
-<<<<<<< HEAD
-            scalar magUi = Foam::mag(ui);
-            // make ui tangential to bed
-            ui += - (ui & nFaces[facei]) * nFaces[facei];
-            ui *= magUi / Foam::mag(ui);
-            qb[facei] = alphaQb * Foam::pow(ui, betaQb-1) * ui;
-        }
-        // vectorField eu = U / mag(U);
-        // qb = alphaQb * Foam::pow(Q, betaQb) / Foam::pow(H-zb, betaQb);
-
-        qb.correctBoundaryConditions();
-
-        phiqb = fac::interpolate(qb) & bed.aMesh().Le();
-
-        // explicit resolution
-        faScalarMatrix exnerEqn
-        (
-            fam::ddt(zb)
-            ==
-          - fac::div(qb)
-          // - fac::div(qav)
-=======
             qb[facei] = alphaQb * Foam::pow(ui, betaQb-1) * ui;
         }
         //vectorField eu = U / mag(U);
@@ -152,24 +114,10 @@ int main(int argc, char *argv[])
             ==
           - fac::div(qb)
           //- fac::div(qav)
->>>>>>> feature/ss-pimple2
         );
 
         exnerEqn.solve();
 
-<<<<<<< HEAD
-        dzb = zb - zb.oldTime();
-
-        // for(int edgei=0; edgei < bed.aMesh().nInternalEdges(); edgei++)
-        // {
-        //     const labelList& owner = bed.aMesh().owner();
-        //     Info << "edge " << edgei << "; qb_owner = " << qb[owner[edgei]]
-        //         << "; phiqb = " << phiqb[edgei]
-        //         << "; dzbi = " << dzb[owner[edgei]] << endl;
-        // }
-
-=======
->>>>>>> feature/ss-pimple2
         #include "moveMesh.H"
 
         if (runTime.writeTime())
