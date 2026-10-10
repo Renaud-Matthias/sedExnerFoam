@@ -1,9 +1,4 @@
 /*---------------------------------------------------------------------------*\
-[... même en-tête que Version 1 ...]
-\*---------------------------------------------------------------------------*/
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n\nint main(int argc, char *argv[])
-/*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
@@ -122,9 +117,11 @@ int main(int argc, char *argv[])
         #include "setInitialDeltaT.H"
     }
 
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n    // PIMPLE <-> Exner sub-iteration state
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // PIMPLE <-> Exner sub-iteration state
     vectorField qbStart;    // bedload at the beginning of the time step
-    vectorField dispVals0;  // bed points displacement at the beginning of the time step
+    vectorField dispVals0;  // bed points displacement at the beginning of
+			    // the time step
     scalarField dHiter;     // bed level increment of previous sub-iteration
     label zbIter = 0;       // sub-iteration counter within the time step
 
