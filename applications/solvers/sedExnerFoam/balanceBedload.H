@@ -75,8 +75,7 @@ qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
             }
         }
 
-        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =,
-not +=
+        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];
     }
 }
 else if (qbScheme == "upwind")
@@ -114,8 +113,7 @@ qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
             }
         }
 
-        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =,
-not +=
+        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];
     }
 }
 
@@ -148,8 +146,7 @@ meshProj.project(aMesh.Le().boundaryField()[patchi][patchEdgei]);
                 }
             }
 
-            phiqbProj[edgei] = (qbEdgei + qavEdgei) & edgeLeProj;  // Flux
-SORTANT
+            phiqbProj[edgei] = (qbEdgei + qavEdgei) & edgeLeProj;
             edgei++;
         }
     }
@@ -190,6 +187,5 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 for (label edgei = meshProj.nInternalEdges(); edgei < meshProj.nEdges();
 edgei++)
 {
-    dVsed[owner[edgei]] -= phiqbProj[edgei];  // Correct: phiqbProj > 0 = flux
-sortant
+    dVsed[owner[edgei]] -= phiqbProj[edgei];
 }
