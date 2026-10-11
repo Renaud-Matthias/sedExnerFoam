@@ -25,11 +25,16 @@ volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 volScalarField& diffSed = diffSedPtr.ref();  // turbulent diffusivity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
+surfaceScalarField phiWs = fvc::flux(Ws);  // flux(U+Ws)
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 // reference to erosion terms
 volScalarField& Erosion = erosionPtr.ref();
 
+fvc::makeRelative(phiWs, U + Ws);
+phip = phi + phiWs;
+
 // turbulent sediment diffusivity
+
 if (CsDiffusivity=="turbulent")
 {
     diffSed = turbulence->nut()/Sc;
@@ -273,10 +278,6 @@ Ws = settlingModelPtr->Ufall(
 
 Ws.correctBoundaryConditions();
 
-phip = fvc::flux(U + Ws);
-
-// Make the  flux relative to the mesh motion
-fvc::makeRelative(phip, U);
 
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()

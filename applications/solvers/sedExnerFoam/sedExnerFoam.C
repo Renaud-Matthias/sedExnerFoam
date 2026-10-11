@@ -207,11 +207,6 @@ int main(int argc, char *argv[])
 
                         // Make the flux relative to the mesh motion
                         fvc::makeRelative(phi, U);
-                        if (switchSuspension=="on")
-                        {
-                            surfaceScalarField& phip = phipPtr.ref();
-                            fvc::makeRelative(phip, U);
-                        }
                     }
 
                     if (checkMeshCourantNo)

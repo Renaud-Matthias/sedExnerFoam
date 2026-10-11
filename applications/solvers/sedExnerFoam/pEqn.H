@@ -83,8 +83,6 @@ U = HbyA - rAtU*fvc::grad(p);
 U.correctBoundaryConditions();
 fvOptions.correct(U);
 
-//phip = fvc::interpolate(U+Ws) & mesh.Sf();
-
 // Correct Uf if the mesh is moving
 fvc::correctUf(Uf, U, phi);
 
