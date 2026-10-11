@@ -66,4 +66,3 @@ else:
     print(f"mass conservation OK, maximum relative error {maxRelMassErr}")
 
 assert success
-
