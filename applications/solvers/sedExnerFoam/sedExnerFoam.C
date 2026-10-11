@@ -209,12 +209,7 @@ int main(int argc, char *argv[])
                         fvc::makeRelative(phi, U);
                         if (switchSuspension=="on")
                         {
-                            // rebuild the absolute flux first: phip is
-                            // already relative (end of CsEqn.H), so
-                            // makeRelative alone would subtract meshPhi
-                            // twice
                             surfaceScalarField& phip = phipPtr.ref();
-                            phip = fvc::flux(U + WsPtr.ref());
                             fvc::makeRelative(phip, U);
                         }
                     }
