@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
                         if (switchSuspension=="on")
                         {
                             surfaceScalarField& phip = phipPtr.ref();
-                            // fvc::makeRelative(phip, U); // allready done in CsEqn
+                            // fvc::makeRelative(phip, U); // done in CsEqn
                         }
                     }
 
