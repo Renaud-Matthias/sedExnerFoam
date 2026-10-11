@@ -276,10 +276,7 @@ Ws.correctBoundaryConditions();
 phip = fvc::flux(U + Ws);
 
 // Make the  flux relative to the mesh motion
-// DOUBLON WARNING with sedexnerfoam.C
-// Bad because relative to mesh motion for it=i and not i+1
-// fvc::makeRelative(phip, U);
-// keep in sedexnerfoam.C (because relative to it=i+1
+fvc::makeRelative(phip, U);
 
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()
