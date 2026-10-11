@@ -5,6 +5,8 @@ import os
 rhoS = 2650.0
 CsMax = 0.57
 dy = 0.01
+tolMass = 3e-4
+success = True
 
 foamTimes = os.popen("foamListTimes -withZero").read()
 timeList = foamTimes.splitlines()
@@ -50,3 +52,17 @@ print("Final deposited mass   =", Mb, "kg")
 print("Ratio Mb / Ms0         =", Mb / Ms0)
 print("Mass error              =", (Mb - Ms0) / Ms0 * 100, "%")
 print("======================================")
+
+totMass = Mb
+maxRelMassErr = np.max(np.abs(totMass - Ms0) / Ms0)
+
+# Test mass conservation
+if maxRelMassErr > tolMass:
+    success = False
+    print(f"error! maximum relative error on mass: {100*maxRelMassErr} %")
+    print(f"tolerance is {100*tolMass} %")
+else:
+    print(f"mass conservation OK, maximum relative error {maxRelMassErr}")
+
+assert success
+
