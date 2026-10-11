@@ -50,22 +50,33 @@ if (qbScheme == "centered")
 {
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {
-        scalar distOwner = Foam::mag(xFacesProj[owner[edgei]] - xEdgesProj[edgei]);
-        scalar distNeighbour = Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
-        vector qbEdgei = (distNeighbour * qbProj[owner[edgei]] + distOwner * qbProj[neighbour[edgei]]) / (distOwner + distNeighbour);
+        scalar distOwner = Foam::mag(xFacesProj[owner[edgei]] -
+xEdgesProj[edgei]);
+        scalar distNeighbour = Foam::mag(xFacesProj[neighbour[edgei]] -
+xEdgesProj[edgei]);
+        vector qbEdgei = (distNeighbour * qbProj[owner[edgei]] + distOwner *
+qbProj[neighbour[edgei]]) / (distOwner + distNeighbour);
 
         vector qavEdgei = qavProj[owner[edgei]];
         if (qavScheme == "centered")
         {
-            qavEdgei = (distNeighbour * qavProj[owner[edgei]] + distOwner * qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
+            qavEdgei = (distNeighbour * qavProj[owner[edgei]] + distOwner *
+qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
         }
         else if (qavScheme == "upwind")
         {
-            if ((qavEdgei & LeProj[edgei]) >= scalar(0.0)) qavEdgei = qavProj[owner[edgei]];
-            else qavEdgei = qavProj[neighbour[edgei]];
+            if ((qavEdgei & LeProj[edgei]) >= scalar(0.0))
+            {
+                qavEdgei = qavProj[owner[edgei]];
+            }
+            else
+            {
+                qavEdgei = qavProj[neighbour[edgei]];
+            }
         }
 
-        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =, not +=
+        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =,
+not +=
     }
 }
 else if (qbScheme == "upwind")
@@ -73,23 +84,38 @@ else if (qbScheme == "upwind")
     for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
     {
         vector qbEdgei = qbProj[owner[edgei]];
-        if ((qbEdgei & LeProj[edgei]) >= scalar(0.0)) qbEdgei = qbProj[owner[edgei]];
-        else qbEdgei = qbProj[neighbour[edgei]];
-
+        if ((qbEdgei & LeProj[edgei]) >= scalar(0.0))
+        {
+            qbEdgei = qbProj[owner[edgei]];
+        }
+        else
+        {
+            qbEdgei = qbProj[neighbour[edgei]];
+        }
         vector qavEdgei = qavProj[owner[edgei]];
         if (qavScheme == "centered")
         {
-            scalar distOwner = Foam::mag(xFacesProj[owner[edgei]] - xEdgesProj[edgei]);
-            scalar distNeighbour = Foam::mag(xFacesProj[neighbour[edgei]] - xEdgesProj[edgei]);
-            qavEdgei = (distNeighbour * qavProj[owner[edgei]] + distOwner * qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
+            scalar distOwner = Foam::mag(xFacesProj[owner[edgei]] -
+xEdgesProj[edgei]);
+            scalar distNeighbour = Foam::mag(xFacesProj[neighbour[edgei]] -
+xEdgesProj[edgei]);
+            qavEdgei = (distNeighbour * qavProj[owner[edgei]] + distOwner *
+qavProj[neighbour[edgei]]) / (distOwner + distNeighbour);
         }
         else if (qavScheme == "upwind")
         {
-            if ((qavEdgei & LeProj[edgei]) >= scalar(0.0)) qavEdgei = qavProj[owner[edgei]];
-            else qavEdgei = qavProj[neighbour[edgei]];
+            if ((qavEdgei & LeProj[edgei]) >= scalar(0.0))
+            {
+                qavEdgei = qavProj[owner[edgei]];
+            }
+            else
+            {
+                qavEdgei = qavProj[neighbour[edgei]];
+            }
         }
 
-        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =, not +=
+        phiqbProj[edgei] = (qbEdgei + qavEdgei) & LeProj[edgei];  // Note: =,
+not +=
     }
 }
 
@@ -104,7 +130,8 @@ forAll(aMesh.boundary(), patchi)
         label edgei = aMesh.boundary()[patchi].start();
         forAll(aMesh.boundary()[patchi], patchEdgei)
         {
-            const vector edgeLeProj = meshProj.project(aMesh.Le().boundaryField()[patchi][patchEdgei]);
+            const vector edgeLeProj =
+meshProj.project(aMesh.Le().boundaryField()[patchi][patchEdgei]);
 
             vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
             vector qavEdgei = meshProj.project(QavBound[patchEdgei]);
@@ -121,7 +148,8 @@ forAll(aMesh.boundary(), patchi)
                 }
             }
 
-            phiqbProj[edgei] = (qbEdgei + qavEdgei) & edgeLeProj;  // Flux SORTANT
+            phiqbProj[edgei] = (qbEdgei + qavEdgei) & edgeLeProj;  // Flux
+SORTANT
             edgei++;
         }
     }
@@ -135,7 +163,7 @@ if (bed.rigidBed())
     {
         if (phiqbProj[edgei] > 0)  // Flux sortant
         {
-            if (HsedBed[owner[edgei]] <= 1e-6)  // ⭐ Seuil plus strict
+            if (HsedBed[owner[edgei]] <= 1e-6)
             {
                 phiqbProj[edgei] = 0;
             }
@@ -159,8 +187,9 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 }
 
 // Boundary edges: flux out of domain (owner is always the internal face)
-for (label edgei = meshProj.nInternalEdges(); edgei < meshProj.nEdges(); edgei++)
+for (label edgei = meshProj.nInternalEdges(); edgei < meshProj.nEdges();
+edgei++)
 {
-    dVsed[owner[edgei]] -= phiqbProj[edgei];  // Correct: phiqbProj > 0 = flux sortant
+    dVsed[owner[edgei]] -= phiqbProj[edgei];  // Correct: phiqbProj > 0 = flux
+sortant
 }
-
