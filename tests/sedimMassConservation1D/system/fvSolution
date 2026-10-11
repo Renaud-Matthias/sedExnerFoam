@@ -109,6 +109,9 @@ PIMPLE
     nOuterCorrectors  1;
     nCorrectors     1;
     nNonOrthogonalCorrectors 0;
+    moveMeshOuterCorrectors yes;   // indispensable
+    zbRelax                 0.5;     // optionnel, ]0,1]
+    zbTol                   1e-6;  // en m, pour l'affichage seulement
     correctAlpha    0;
     nAlphaCorr      1;
     pRefCell        0;

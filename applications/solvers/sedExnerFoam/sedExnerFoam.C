@@ -276,6 +276,7 @@ int main(int argc, char *argv[])
             if (bed.exist())
             {
                 #include "exnerEqn.H"
+                //#include "balanceMass.H"
             }
         }
 
