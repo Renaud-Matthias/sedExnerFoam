@@ -209,7 +209,7 @@ else if (saturationType == "explicit")
         {
             // faMesh edge adressing
             label edgei = bed.aMesh().boundary()[patchi].start();
-            
+
             forAll(bed.aMesh().boundary()[patchi], patchEdgei)
             {
                 // linear interpolation from face to edge
@@ -303,7 +303,7 @@ else if (saturationType == "semiImplicit")
         {
             qbEdgei = qbProjOld[neighbour[edgei]];
         }
-        vector divLsQb = (Lsat->value() / deltaT / (deltaT + Tsat->value()))
+        vector divLsQb = (Lsat->value()*deltaT / (deltaT + Tsat->value()))
             * (qbEdgei & LeProj[edgei])
             * (qbEdgei / (Foam::mag(qbEdgei) + SMALL));
 
