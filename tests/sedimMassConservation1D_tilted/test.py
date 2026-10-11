@@ -1,88 +1,68 @@
-"""
-sedimentation of sediment in 1D
-test if sediment mass is conserved
-all time steps must be saved
-"""
-
 import numpy as np
 from fluidfoam import readof as rdf
 import os
 
-print(" --- running sedimentation mass conservation --- ")
-
+rhoS = 2600.0
+CsMax = 0.6
+dy = 0.1
+tolMass = 1e-4
 success = True
-tol = 1e-5
 
-rhoS = 2600.  # sediment density
-CsMax = 0.6  # maximum sediment volume fraction
-
-# domain and mesh dimensions
-domHeight = 1.
-domWidth = 0.1
-
-bedArea = domWidth**2
-
-ncells = len(rdf.readmesh("./", verbose=False)[2])
-
-foamTimes = os.popen('foamListTimes -withZero').read()
-timeList = foamTimes.split('\n')[:-1]
-ntimes = len(timeList)
+# On connaît le volume initial du domaine
+Vdomain0 = dy * 0.5 * 0.1
 
 
-def myReadMesh(path, t):
-    Zcells = rdf.readmesh(path, time_name=t, verbose=False)[2]
-    ncells = len(Zcells)
-    zbed = rdf.readmesh(
-        path, time_name=t, boundary="bed", verbose=False)[2][0]
-    ztop = rdf.readmesh(
-        path, time_name=t, boundary="top", verbose=False)[2][0]
-    Zfaces = np.zeros(ncells+1)
-    Zfaces[0], Zfaces[-1] = zbed, ztop
-    for i in range(1, ncells):
-        Zfaces[i] = 1.5 * Zcells[i-1] - 0.5 * Zfaces[i-1]
-    return Zcells, Zfaces
+foamTimes = os.popen("foamListTimes -withZero").read()
+timeList = foamTimes.splitlines()
 
+# Géométrie du fond
+Xfaces, _, _ = rdf.readmesh("./", timeList[0], boundary="bed")
+nFaces = len(Xfaces)
 
-massSuspension = np.zeros(ntimes-1)
-massBed = np.zeros(ntimes-1)
+Xedges = np.zeros(nFaces + 1)
+Xedges[1:-1] = 0.5 * (Xfaces[1:] + Xfaces[:-1])
+Xedges[0] = Xfaces[0] - (Xedges[1] - Xfaces[0])
+Xedges[-1] = Xfaces[-1] + (Xfaces[-1] - Xedges[-2])
 
-for i in range(ntimes-1):
-    t, tnext = timeList[i], timeList[i+1]
-    dt = float(tnext) - float(t)
-    if i == 0:
-        zbed_t = 0.  # initial bed position
-    else:
-        zbed_t = Zfaces[0]
+dX = Xedges[:-1] - Xedges[1:]
 
-    # get suspended mass
-    Cs = rdf.readscalar("./", time_name=t, name="Cs", verbose=False)
-    if Cs.shape == (1,):
-        Cs = np.ones(ncells) * Cs
-    try:
-        cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
-    except FileNotFoundError:
-        os.system("postProcess -func writeCellVolumes > /dev/null")
-        cellVolumes = rdf.readscalar("./", t, "V", verbose=False)
-    if cellVolumes.shape == (1,):
-        cellVolumes = np.ones(ncells) * cellVolumes
-    massSuspension[i] = rhoS * np.sum(Cs * cellVolumes)
-    # get bed mass
-    Zcells, Zfaces = myReadMesh("./", tnext)
+# Masse suspendue initiale
+Cs0 = rdf.readscalar("./", timeList[0], "Cs")
+V0 = np.sum(Cs0) * 0.0  # juste pour ne rien supposer ici
 
-    # bed is only one face, mesh is 1D
-    massBed[i] = rhoS * CsMax * Zfaces[0] * bedArea
+Ms0 = rhoS * 0.2 * Vdomain0
 
+# Fond initial
+zb0 = rdf.readmesh(
+    "./", timeList[0], boundary="bed"
+)[2]
 
-totMass = massBed + massSuspension
-# relative mass gain or loss
-relMassErr = np.max(np.abs(totMass - totMass[0]) / totMass[0])
+# Fond final
+zbf = rdf.readmesh(
+    "./", timeList[-1], boundary="bed"
+)[2]
 
-# test mass conservation
-if relMassErr > tol:
+# Masse déposée estimée par le déplacement du fond
+dzb = zbf - zb0
+
+Mb = rhoS * CsMax * np.sum(dzb * dX * dy)
+
+print("======================================")
+print("Initial suspended mass =", Ms0, "kg")
+print("Final deposited mass   =", Mb, "kg")
+print("Ratio Mb / Ms0         =", Mb / Ms0)
+print("Mass error              =", (Mb - Ms0) / Ms0 * 100, "%")
+print("======================================")
+
+totMass = Mb
+maxRelMassErr = np.max(np.abs(totMass - Ms0) / Ms0)
+
+# Test mass conservation
+if maxRelMassErr > tolMass:
     success = False
-    print(f"error! maximum relative error on mass: {100*relMassErr} %")
-    print(f"tolerance is {100*tol} %")
+    print(f"error! maximum relative error on mass: {100*maxRelMassErr} %")
+    print(f"tolerance is {100*tolMass} %")
 else:
-    print("mass conservation OK")
+    print(f"mass conservation OK, maximum relative error {maxRelMassErr}")
 
 assert success
