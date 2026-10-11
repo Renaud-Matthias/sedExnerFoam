@@ -11,18 +11,18 @@ All the tutorial cases are in the *tutorials/laminar* directory. The text herein
 
 The test cases provided with sedExnerFoam are aimed to facilitate the learning as well as the development of new configurations. If you develop new feature do not hesitate to share your development with us so that we can incorporate them in the github repository and others will benefit from your work the way you benefited from the original sedExnerFoam version!
 
-\tableofcontents{xml:1}
+\tableofcontents
 
 A number of one-dimensional test cases are provided with reference solutions, analytical, experimental or numerical, to validate sedExnerFoam implementation and developments. Most of these test cases are used in the contiunous integration procedure to verify new developments in sedExnerFoam.
 
 \section  Sedim_testcase 1DSedim: Pure sedimentation
 
-This tutorial will describe how to pre-process, run and post-process a case corresponding to a pure sedimentation problem in a one-dimensional configuration using the two-phase flow equations. The geometry is shown in Figure 1 in which bottom boundary is a wall and the top boundary is an open boundary.  Initially, the flow is at rest and will be solved on a uniform mesh using the sedExnerFoam solver for laminar, isothermal, incompressible flow. The numerical results are compared with experiments to validate the model in terms of settling curves, time evolution of concentration interface, and concentration profiles.
+This tutorial will describe how to pre-process, run and post-process a case corresponding to a pure sedimentation problem in a one-dimensional configuration using sedExnerFoam's suspended load transport equation (see \ref susp-load in \ref governingEq). The geometry is shown in Figure 1 in which bottom boundary is a wall and the top boundary is an open boundary.  Initially, the flow is at rest and will be solved on a uniform mesh using the sedExnerFoam solver for laminar, isothermal, incompressible flow. The numerical results are compared with experiments to validate the model in terms of settling curves, time evolution of concentration interface, and concentration profiles.
 
 
 \subsection preproc Pre-processing
 
-Like in OpenFOAM, cases are setup by editing case files using a text editor such as atome, vscode/vscodium, emacs, vi, gedit, nedit, etc. The I/O uses a dictionary format with keywords. A case involves data for mesh, fields, properties, control parameters, etc  that are stored in a set of files within a case directory rather than in a single case file. The case directory is given a suitably descriptive name. This tutorial consists of a set of cases located in the sedExnerFoam distribution under the folder *sedExnerFoamDirectory/turheolotorials/laminar/1DSedim*.
+Like in OpenFOAM, cases are setup by editing case files using a text editor such as atome, vscode/vscodium, emacs, vi, gedit, nedit, etc. The I/O uses a dictionary format with keywords. A case involves data for mesh, fields, properties, control parameters, etc  that are stored in a set of files within a case directory rather than in a single case file. The case directory is given a suitably descriptive name. This tutorial consists of a set of cases located in the sedExnerFoam distribution under the folder *sedExnerFoamDirectory/tutorials/laminar/1DSedim*.
 
 \paragraph meshgen Mesh generation
 
@@ -180,7 +180,7 @@ There are 3 principal entries in field data files:
 -boundaryField:
     the boundary field data that includes boundary conditions and data for all the boundary patches.
 
-The solid volume fraction has 0 fixedValue boundary condition at the top boundary condition and zeroGradient at the bottom. The pressure has a slip boundary condition at the top boundary and a zeroGradient at the bottom boundary.
+The solid volume fraction (Cs) has a fixedValue boundary condition at the top boundary and zeroGradient at the bottom. The pressure has a slip boundary condition at the top boundary and a zeroGradient at the bottom boundary.
 
 \paragraph PhysProp Physical properties
 
@@ -207,15 +207,17 @@ Sc      1; // Schmidt number
 
 \endverbatim
 
-The dictionary *bedloadProperties* allows to activate or not the moving bed model:
+See \ref transportProps in \ref inputs for the full list of transportProperties keywords (rhoF and reposeAngle are not needed here and default to 1000 kg/m^3 and 32 deg respectively, unused since sedimentBed is off in this case).
+
+The dictionary *bedloadProperties* allows to activate or not the moving bed model (see \ref bedConfig in \ref inputs):
 
 \verbatim
 sedimentBed       off;
 \endverbatim
 
-In the present case (1DSedim), it is desactivated.
+In the present case (1DSedim), it is desactivated: this is a pure sedimentation case with a flat, non-erodible bottom boundary, no bedload transport and no Exner equation.
 
-The dictionary *suspensionProperties* contains the parameters of the suspension model.
+The dictionary *suspensionProperties* contains the parameters of the suspension model (see \ref suspensionProps in \ref inputs for suspension, MULESformulation, diffusivity, CsbMax and wallDiffusivity; fallModel and hindranceModel configure the settling velocity model, selected here as a modified Zaki hindrance correction on a Stokes fall velocity):
 
 \verbatim
 
@@ -279,12 +281,11 @@ adjustTimeStep  off;
 
 maxCo           0.3;
 
-maxAlphaCo      0.3;
-
 maxDeltaT       2e-1;
 
 \endverbatim
 
+\b Note: adjustTimeStep is off in this tutorial, so maxCo and maxDeltaT above have no effect on this particular run (they only apply when adjustTimeStep is on); they are shown here for reference since they are the relevant Courant-number keywords for sedExnerFoam (together with bedloadProperties/maxCoBed when a moving bed is active, see \ref bed_courant in \ref governingEq).
 
 \paragraph Disc_solv Discretisation and linear-solver settings
 

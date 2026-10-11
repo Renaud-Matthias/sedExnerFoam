@@ -9,311 +9,152 @@
 
 \tableofcontents
 
-The input parameters for sedExnerFoam are numerous and are modifiable through different files in the current working directory. Some of the files are identical to other openFoam solvers and won't be described in details herein. This is the case for the files:
+The input parameters for sedExnerFoam are numerous and are modifiable through different files in the current working directory. Some of the files are identical to other OpenFOAM solvers and won't be described in details herein. This is the case for the files:
 
 \verbatim
-system/blockMesh
+system/blockMeshDict
 system/controlDict
 system/fvSchemes
 system/fvSolution
+constant/g
+constant/dynamicMeshDict
 \endverbatim
 
-The file 'blockMesh' contains the description of the mesh (see \ref meshgen). The file 'controlDict' contains the runtime parameters such as the timestep and the output interval, etc... The files 'fvScheme' describes the numerical shemes for the different differential operators (temporal, divergence, laplacian) and the file 'fvSolution' describes the algebraic solvers and the associated tolerance for each equation as well as the PIMPLE algorithm controls such as the number of inner and outer iterations ...
-
-The keyword 'faceMomentum' in  the PIMPLE dictionary of the file system/fvSolution corresponds to solving the explicit shear stress terms at the cell faces and added in pEqn when set to false (the solver is using the code given in the pUf folder) and they are the cell centers and added in UEqn using the keyword 'faceMomentum' = true (the solver is using the code given in the pU folder) which is the default value.
+The file 'blockMeshDict' contains the description of the base mesh (see \ref meshgen, and createGeometry.py for cases that post-process the blockMesh points to set the initial bed shape). The file 'controlDict' contains the runtime parameters such as the timestep and the output interval. The file 'fvSchemes' describes the numerical schemes for the different differential operators (temporal, divergence, laplacian). The file 'fvSolution' describes the algebraic solvers, the associated tolerances, and the PIMPLE algorithm controls, including the sedExnerFoam-specific sub-iteration keywords described in \ref pimpleExnerParams below. The file 'g' contains the gravity vector. The file 'dynamicMeshDict' configures the ALE mesh motion solver used to deform the mesh so that the bed boundary follows the Exner equation (see \ref ALE_approach in \ref governingEq); the patches listed under 'sedimentBedPatches' (see \ref bedConfig below) must be declared as moving boundaries there.
 
 The files that contain the specific input parameters for sedExnerFoam are:
 
 \verbatim
-constant/g
 constant/transportProperties
-constant/interfacialProperties
-constant/forceProperties
-constant/ppProperties
-constant/granularRheologyProperties
-constant/kineticTheoryProperties
-constant/turbulenceProperties.phasea
-constant/turbulenceProperties.phaseb
-constant/twophaseRASProperties
+constant/suspensionProperties
+constant/bedloadProperties
 \endverbatim
 
-The file 'g' contains the gravity vector. The user shall be careful when using a 1D/2D configuration that 'g' has to be carried by the 'y' direction.
+\section transportProps File transportProperties
 
-\section inputParams Physical processes
+parameter   | description                            | required | default | units  |
+------------|------------------------------------------|----------|---------|--------|
+nu          | fluid kinematic viscosity                 | yes      | -       | m^2/s  |
+rhoF        | fluid density                             | no       | 1000    | kg/m^3 |
+rhoS        | sediment density                          | yes      | -       | kg/m^3 |
+dS          | sediment grain diameter                   | yes      | -       | m      |
+CsMax       | maximum sediment volume fraction (1-porosity) | yes  | -       | -      |
+Sc          | turbulent Schmidt number for suspended sediment | no | 1      | -      |
+reposeAngle | granular material angle of repose, used for avalanche bedload and (if not overridden) for the critical Shields slope correction | no | 32 | deg (must be in ]0,90[) |
 
-sedExnerFoam includes a variety of physical processes: fluid-particle forces such as drag force, fluid and particle phase rheology, elastic pressure for the solid phase, turbulence modeling. Each process can be switched on or off. The various tutorials available with the source code give a good overview of different combination of physical processes. The table below lists the keywords used to switch on or off physical processes in sedExnerFoam and the key input parameters.
-
-In the following the input parameters will be described file-by-file.
-
-\subsection transportProperties File transportProperties
-
-In the file 'transportProperties' the user can specify the input parameters listed in the table below:
-
-parameter     | description            |    default   |     range    |    units     |
---------------|------------------------|--------------|--------------|--------------|
-phasea        | solid phase            |              |              |              |
-phased        | fluid phase            |              |              |              |
-rho           | phase density          |      1000    | 1-2650       |  kg/m^3      |
-nu            | phase viscosity        |      1e-6    | 0-1e0        |  m^2/s       |
-d             | particle diameter      |      200e-6  | 62e-6-1      |  m           |
-sF            | shape factor           |      1       | 0.1-2        |  -           |
-hExp          | Hindrance exponent     |      2.65    | 1.5-3.15     |  -           |
-Ws0           | settling velocity      | 1.15e-4      | 1e-6-1e-4    |  m/s         |
-WsGel         | set. vel. gel point    | 8.53e-6      | 1e-5-1e-3    |  m/s         |
-dimFrac       | fractal dimension      | 2.748        | 2-3          |  -           |
-Xi            | empirical coef.        | 1.155        | 1-10         |  -           |  
-alphaGel      | gel point              | 0.28         | 0.05-0.4     |  -           |
-phiMax        | floc concentration     | 0.85         | 0.5-0.9      |  -           |
-rhoFloc       | floc density           | 1566.59      | 1050-2000    | kg/m^3       |
-alphaSmall    | Min. solid vol. frac.  | 1e-6         | 1e-9-1e-5    |  -           |
-alphaDiffusion| articifical Diffusivity| 0            | 0-1e-6       | m^2/s        |
-nuMax         | maximium viscosity     | 1            | 1e-2-1e6     | m^2/s        |
-nuFraMax      | maximium sed viscosity | 1e3          | 1e-2-1e6     | m^2/s        |
-nuMaxExp      | idem for Explicit terms| 1            | 1e-2-1e6     | m^2/s        |
+CsMax is also used, together with morphoAccFactor, in the Exner equation (see exnerEqn.H and \ref bedload in \ref governingEq).
 
-\subsection interfacialProperties File interfacialProperties
+\section suspensionProps File suspensionProperties
 
-In the file 'transportProperties' the user can specified the input parameters listed in the table below:
+parameter         | description                                         | required | default    | units |
+------------------|------------------------------------------------------|----------|------------|-------|
+suspension        | switch on/off suspended load transport                | yes      | -          | on/off |
+MULESformulation  | use MULES for the Cs advection instead of the classical implicit scheme | no | off | on/off |
+diffusivity       | turbulent or effective (nu+turbulent) diffusivity for Cs | no    | turbulent  | turbulent/effective |
+CsbMax            | max. reference sediment volume fraction (erosion condition, Van Rijn) | no | min(CsMax,0.3) | - |
 
-dragModela/b           |   description                                                      |
------------------------|--------------------------------------------------------------------|
-Ergun                  | for dense packing of spheres (consistent with Darcy's law)         |
-Gibilaro               |                                                                    |
-GidaspowErgunWenYu     |                                                                    |
-GidaspowSchillerNaumann|                                                                    |
-SchillerNaumann        | for dilute suspensions at any Re_p                                 |
-SyamlalOBrien          |                                                                    |
-WenYu                  |                                                                    |
-Camenen                | for mud flocks (see Chauchat et al 2013)                            |
+Optional sub-dictionary 'wallDiffusivity' (near-bed saltation diffusivity correction):
 
+parameter | description                  | default |
+----------|------------------------------|---------|
+alpha     | near-bed diffusivity amplitude | 0     |
+beta      | decay coefficient              | 5     |
+gamma     | Nikuradse roughness coefficient (ks = gamma*dS) | 2.5 |
 
+If the sub-dictionary 'wallDiffusivity' is absent, this correction is disabled.
 
-\subsection ppProperties File ppProperties
+\section bedloadProps File bedloadProperties
 
-In the file 'ppProperties' the user can specify the input parameters for the elastic pressure model for 'pff':
+This dictionary configures the sediment bed itself (instantiating a sedimentBed object, see sedimentBed.C) as well as the bedload transport and Exner equation models.
 
-ppModel                  |   description                                                      |
--------------------------|--------------------------------------------------------------------|
-JohnsonJackson           | default model (for spheres)                                        |
-Hsu                      | model for spheres, Fr represents an elastic modulus                |
-MerckelbachKranenburg    | model for mud (based on fractal dimension)                         |
-Chauchat                 | model for mud (see Chauchat et al., 2013)                          |
+\subsection bedConfig Bed existence and motion
 
-Depending on the ppModel, the following parameters need to be specified:
+parameter          | description                                                       | required | default |
+-------------------|---------------------------------------------------------------------|----------|---------|
+sedimentBed        | switch on/off the sediment bed entirely (finite area mesh, bedload, Exner equation) | yes | - (on/off) |
+sedimentBedPatches | list of mesh patch names forming the sediment bed (used to build the finite area mesh); must be consistent with the moving patches declared in dynamicMeshDict | yes, if sedimentBed=on | - |
+bedMotion          | on: the bed moves (Exner equation deforms the mesh); off: bedload/Shields are still computed but the bed does not move | no | on |
+rigidBed           | on: a non-erodible layer limits erosion/bedload where the sediment layer thickness vanishes (see HsedBed field, rigidBed treatment in bedload.H, CsEqn.H, balanceBedload.H) | no | off |
 
-parameter       | description               |    default   |     range    |    units     |
-----------------|---------------------------|--------------|--------------|--------------|
-alphaMax        | max. solid vol. fraction  |    0.635     | 0.57-0.635   |  -           |
-alphaMinFriction| random loose packing frac.|    0.57      | 0.53-0.57    |  -           |
-Fr              | elastic modulus           |    0.05      | 0.001-1e8    |  Pa          |
-eta0            | empirical exponent        |    3         | 1-3          |  -           |
-eta1            | empirical exponent        |    5         | 5            |  -           |
+If sedimentBed=on, the gravity vector must point into the bed (consistency check performed at startup: g & faceAreaNormals > 0 on every bed face, otherwise a FatalError is raised).
 
+\subsection saturationParams Bedload saturation (sub-dictionary 'saturation')
 
-\subsection granularRheologyProperties File granularRheologyProperties
+parameter | description                              | required (if saturation present) | default |
+----------|--------------------------------------------|-----------------------------------|---------|
+type      | saturation model                            | no                                 | explicit |
+Tsat      | saturation time                             | yes, unless type=none              | - (s)   |
+Lsat      | saturation length                           | yes, unless type=none              | - (m)   |
 
-In the file 'granularRheologyProperties' the user can specify the input parameters for the dense granular flow rheology, in particular the user decides if he/she wants to use the dense granular flow rheology or not by setting the switch 'granularRheology' to on/off. If it's switched on, the user has to decide which rheological model to use for the different components, _i.e._ granular shear stress, granular normal stress and fluid shear stress, amongst:
+Valid values for 'type': implicit1D, explicit, semiImplicit, none (see bedload.H). If the 'saturation' sub-dictionary is absent entirely, no saturation length/time is used (qb = qsat directly, equivalent to type=none).
 
-FrictionModel      |   description                                                     |
--------------------|-------------------------------------------------------------------|
-none               |     no friction                                                   |
-Coulomb            | Coulomb friction with constant friction coef mus                  |
-MuI                | mu(I) friction model in the inertial regime                       |
-MuIv               | mu(Iv) friction model in the viscous regime                       |
+\subsection exnerAdvectionParams Bedload flux scheme (sub-dictionary 'exnerAdvection')
 
-PPressureModel     |   description                                                     |
--------------------|-------------------------------------------------------------------|
-none               | no particle phase shear induced pressure                          |
-MuI                | mu(I) friction model in the inertial regime                       |
-MuIv               | mu(Iv) friction model in the viscous regime                       |
+parameter | description                                                   | default  |
+----------|------------------------------------------------------------------|----------|
+qbScheme  | interpolation scheme for the shear-stress bedload flux on faMesh edges (centered or upwind) | upwind |
+qavScheme | interpolation scheme for the avalanche bedload flux on faMesh edges (centered or upwind)    | centered |
 
+If the 'exnerAdvection' sub-dictionary is absent, the defaults above apply.
 
-FluidViscosityModel|   description                                                     |
--------------------|-------------------------------------------------------------------|
-none               | effective viscosity = pure fluid viscosity                        |
-Einstein           | Einstein (1906) viscosity model for dilute supensions             |
-KriegerDougherty   | Krieger and Dougherty (1959) viscosity model for dense supensions |
-BoyerEtAl          | Boyet et al. (2011) viscosity model for dense supensions          |
+\subsection bedloadModelParams Sub-dictionary 'bedloadModel'
 
+parameter | description                                                        | default     |
+----------|-----------------------------------------------------------------------|-------------|
+type      | bedload transport model (see bedloadModels)                           | MeyerPeter  |
+onEdge    | compute the avalanche bedload flux directly on faMesh edges instead of on faces | off |
 
-The following list of parameters can be modified from the 'granularRheologyProperties' file:
+If the 'bedloadModel' sub-dictionary is absent, type=MeyerPeter is used with onEdge=off.
 
-parameter       | description               |    default   |     range    |    units     |
-----------------|---------------------------|--------------|--------------|--------------|
-alphaMaxG       | max. solid vol. fraction  |    0.6       | 0.55-0.6     |  -           |
-mus             | static friction coeff.    |    0.38      | 0.3-0.7      |  -           |
-mu2             | dynamic friction coeff.   |    0.64      | 0.6-1.2      |  -           |
-I0              | empirical coeff. mu(I)    |    0.3       | 0.005-0.6    |  -           |
-Bphi            | empirical coeff. phi(I)   |    0.31      | 0.3-1        |  -           |
-n               | exponent. effective visc. |    2.5       | 1-3          |  -           |
-BulkFactor      | coef for 2nd viscosity    |    0         | 0-10         |  -           |
-Dsmall          | regularisation param.     |    1e-6      | 1e-4-1e-9    |  1/s         |
-relaxPa         | relaxation factor for Pa  |    1.0       | 1e-9-1       |  -           |
+\subsection critShieldsParams Sub-dictionary 'criticalShieldsModel'
 
+parameter | description                                                        | default      |
+----------|-----------------------------------------------------------------------|--------------|
+type      | critical Shields number model (see criticalShieldsModels); the special value 'readFromFile' reads a user-provided non-uniform critShields field from \<time\>/finite-area/critShields instead of computing it, and disables the slope correction in bedload.H | fixedValue |
+value     | constant critical Shields number (only used when type=fixedValue)     | 0.047        |
 
-Additionally, the switch 'granularDilatancy' found in the file 'granularRheologyProperties' is used to incorporate dilatancy effects in the model. This feature is important to capture the coupling between the pore
-pressure feedback mechanism and the initial dynamics of a granular medium subjected to shear stress. 
+If the 'criticalShieldsModel' sub-dictionary is absent, type=fixedValue with value=0.047 is used.
 
-Finally, the 'granularCohesion' switch found in the 'granularRheologyProperties' file is used to integrate cohesive effects. This feature enables users to introduce cohesive material regions, such as cohesive layers or model fine-grained soils like clay, where cohesive effects cannot be neglected.
+\subsection filterExnerParams Sub-dictionary 'filterExner'
 
+parameter | description                                                        | default      |
+----------|-----------------------------------------------------------------------|--------------|
+type      | filter formulation applied to the bed level increment dH (none, dZDiffusive, JohnsonZyserman) | dZDiffusive |
+alpha     | filter diffusivity coefficient                                        | 0.1          |
+Nfilt     | number of filter passes                                               | 3            |
 
-\subsection kineticTheoryProperties File kineticTheoryProperties
+If the 'filterExner' sub-dictionary is absent, or type=none, no filtering of dH is applied.
 
-In the file 'kineticTheoryProperties' the user can specify the input parameters for the kinetic theory of granular flows, in particular the user decides if he/she wants to use the kinetic theory or not by setting the switch 'kineticTheory' to on/off. If it's switched on, the user has to decide which rheological model to use for the different components. 
+\subsection filterShieldsParams Sub-dictionary 'filterShields'
 
-The possible closure models for the particle pressure  are:
+parameter | description                                                        | default      |
+----------|-----------------------------------------------------------------------|--------------|
+switch    | on/off spatial filtering of the Shields number                        | off          |
+alpha     | filter diffusivity coefficient                                        | 0.1          |
+Nfilt     | number of filter passes                                               | 3            |
 
+If the 'filterShields' sub-dictionary is absent, filtering is off.
 
-granularPressureModel        |   description                                           |
--------------------|-------------------------------------------------------------------|
-Lun                |                                                                   |
-SyamlalRogersOBrien|                                                                   |
-Torquato           |                                                                   |
+\subsection otherBedloadParams Other bedloadProperties keywords
 
+parameter        | description                                                    | required | default |
+-----------------|-------------------------------------------------------------------|----------|---------|
+morphoAccFactor  | morphological acceleration factor applied to dVsed in the Exner equation | no | 1 |
+maxCoBed         | max. fraction of the local first fluid cell height that the bed displacement dH may reach in one time step; bounds the time step via bedCourantNo.H (see \ref bed_courant in \ref governingEq) | no | 0.3 |
+fixedFaPatches   | list of finite-area patch names where the bed displacement is forced to zero (vertices shared with these patches do not move, see meshMove.H) | no | empty list |
+ABorder          | Adams-Bashforth order used to integrate the Exner equation: 0 (Euler explicit) or 1 | no | 0 |
 
+\section pimpleExnerParams PIMPLE sub-dictionary: sub-iteration controls
 
-With the binary collision assumption adopted in the kinetic theory of granular flow, the radial distribution function is introduced to describe the crowdedness of a particle. Several  radial distribution functions can be selected: 
+These keywords are read directly from the PIMPLE sub-dictionary of system/fvSolution (not from bedloadProperties):
 
-radialModel        |   description                                                     |
--------------------|-------------------------------------------------------------------|
-CarnahanStarling   |                                                                   |
-ChialvoSundaresan  |                                                                   |
-Gidaspow           |                                                                   |
-LunSavage          |                                                                   |
-SinclairJackson    |                                                                   |
-Torquato           |                                                                   |
+parameter               | description                                                    | default |
+------------------------|------------------------------------------------------------------|---------|
+nOuterCorrectors        | standard PIMPLE keyword; nOuterCorrectors > 1 activates the PIMPLE-Exner sub-iteration (see \ref pimple_exner in \ref governingEq) | 1 |
+moveMeshOuterCorrectors | standard PIMPLE keyword; must be 'yes' for the bed to actually move at every sub-iteration, otherwise only the first outer iteration updates the mesh and a warning is printed at the start of the run | - |
+zbRelax                 | under-relaxation factor applied to the bed level increment dH across sub-iterations, in ]0, 1] | 1.0 |
+zbTol                   | convergence tolerance (in m) on max\|dH - dH_prev\| between sub-iterations, used only for reporting (not to stop the loop early) | 1e-6 |
 
-
-Both the  particle shear viscosity and the bulk viscosity are modeled by the following closure models:
-
-viscosityModel     |   description                                                     |
--------------------|-------------------------------------------------------------------|
-GarzoDufty         |                                                                   |
-GarzoDuftyMod      |                                                                   |
-Gidaspow           |                                                                   |
-HrenyaSinclair     |                                                                   |
-Syamlal            |                                                                   |
-none               |                                                                   |
-
-
-The conductivity of granular temperature can be computed with the following models:
-
-conductivityModel  |   description                                                     |
--------------------|-------------------------------------------------------------------|
-GarzoDufty         |                                                                   |
-GarzoDuftyMod      |                                                                   |
-Gidaspow           |                                                                   |
-HrenyaSinclair     |                                                                   |
-Syamlal            |                                                                   |
-
-
-
-
-
-The following list of parameters can be modified from the 'kineticTheoryProperties' file:
-
-parameter            | description					   |    default  |     range    |    units     |
----------------------|-----------------------------------------------------|-------------|--------------|--------------|
-e		     | coeff. of restitution				   |    0.9      | 0.6-1.0      |  -           |
-muPart               | interparticle friction coefficient                  |    0.0      | 0.0-1.0      |  -           |
-alphaMax             | max. solid vol. fraction				   |    0.6      | 0.6-1.0      |  -           |
-MaxTheta             | max.granular temperature				   |    1e3      | 0.001-1e5    |  -           |
-phi                  | friction angle                                      |    32       | 20-40        |  -           |
-killJ2               | Tuns on (0) / off (1) the fluid-particle interaction|    1        | 0 or 1       |  -           |
-quadraticCorrectionJ1| correction to consider the quadratic nature of drag |    1        |              |  -           |
-
-
-
-
-
-\subsection forceProperties File forceProperties
-
-In the file 'forceProperties' the user can specify the input parameters for the external pressure gradient and select the fluid-particle forces to be added in the model, _e.g._ lift force, added mass force, Ct model:
-
-parameter       | description                      |    default   |     range    |    units     |
-----------------|----------------------------------|--------------|--------------|--------------|
-gradPMEAN       | mean pressure gradient           |    0         | 0-           |  kg/m^2/s^2  |
-gradPAMP1       | 1st order wave contribution      |    0         | 0-           |  kg/m^2/s^2  |
-gradPAMP2       | 2nd order wave contribution      |    0         | 0-           |  kg/m^2/s^2  |
-gradPAMP3       | 3rd order wave contribution      |    0         | 0-           |  kg/m^2/s^2  |
-gradPAMP4       | 4th order wave contribution      |    0         | 0-           |  kg/m^2/s^2  |
-gradPAMP5       | 5th order wave contribution      |    0         | 0-           |  kg/m^2/s^2  |
-oscpT           | wave period                      |    0         | 0-           |  s           |
-initTheta1      | initial phase of 1st order wave  |    0         | 0-359        |  deg         |
-initTheta2      | initial phase of 2nd order wave  |    0         | 0-359        |  deg         |           
-initTheta3      | initial phase of 3rd order wave  |    0         | 0-359        |  deg         |           
-initTheta4      | initial phase of 4th order wave  |    0         | 0-359        |  deg         |           
-initTheta5      | initial phase of 5th order wave  |    0         | 0-359        |  deg         |           
-tilt            | to mimic bedslope with gradPMEAN |    0         | 0 or 1       |  -           |
-Cvm             | virtual mass force coef.         |    0         | 0-10         | -            |
-Cl              | Lift force coef.                 |    0         | 0-10         | -            |
-Ct              | Ct model coef. nuEffa=Ct^2 nutb  |    0         | 0-1          | -            |
-InitFreeze      | Freeze solid phase               |    0         | 0, 1 or 2    | -            |
-fixbeddepth     | depth below which to freeze      |    0         | 0 to max(Y)  | m            |
-ClipUa          | impose U.a=U.b for alpha<alphaSmall|    0         | 0 or 1       | -            |
-writeTau        | write shear stress tensors       |    false     | true or false| boolean      |
-debugInfo       | show debugging information       |    false     | true or false| boolean      |
-spongeLayer     | sponge layer                     |    false     | true or false| boolean      |
-xSmin           | min. X position for sponge layer |    0         | min(X)-max(X)| m            |
-xSmax           | max. X position for sponge layer |    0         | min(X)-max(X)| m            |
-
-
-
-\subsection turbulencePropertiesphaseb File turbulenceProperties.phaseb
-
-In the file 'turbulenceProperties.phaseb' the user can specify the turbulence model to be used for the fluid phase:
-
-simulationType     |   description                                                     |
--------------------|-------------------------------------------------------------------|
-laminar            | laminar flow - no turbulence model (nutb=0)                       |
-RAS                | Reynolds Averaged turbulence model                                |
-LES                | Large-Eddy Simulation turbulence model                            |
-
-If simulationType=RAS is selected, the user needs to specify a turbulence model using the keyword 'RASModel' in the 'RAS' dictionary. All singlephase turbulence model can be selected and specific two-phase flow turbulence models are provided with sedExnerFoam:
-
-RASModel                |   description                                                     |
-------------------------|-------------------------------------------------------------------|
-twophaseMixingLength    | two-phase flow mixing length model (see chauchat et al. 2017, GMD)|
-twophasekEpsilon        | two-phase flow k-epsilon model (see chauchat et al. 2017, GMD)    |
-twophaseLaunderSharmaKE | two-phase flow k-epsilon model from Launder and Sharma            |
-twophasekOmega          | two-phase flow k-omega model (see chauchat et al. 2017, GMD)      |
-twophasekOmegaSAS       | two-phase flow k-omega SAS model                                  |
-
-Coefficients of the turbulence models can be modified in the file *turbulenceproperties.phaseb* using the dictionaries *twophasekOmegaCoeffs*, *twophasekOmegaSASCoeffs*, *twophaseMixingLengthCoeffs* and *twophasekEpsilonCoeffs*. Values for the different turbulence models can be found in the tutorials.
-
-If simulationType=LES is selected, the user needs to specify a turbulence model using the keyword 'LESModel' in the 'LES' dictionnary. For the moment, only the dynamic Lagragian sub-grid scale model from Meneveau et al. (1996) can be used with the keyword *fluidDynamicLagrangian*
-
-\subsection turbulencePropertiesphasea File turbulenceProperties.phasea
-
-In the file 'turbulenceProperties.phasea' the user can specify the turbulence model to be used for the solid phase:
-
-simulationType     |   description                                                     |
--------------------|-------------------------------------------------------------------|
-laminar            | laminar flow - no turbulence model (nutb=0)                       |
-LES                | Large-Eddy Simulation turbulence model                            |
-
-No RAS model is available for the solid phase. When fluid turbulence is modeled using a RAS model, simulationType keyword should be laminar for the solid phase. 
-
-If simulationType=LES is selected, the user needs to specify a turbulence model using the keyword 'LESModel' in the 'LES' dictionary. For the moment, only the dynamic Lagragian sub-grid scale model from Meneveau et al. (1996) can be used with the keyword *solidDynamicLagrangian*
-
-\subsection twophaseRASProperties File twophaseRASProperties
-
-In the file 'twophaseRASProperties' the user can specified the input parameters for the turbulence model:
-
-parameter       | description                      |    default   |     range      |    units     |
-----------------|----------------------------------|--------------|----------------|--------------|
-SUSread         | turbulent Schmidt number         |    0         | 0-3 (0 for LES)|  -           |
-SUSlocal        | switch to turn on local SUS model|    false     | true or false  |  boolean     |
-Usmall          | min. u* value for local SUS      |  1e-6        | 1e-9-1e-4      | m/s          |
-Cmu             | Cmu constant for k-eps or k-omega|  0.09        | 0.09           | -            |
-B               | empirical parameter for turb drag|  0.25        | 0.1-1          | -            |
-kSmall          | min. Tp value for turb. drag     |  1e-6        | 1e-9-1e-4      | m^2/s^2      |
-TpSmall         | min. Tp value for turb. drag     |  1e-6        | 1e-9-1e-4      |  kg/m^3/s    |
-nutMax          | max. eddy viscosity value        |  -           | 5e-3-1e1       | m^2/s        |
-KE1             | coef. for density stratif (Uf-Us)|   0          | 0 or 1         | -            |
-KE2             | coef. for turbulence modulation  |   0          | 0 or 1         | -            |
-KE3             | coef. for turbulence generation  |   0          | 0 or 1         | -            |
-KE4             | coef. for density stratif g      |   0          | 0 or 1         | -            |
-
+With nOuterCorrectors = 1, the behaviour is unchanged from a version without the sub-iteration feature.
 
 */

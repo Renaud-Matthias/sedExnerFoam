@@ -1,12 +1,23 @@
-﻿/**
- * \file        governingEq.doc
- * \author      Cyrille Bonamy, Eduard Puig Montellà and Julien Chauchat
- * \date        Feb 05, 2026
- * \brief       sedExnerFoam governing equations (doc)
- */
-/*! \page governingEq Governing equations 
+/**
+ * \file        governingEq.doc
+ * \author      Cyrille Bonamy, Eduard Puig Montellà and Julien Chauchat
+ * \date        June 05, 2026
+ * \brief       sedExnerFoam governing equations (doc)
+ */
+/*! \page governingEq Governing equations
 
-The model was developed from the solver pimpleFoam. The hydrodynamics is solved using the PIMPLE algorithm for incompressible fluid. Some sediments are transported in suspension, they are advected by the fluid, settle under the influence of gravity and are mixed by turbulence. A erosion/deposition term controls the exchange between the suspended load and the sediment bed. The rest of the sediments are transported as bedload, they slide, roll and saltate on the bed. These different sediment fluxes lead to the morphological evolution described by the Exner equation and handled by the Arbitrary Lagrangian Eulerian approach. With this approach, the sediment bed act as a boundary of the computational domain. The mesh is dynamic and get distorted in time so that the bed boundary match the geometry changes.
+The model was developed from the solver pimpleFoam. The hydrodynamics is solved using the PIMPLE algorithm for incompressible fluid. Some sediments are transported in suspension, they are advected by the fluid, settle under the influence of gravity and are mixed by turbulence. A erosion/deposition term controls the exchange between the suspended load and the sediment bed. The rest of the sediments are transported as bedload, they slide, roll and saltate on the bed. These different sediment fluxes lead to the morphological evolution described by the Exner equation and handled by the Arbitrary Lagrangian Eulerian (ALE) approach. With this approach, the sediment bed acts as a boundary of the computational domain. The mesh is dynamic and gets distorted in time so that the bed boundary matches the geometry changes.
+
+\section ALE_approach Arbitrary Lagrangian Eulerian (ALE) Approach
+
+The ALE method is used to handle the moving bed boundary. In this framework, the mesh is deformed to follow the bed evolution, while the flow equations are solved in a moving reference frame.
+
+For suspended sediment transport, the total velocity for sediment advection is \f$\mathbf{u} + \mathbf{w_s}\f$, where \f$\mathbf{u}\f$ is the fluid velocity and \f$\mathbf{w_s}\f$ is the settling velocity.
+
+\b Important: In the ALE framework, all surface fluxes must be adjusted for mesh motion using \code fvc::makeRelative(flux, velocity) \endcode.
+For suspended sediment transport, the sediment flux \f$\phi_{Ws} = \text{fvc::flux}(\mathbf{w_s})\f$ is adjusted using the settling velocity \f$\mathbf{w_s}\f$ (relative to the fluid), while the hydraulic flux \f$\phi\f$ is adjusted using the fluid velocity \f$\mathbf{u}\f$. This ensures that the total flux for suspended sediment \f$\phi_p = \phi + \phi_{Ws}\f$ is correctly accounted for in the moving mesh framework.
+
+\b Note: both terms of \f$\phi_p\f$ must be made relative to the \e same mesh motion for this decomposition to hold; each call to \code fvc::makeRelative \endcode must therefore be evaluated on the current mesh state, not on a state left over from a previous outer iteration or time step. With the Euler ddt scheme (the only one currently validated for this solver), \code fvc::meshPhi \endcode depends only on the mesh geometry, not on the velocity field argument, so \f$\phi\f$ and \f$\phi_{Ws}\f$ can each be relativized independently without ambiguity. This would need to be revisited if a different ddt scheme (e.g. CrankNicolson) were used, since \code fvc::meshPhi \endcode is then weighted by the scheme's own coefficients. This flux treatment is validated by a mass-conservation test on a 1D moving-bed sedimentation case (movingBed1Dsedim tutorial): the relative mass balance error stays below ~0.2% with both terms of \f$\phi_p\f$ correctly relativized, against a drift of up to ~9% if the mesh-motion contribution of either term is omitted.
 
 \section hydrodynamics Hydrodynamics:
 
@@ -24,6 +35,40 @@ The model was developed from the solver pimpleFoam. The hydrodynamics is solved 
 \frac{\partial c_s}{\partial t} + \nabla.[(\mathbf{u}+\mathbf{w_s})c_s] = \nabla.(\epsilon_s \nabla c_s)
 \f]
 
+\section erosion_deposition Erosion and deposition
+
+The exchange between the suspended load and the sediment bed is driven, at each bed face, by a Van Rijn (1984) reference concentration \f$c_{b,ref}\f$, evaluated from the excess shear stress above the critical Shields number:
+
+\f[
+T = \frac{|\boldsymbol{\tau}|}{\tau_{cr}} - 1
+\f]
+
+\f[
+c_{b,ref} = \min\left(0.015\,\frac{d_S}{z_{ref}}\,\frac{(T^+)^{1.5}}{D_*^{0.3}},\ c_{b,max}\right)
+\f]
+
+where \f$T^+ = \max(T,0)\f$, \f$D_*\f$ is the dimensionless grain diameter, \f$z_{ref} = 2.5\,d_S\f$ is the reference level above the bed, and \f$c_{b,max}\f$ is the maximum reference concentration (keyword CsbMax, see \ref bedloadProps in \ref inputs). This reference concentration is extrapolated from \f$z_{ref}\f$ to the first cell center at elevation \f$z_1\f$ above the bed using a Rouse-type exponential profile:
+
+\f[
+c_{b}(z_1) = \min\left(c_{b,ref}\,\exp\left[-\frac{|\mathbf{w_s}|}{\max(\epsilon_s,\epsilon_{s,min})}\,(z_1-z_{ref})\right],\ c_{b,max}\right)
+\f]
+
+The erosion flux \f$E\f$ applied as a source term in the suspended load equation (\ref eq1) is then:
+
+\f[
+E = \frac{c_b(z_1)}{V_{cell}}\left[(\mathbf{w_s}\cdot\mathbf{n})\,S_{face} - \phi_{mesh}\right]
+\f]
+
+where \f$S_{face}\f$ is the bed face area, \f$\mathbf{n}\f$ its outward normal, \f$V_{cell}\f$ the volume of the adjacent fluid cell, and \f$\phi_{mesh}\f$ the mesh motion flux through that face (zero for a static bed). If rigidBed is enabled (see \ref bedConfig in \ref inputs), \f$E\f$ is additionally capped so that erosion cannot remove more sediment than the locally available layer thickness over one time step.
+
+The deposition flux \f$D\f$ is obtained from the local suspended concentration \f$c_s\f$ at the bed-adjacent cell:
+
+\f[
+D = c_s\left[(\mathbf{w_s}\cdot\mathbf{n}) - \frac{\phi_{mesh}}{S_{face}}\right]
+\f]
+
+The net term \f$D-E\f$ enters the Exner equation (\ref eq2) as a volumetric source, in addition to the bedload flux divergence.
+
 \section bedload Bedload transport and morphodynamics are described by the Exner equation:
 
 \anchor eq2 \f[
@@ -31,6 +76,21 @@ The model was developed from the solver pimpleFoam. The hydrodynamics is solved 
 \f]
 
 The Exner equation is solved on a finite area mesh, which is a mesh made of finite polyhedral surfaces which can be curved in the 3D space.
+
+\section pimple_exner PIMPLE-Exner Sub-Iterations
+
+For improved coupling between hydrodynamics and morphodynamics, sedExnerFoam supports optional sub-iterations between the PIMPLE loop and the Exner equation. This feature allows the flow and bed to converge together within a single time step, avoiding the one-time-step lag between flow and bed updates. The sub-iteration process includes:
+
+- Storage of bed state (bedload flux and bed points displacement) at the start of each time step (see storeBedState.H)
+- Evaluation of bed shear stress, bedload, suspension, and Exner equation at every PIMPLE outer iteration
+- Under-relaxation of the bed level increment dH across sub-iterations (controlled by PIMPLE/zbRelax)
+- Convergence check based on the residual of bed level changes (controlled by PIMPLE/zbTol)
+
+This feature is activated when PIMPLE/nOuterCorrectors > 1. With nOuterCorrectors = 1 (default), the behavior is unchanged from previous versions.
+
+\section bed_courant Bed Motion Time Step Constraint
+
+To prevent mesh cell inversion when the bed moves rapidly relative to the first fluid cell height, sedExnerFoam includes a bed Courant number constraint. The time step is bounded such that the bed displacement remains under bedloadProperties/maxCoBed (default 0.3) times the local first fluid cell height. This constraint uses the converged bed displacement from the previous time step and is reactive, similar to the standard Courant number constraint.
 
 For more details, the interested reader is referred to <a href="https://doi.org/10.5194/egusphere-2025-2375">Renaud et al. (2026)</a> .
 
