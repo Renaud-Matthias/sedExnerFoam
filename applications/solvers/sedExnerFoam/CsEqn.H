@@ -133,7 +133,7 @@ if (bed.exist())
                 label idNCell = bedPatch.faceCells()[facei];
                 const scalar Sface = aMesh.S()[facei];
                 const scalar Vcell = mesh.V()[idNCell];
-                
+
                 if (HsedBed[facei]<=0)
                 {
                     Ep[facei] = 0;
@@ -253,6 +253,19 @@ else if (switchMULES=="off")
     Cs.correctBoundaryConditions();
 
     fvOptions.correct(Cs);
+
+const scalar Vs =
+    fvc::domainIntegrate(Cs).value();
+
+Info<< "----------------------------------------" << endl;
+Info<< "Suspended sediment mass balance:" << endl;
+Info<< "  Integral(Cs dV) = "
+    << Vs << " m3" << endl;
+Info<< "  Min(Cs) = "
+    << gMin(Cs) << endl;
+Info<< "  Max(Cs) = "
+    << gMax(Cs) << endl;
+Info<< "----------------------------------------" << endl;
 }
 
 Ws = settlingModelPtr->Ufall(
@@ -263,7 +276,10 @@ Ws.correctBoundaryConditions();
 phip = fvc::flux(U + Ws);
 
 // Make the  flux relative to the mesh motion
-fvc::makeRelative(phip, U);
+// DOUBLON WARNING with sedexnerfoam.C
+// Bad because relative to mesh motion for it=i and not i+1
+// fvc::makeRelative(phip, U);
+// keep in sedexnerfoam.C (because relative to it=i+1
 
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()
