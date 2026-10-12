@@ -153,13 +153,17 @@ if (filterExner)
     if (zbIter > 0)
     {
         const scalar zbRes = gMax(mag(dHnew - dHiter));
+        const bool converged = (zbRes < zbTol);
 
         Info<< "PIMPLE-Exner sub-iteration " << zbIter + 1
             << ": max|dH - dH_prev| = " << zbRes << " m"
-            << (zbRes < zbTol ? " (converged)" : " (not converged)")
+            << (converged ? " (converged)" : " (not converged)")
             << endl;
 
-        dHnew = dHiter + zbRelax*(dHnew - dHiter);
+        const bool lastIter = pimple.finalIter();
+        const scalar zbRelaxEff = (lastIter && converged) ? 1.0 : zbRelax;
+
+        dHnew = dHiter + zbRelaxEff*(dHnew - dHiter);
     }
 
     dHiter = dHnew;
