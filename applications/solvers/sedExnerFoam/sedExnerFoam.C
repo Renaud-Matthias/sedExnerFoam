@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
             //     outer iteration: flow -> bed shear stress -> bedload,
             //     suspension -> Exner -> bed displacement -> new mesh at the
             //     next outer iteration (moveMeshOuterCorrectors).
-	    if (bed.exist())
+            if (bed.exist())
             {
                 // bedload saturation is an evolution equation from qb(t):
                 // restart from the value at the beginning of the time step
