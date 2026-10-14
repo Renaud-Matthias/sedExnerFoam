@@ -28,23 +28,34 @@ Description
 // sub-iteration counter of the current time step
 zbIter = 0;
 
-// bedload at t: explicit / semiImplicit saturation is an evolution equation
-// from qb(t), it must not be advanced once per sub-iteration
-qbStart = qbPtr.ref().primitiveField();
-
-// bed points displacement at t: the displacement imposed at each
-// sub-iteration is dispVals0 - eg*dH, not cumulative
-if (bed.bedMotion())
+if (switchMULES == "on" && switchSuspension == "on")
 {
-    const pointVectorField& pointDisplacement =
-        mesh.objectRegistry::lookupObject<pointVectorField>
-        (
-            "pointDisplacement"
-        );
+    CsStart = CsPtr.ref().primitiveField();
 
-    for (const label patchID : bed.bedPatchesID())
+Info<< "CsStart min = " << gMin(CsStart) << endl;
+Info<< "CsStart max = " << gMax(CsStart) << endl;
+}
+
+if (bed.exist())
+{
+    // bedload at t: explicit / semiImplicit saturation is an evolution equation
+    // from qb(t), it must not be advanced once per sub-iteration
+    qbStart = qbPtr.ref().primitiveField();
+
+    // bed points displacement at t: the displacement imposed at each
+    // sub-iteration is dispVals0 - eg*dH, not cumulative
+    if (bed.bedMotion())
     {
-        dispVals0 =
-            pointDisplacement.boundaryField()[patchID].patchInternalField();
+        const pointVectorField& pointDisplacement =
+            mesh.objectRegistry::lookupObject<pointVectorField>
+            (
+                "pointDisplacement"
+            );
+
+        for (const label patchID : bed.bedPatchesID())
+        {
+            dispVals0 =
+                pointDisplacement.boundaryField()[patchID].patchInternalField();
+        }
     }
 }

@@ -165,7 +165,11 @@ if (bed.rigidBed())
                 phiqbProj[edgei] = 0;
             }
         }
-        else  // Flux entrant
+        else if
+        (
+            edgei < meshProj.nInternalEdges()
+         && phiqbProj[edgei] < 0
+        )  // Flux entrant from an internal neighbour
         {
             if (HsedBed[neighbour[edgei]] <= 1e-6)
             {

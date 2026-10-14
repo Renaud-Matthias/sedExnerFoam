@@ -371,7 +371,7 @@ else
     FatalError << "in bedloadProperties/saturation,"
         << "wrong keyword for entry type "
         << saturationType
-        << "\nvalid options are: 1Dimplicit explicit semiImplicit" << endl;
+        << "\nvalid options are: implicit1D explicit semiImplicit none" << endl;
     Info << abort(FatalError) << endl;
 }
 

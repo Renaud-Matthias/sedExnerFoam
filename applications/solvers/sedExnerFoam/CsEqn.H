@@ -25,7 +25,7 @@ volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 volScalarField& diffSed = diffSedPtr.ref();  // turbulent diffusivity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
-surfaceScalarField phiWs = fvc::flux(Ws);  // flux(U+Ws)
+surfaceScalarField phiWs = fvc::flux(Ws);  // settling-velocity face flux
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 // reference to erosion terms
 volScalarField& Erosion = erosionPtr.ref();
@@ -195,7 +195,7 @@ if (switchMULES=="on")
         )
         + fvc::flux
         (
-            fvc::flux(Ws),
+            phiWs,
             Cs,
             schemer
         )
@@ -207,8 +207,8 @@ if (switchMULES=="on")
         Cs,
         phi,
         phiCs,
-        zeroField(),
-        zeroField(),
+        zeroField(),  // Sp
+        Erosion,      // Su: erosion source for suspended sediment
         UniformField<scalar>(0.99*0.7),
         zeroField()
     );

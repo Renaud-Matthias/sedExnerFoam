@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     // PIMPLE <-> Exner sub-iteration state
     vectorField qbStart;    // bedload at the beginning of the time step
+    scalarField CsStart;
     vectorField dispVals0;  // bed points displacement at the beginning of
                             // the time step
     scalarField dHiter;     // bed level increment of previous sub-iteration
@@ -182,7 +183,7 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            if (pimple.firstIter() && bed.exist())
+            if (pimple.firstIter())
             {
                 // must come before the first mesh update
                 #include "storeBedState.H"
@@ -250,7 +251,7 @@ int main(int argc, char *argv[])
             //     outer iteration: flow -> bed shear stress -> bedload,
             //     suspension -> Exner -> bed displacement -> new mesh at the
             //     next outer iteration (moveMeshOuterCorrectors).
-            if (bed.exist())
+	    if (bed.exist())
             {
                 // bedload saturation is an evolution equation from qb(t):
                 // restart from the value at the beginning of the time step
@@ -265,6 +266,12 @@ int main(int argc, char *argv[])
 
             if (switchSuspension=="on")
             {
+                if (switchMULES=="on" && not pimple.firstIter())
+                {
+                    volScalarField& CsRestart = CsPtr.ref();
+                    CsRestart.primitiveFieldRef() = CsStart;
+                    CsRestart.correctBoundaryConditions();
+                }
                 #include "CsEqn.H"
             }
 
