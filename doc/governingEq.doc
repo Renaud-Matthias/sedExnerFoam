@@ -94,4 +94,22 @@ To prevent mesh cell inversion when the bed moves rapidly relative to the first 
 
 For more details, the interested reader is referred to <a href="https://doi.org/10.5194/egusphere-2025-2375">Renaud et al. (2026)</a> .
 
+\section known_limitations Known Numerical Limitations
+
+\subsection bed_oscillations Grid-scale bed oscillations
+
+The coupling between the flow, the bedload flux \f$\mathbf{q_b}\f$ and the Exner equation (\ref eq2) on a moving mesh is prone to grid-to-grid (checkerboard-like) oscillations of the bed level, analogous to the pressure-velocity decoupling that motivates Rhie-Chow interpolation in collocated incompressible CFD. Through this feedback loop, the shear stress driving \f$\mathbf{q_b}\f$ is computed from the velocity gradient on the current (deformed) mesh, which itself depends on the bed level from the previous step: nothing in a purely centered, non-dissipative discretisation prevents one cell from rising while its neighbour falls.
+
+The PIMPLE-Exner sub-iteration (\ref pimple_exner) resynchronises the flow and the bed \e in \e time within a time step; it does not, by itself, control this \e spatial decoupling mechanism, which can persist (or appear differently) with or without sub-iterations enabled.
+
+The following numerical controls, all available in bedloadProperties (see \ref bedloadProps in \ref inputs), affect the amplitude of these oscillations:
+
+- qbScheme (sub-dictionary exnerAdvection): a centered interpolation of \f$\mathbf{q_b}\f$ on faMesh edges is the most direct source of grid-to-grid decoupling; upwind introduces the numerical diffusion needed to recouple neighbouring faces.
+- ABorder: the first-order Adams-Bashforth integration of the Exner equation is weakly unstable when combined with a centered bedload flux; the explicit Euler scheme (ABorder=0) is more dissipative and more robust for a given noise amplitude.
+- filterExner / filterShields: explicit diffusive filters (see filter.H) specifically intended to damp grid-scale noise in dH / the Shields number without affecting the large-scale trend, when the two controls above are not sufficient on their own.
+- Saturation length Lsat (see \ref saturationParams in \ref inputs): a length shorter than the local mesh spacing makes the bedload saturation problem ill-posed and tends to amplify high-frequency noise rather than filter it.
+- Mesh quality: once the ALE motion solver has accumulated distortion near the bed (see \ref bed_courant above), the velocity gradient itself becomes noisy, which propagates into the Shields number, \f$\mathbf{q_b}\f$ and dH even when the flux scheme is otherwise appropriate.
+
+A practical first diagnostic is to compare a run using qbScheme=upwind and ABorder=0 against the same case with the configured settings: if the oscillation disappears, it is primarily a spatial/temporal scheme issue; if it persists, the saturation length and mesh quality should be investigated instead.
+
 */
