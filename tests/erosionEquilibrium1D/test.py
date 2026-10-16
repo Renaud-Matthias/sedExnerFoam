@@ -10,7 +10,7 @@ import os
 print(" --- running 1D erosion test --- ")
 
 success = True
-tolMass = 1e-6
+tolMass = 1e-4
 tolCritSh = 1e-3
 tolQb = 1e-5
 

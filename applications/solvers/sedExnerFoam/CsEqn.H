@@ -25,11 +25,16 @@ volScalarField& Cs = CsPtr.ref();  // suspended load volumic fraction
 volVectorField& Ws = WsPtr.ref();  // settling velocity
 volScalarField& diffSed = diffSedPtr.ref();  // turbulent diffusivity
 surfaceScalarField& phip = phipPtr.ref();  // flux(U+Ws)
+surfaceScalarField phiWs = fvc::flux(Ws);  // settling-velocity face flux
 surfaceScalarField& bedPhi = bedPhiPtr.ref();  // mesh flux through faces
 // reference to erosion terms
 volScalarField& Erosion = erosionPtr.ref();
 
+fvc::makeRelative(phiWs, U + Ws);
+phip = phi + phiWs;
+
 // turbulent sediment diffusivity
+
 if (CsDiffusivity=="turbulent")
 {
     diffSed = turbulence->nut()/Sc;
@@ -133,7 +138,7 @@ if (bed.exist())
                 label idNCell = bedPatch.faceCells()[facei];
                 const scalar Sface = aMesh.S()[facei];
                 const scalar Vcell = mesh.V()[idNCell];
-                
+
                 if (HsedBed[facei]<=0)
                 {
                     Ep[facei] = 0;
@@ -190,7 +195,7 @@ if (switchMULES=="on")
         )
         + fvc::flux
         (
-            fvc::flux(Ws),
+            phiWs,
             Cs,
             schemer
         )
@@ -202,8 +207,8 @@ if (switchMULES=="on")
         Cs,
         phi,
         phiCs,
-        zeroField(),
-        zeroField(),
+        zeroField(),  // Sp
+        Erosion,      // Su: erosion source for suspended sediment
         UniformField<scalar>(0.99*0.7),
         zeroField()
     );
@@ -253,6 +258,19 @@ else if (switchMULES=="off")
     Cs.correctBoundaryConditions();
 
     fvOptions.correct(Cs);
+
+const scalar Vs =
+    fvc::domainIntegrate(Cs).value();
+
+Info<< "----------------------------------------" << endl;
+Info<< "Suspended sediment mass balance:" << endl;
+Info<< "  Integral(Cs dV) = "
+    << Vs << " m3" << endl;
+Info<< "  Min(Cs) = "
+    << gMin(Cs) << endl;
+Info<< "  Max(Cs) = "
+    << gMax(Cs) << endl;
+Info<< "----------------------------------------" << endl;
 }
 
 Ws = settlingModelPtr->Ufall(
@@ -260,10 +278,6 @@ Ws = settlingModelPtr->Ufall(
 
 Ws.correctBoundaryConditions();
 
-phip = fvc::flux(U + Ws);
-
-// Make the  flux relative to the mesh motion
-fvc::makeRelative(phip, U);
 
 Info << "sediment phase volume fraction = "
         << Cs.weightedAverage(mesh.V()).value()

@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     container: opencfd/openfoam-dev:2512
     needs: docs-build
+    if: github.event_name == 'push'
     steps:
       - name: install git
         run: |

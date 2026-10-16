@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
     );
 
     #include "postProcess.H"
-
     #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
@@ -111,20 +110,56 @@ int main(int argc, char *argv[])
     #include "setInitialDeltaT.H"
 
     turbulence->validate();
-    
+
     if (not LTS)
     {
         #include "CourantNo.H"
         #include "setInitialDeltaT.H"
     }
 
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // PIMPLE <-> Exner sub-iteration state
+    vectorField qbStart;    // bedload at the beginning of the time step
+    scalarField CsStart;
+    vectorField dispVals0;  // bed points displacement at the beginning of
+                            // the time step
+    scalarField dHiter;     // bed level increment of previous sub-iteration
+    label zbIter = 0;       // sub-iteration counter within the time step
+
+    if
+    (
+        bed.exist() && bed.bedMotion() && not moveMeshOuterCorrectors
+     && pimple.dict().getOrDefault<label>("nOuterCorrectors", 1) > 1
+    )
+    {
+        WarningInFunction
+            << "PIMPLE/nOuterCorrectors > 1 but moveMeshOuterCorrectors is "
+            << "off: the mesh only moves at the first outer iteration, so "
+            << "the flow never sees the bed updated by the sub-iterations."
+            << endl;
+    }
 
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
     {
         #include "readDyMControls.H"
+
+        // PIMPLE <-> Exner sub-iteration controls
+        const scalar zbRelax
+        (
+            pimple.dict().getOrDefault<scalar>("zbRelax", 1.0)
+        );
+        const scalar zbTol
+        (
+            pimple.dict().getOrDefault<scalar>("zbTol", 1e-6)
+        );
+        if (zbRelax <= 0 || zbRelax > 1)
+        {
+            FatalErrorInFunction
+                << "PIMPLE/zbRelax must be in ]0, 1], got " << zbRelax
+                << exit(FatalError);
+        }
 
         if (LTS)
         {
@@ -133,7 +168,12 @@ int main(int argc, char *argv[])
         else
         {
             #include "CourantNo.H"
+            #include "bedCourantNo.H"
             #include "setDeltaT.H"
+
+            runTime.setDeltaT(min(runTime.deltaTValue(), deltaTBed));
+            Info << "deltaT (after bed motion constraint) = "
+                 << runTime.deltaTValue() << " s" << endl;
         }
 
         ++runTime;
@@ -143,6 +183,12 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
+            if (pimple.firstIter())
+            {
+                // must come before the first mesh update
+                #include "storeBedState.H"
+            }
+
             if (pimple.firstIter() || moveMeshOuterCorrectors)
             {
                 // Do any mesh changes
@@ -158,15 +204,10 @@ int main(int argc, char *argv[])
                         // from the mapped surface velocity
                         phi = mesh.Sf() & Uf();
 
-                        #include "correctPhi.H"
+                        #include "correctPhiBed.H"
 
                         // Make the flux relative to the mesh motion
                         fvc::makeRelative(phi, U);
-                        if (switchSuspension=="on")
-                        {
-                            surfaceScalarField& phip = phipPtr.ref();
-                            fvc::makeRelative(phip, U);
-                        }
                     }
 
                     if (checkMeshCourantNo)
@@ -191,9 +232,9 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            
+
             #include "UEqn.H"
-            
+
             // --- Pressure corrector loop
             while (pimple.correct())
             {
@@ -205,23 +246,40 @@ int main(int argc, char *argv[])
                 laminarTransport.correct();
                 turbulence->correct();
             }
-        }
 
-        if (bed.exist())
-        {
-            #include "bedShearStress.H"
+            // --- Sediment transport and bed evolution, evaluated at every
+            //     outer iteration: flow -> bed shear stress -> bedload,
+            //     suspension -> Exner -> bed displacement -> new mesh at the
+            //     next outer iteration (moveMeshOuterCorrectors).
+            if (bed.exist())
+            {
+                // bedload saturation is an evolution equation from qb(t):
+                // restart from the value at the beginning of the time step
+                areaVectorField& qbRestart = qbPtr.ref();
+                qbRestart.primitiveFieldRef() = qbStart;
+                qbRestart.correctBoundaryConditions();
 
-            #include "bedload.H"
-        }
+                #include "bedShearStress.H"
 
-        if (switchSuspension=="on")
-        {
-            #include "CsEqn.H"
-        }
+                #include "bedload.H"
+            }
 
-        if (bed.exist())
-        {
-            #include "exnerEqn.H"
+            if (switchSuspension=="on")
+            {
+                if (switchMULES=="on" && not pimple.firstIter())
+                {
+                    volScalarField& CsRestart = CsPtr.ref();
+                    CsRestart.primitiveFieldRef() = CsStart;
+                    CsRestart.correctBoundaryConditions();
+                }
+                #include "CsEqn.H"
+            }
+
+            if (bed.exist())
+            {
+                #include "exnerEqn.H"
+                //#include "balanceMass.H"
+            }
         }
 
         if (runTime.writeTime())
@@ -234,7 +292,7 @@ int main(int argc, char *argv[])
                 areaVectorField& qav = qavPtr.ref();
                 areaVectorField& qb = qbPtr.ref();
                 areaScalarField& beta = betaPtr.ref();
-                
+
                 // map areaFields to volFields for vizualisation
                 bed.vsm.ref().mapToVolume
                     (

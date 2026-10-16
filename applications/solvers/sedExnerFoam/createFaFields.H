@@ -137,6 +137,13 @@ morphoAccFactor =
 Info << "morphological acceleration factor is set to: "
 << morphoAccFactor << endl;
 
+// max fraction of the first fluid cell height that the bed level increment
+// dH may reach in one time step, used by bedCourantNo.H to bound deltaT
+scalar maxCoBed =
+    bedloadProperties.lookupOrDefault<scalar>("maxCoBed", 0.3);
+Info << "bed motion max Courant number, maxCoBed = "
+    << maxCoBed << endl;
+
 // list of patch to apply zeroDisplacements condition
 List<word> fixedFaPatchNames;
 
@@ -269,6 +276,7 @@ if (bed.exist())
         }
 
     }
+
 }
 
 // create fa fields if morphology on
