@@ -60,23 +60,28 @@ if (qbScheme == "linearUpwind")
         // compute gradient of qb
         tensor phiGradQbEdgei = qbEdgei * LeProj[edgei];
         gradQbProj[owner[edgei]] += phiGradQbEdgei / SfProj[owner[edgei]];
-        gradQbProj[neighbour[edgei]] -= phiGradQbEdgei / SfProj[neighbour[edgei]];
+        gradQbProj[neighbour[edgei]] -=
+            phiGradQbEdgei / SfProj[neighbour[edgei]];
     }
     forAll(aMesh.boundary(), patchi)
     {
         const faPatchField<vector>& QbBound = qb.boundaryField()[patchi];
-        
+
         if (aMesh.boundary()[patchi].type() != "empty")
         {
             label edgei = aMesh.boundary()[patchi].start();
             forAll(aMesh.boundary()[patchi], patchEdgei)
             {
                 const vector edgeLeProj =
-                    meshProj.project(aMesh.Le().boundaryField()[patchi][patchEdgei]);
+                    meshProj.project
+                    (
+                        aMesh.Le().boundaryField()[patchi][patchEdgei]
+                    );
                 
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
                 tensor phiGradQbEdgei = qbEdgei * edgeLeProj;
-                gradQbProj[owner[edgei]] += phiGradQbEdgei / SfProj[owner[edgei]];
+                gradQbProj[owner[edgei]] +=
+                    phiGradQbEdgei / SfProj[owner[edgei]];
                 edgei++;
             }
         }
@@ -142,11 +147,6 @@ else if (qbScheme == "linearUpwind")
             qbProj[neighbour[edgei]]
         ) / (distOwner + distNeighbour);
 
-        // compute gradient of qb
-        // tensor phiGradQbEdgei = qbEdgei * LeProj[edgei];
-        // gradQbProj[owner[edgei]] += phiGradQbEdgei / SfProj[owner[edgei]];
-        // gradQbProj[neighbour[edgei]] -= phiGradQbEdgei / SfProj[neighbour[edgei]];
-
         // upwind scheme
         if ((qbEdgei & LeProj[edgei]) >= scalar(0.0))
         {
@@ -182,7 +182,10 @@ forAll(aMesh.boundary(), patchi)
         forAll(aMesh.boundary()[patchi], patchEdgei)
         {
             const vector edgeLeProj =
-                meshProj.project(aMesh.Le().boundaryField()[patchi][patchEdgei]);
+                meshProj.project
+                (
+                    aMesh.Le().boundaryField()[patchi][patchEdgei]
+                );
 
             vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
             phiqbProj[edgei] = qbEdgei & edgeLeProj;
@@ -199,7 +202,11 @@ for (label edgei = 0; edgei < meshProj.nInternalEdges(); edgei++)
 }
 
 // Boundary edges: flux out of domain (owner is always the internal face)
-for (label edgei = meshProj.nInternalEdges(); edgei < meshProj.nEdges(); edgei++)
+for (
+    label edgei = meshProj.nInternalEdges();
+    edgei < meshProj.nEdges();
+    edgei++
+)
 {
     dVsed[owner[edgei]] -= phiqbProj[edgei];
 }

@@ -57,8 +57,8 @@ scalar betaQb(bedloadModelDict.get<scalar>("beta"));
 Info << "bedload transport law, qb = alpha*U^beta,"
     << "alpha = " << alphaQb << ", beta = " << betaQb << endl;
 
-// divergence scheme for qb
-word qbScheme(bedloadProperties.get<word>("qbScheme"));  // "centered" or "upwind"
+// divergence scheme for qb, linear, upwind or linearUpwind
+word qbScheme(bedloadProperties.get<word>("qbScheme"));
 Info << "div(qb) scheme: " << qbScheme << endl;
 
 // Order of explicit Adams-Bashforth time scheme
