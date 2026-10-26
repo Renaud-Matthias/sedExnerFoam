@@ -77,7 +77,7 @@ if (qbScheme == "linearUpwind")
                     (
                         aMesh.Le().boundaryField()[patchi][patchEdgei]
                     );
-                
+
                 vector qbEdgei = meshProj.project(QbBound[patchEdgei]);
                 tensor phiGradQbEdgei = qbEdgei * edgeLeProj;
                 gradQbProj[owner[edgei]] +=
